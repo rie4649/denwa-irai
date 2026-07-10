@@ -1,1 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電話依頼</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1565c0">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;}
+body{background:#eef3f8;margin:0;padding-bottom:60px;font-family:Arial,"Hiragino Sans",sans-serif;}
+header{background:#1565c0;color:white;padding:20px 10px;text-align:center;position:relative;}
+header h1{font-size:28px;margin:0;}
+.box{background:white;margin:16px auto;padding:20px;border-radius:16px;max-width:640px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:17px;font-weight:bold;margin-bottom:8px;color:#333;}
+.field input[type=text],.field input[type=tel],.field input[type=date],.field input[type=number],.field textarea,.field select{
+width:100%;font-size:19px;padding:13px;border-radius:12px;border:1px solid #aaa;
+}
+.checkGroup{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.checkGroup label{
+display:flex;align-items:center;gap:8px;
+background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:12px 10px;
+font-size:16px;font-weight:bold;color:#333;cursor:pointer;
+}
+.checkGroup input{transform:scale(1.3);}
+.checkGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
+.radioGroup{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.radioGroup label{
+display:flex;align-items:center;justify-content:center;gap:8px;
+background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:14px 6px;
+font-size:17px;font-weight:bold;color:#333;cursor:pointer;
+}
+.radioGroup input{transform:scale(1.3);}
+.radioGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
+.itemsGrid{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;margin-bottom:12px;}
+.itemsGrid span{font-size:17px;font-weight:bold;color:#333;}
+.itemsGrid input[type=number]{padding:12px 8px;font-size:18px;}
+.itemsGrid .unit{font-size:15px;color:#666;}
+.otherRow{display:flex;gap:10px;align-items:center;}
+.otherRow input{flex:1;}
+.btnGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+.actionBtn{padding:18px;border:none;border-radius:16px;font-size:19px;font-weight:bold;color:white;}
+.save{background:#2e9d45;}
+.line{background:#06c755;}
+.mail{background:#1976d2;}
+.printBtn{background:#555;}
+.pdfBtn{background:#8e24aa;}
+.back{background:#888;grid-column:1/3;}
+.savedMsg{display:none;background:#e8f8ec;color:#1b7d34;border:2px solid #2e9d45;border-radius:12px;padding:14px;text-align:center;font-size:18px;font-weight:bold;margin-bottom:16px;}
+.printOnly{display:none;}
+@media print{
+header,.btnGrid,.noPrint{display:none !important;}
+.printOnly{display:block !important;}
+body{background:white;padding-bottom:0;}
+.box{box-shadow:none;border:1px solid #333;}
+}
+</style>
+</head>
+<body>
 
+<header>
+<h1>📞 電話依頼</h1>
+</header>
+
+<main>
+<div class="box">
+
+<div class="savedMsg" id="savedMsg">✅ 保存しました</div>
+
+<div class="field">
+<label>依頼日</label>
+<input type="date" id="requestDate">
+</div>
+
+<div class="field">
+<label>引取先</label>
+<input type="text" id="clientName" placeholder="例：〇〇商店">
+</div>
+
+<div class="field">
+<label>担当者</label>
+<select id="staffSelect"></select>
+</div>
+
+<div class="field">
+<label>電話番号</label>
+<input type="tel" id="phone" placeholder="例：0263-00-0000">
+</div>
+
+<div class="field">
+<label>依頼内容</label>
+<div class="checkGroup" id="contentGroup">
+<label><input type="checkbox" value="電話欲しい">電話欲しい</label>
+<label><input type="checkbox" value="メール欲しい">メール欲しい</label>
+<label><input type="checkbox" value="引き取り希望">引き取り希望</label>
+<label><input type="checkbox" value="その他">その他</label>
+</div>
+</div>
+
+<div class="field">
+<label>対応内容</label>
+<textarea id="responseText" rows="4" placeholder="対応した内容・連絡事項を自由に入力"></textarea>
+</div>
+
+<div class="field">
+<label>回収予定日</label>
+<input type="date" id="pickupDate">
+</div>
+
+<div class="field">
+<label>時間</label>
+<div class="radioGroup" id="ampmGroup">
+<label><input type="radio" name="ampm" value="午前">午前</label>
+<label><input type="radio" name="ampm" value="午後">午後</label>
+</div>
+</div>
+
+<div class="field">
+<label>持ち物</label>
+<div class="itemsGrid">
+<span>穴ありドラム缶</span><input type="number" id="itemHoleDrum" min="0" value="0"><span class="unit">本</span>
+<span>穴なしドラム缶</span><input type="number" id="itemNoHoleDrum" min="0" value="0"><span class="unit">本</span>
+<span>フレコン</span><input type="number" id="itemFlexBag" min="0" value="0"><span class="unit">枚</span>
+<span>箱</span><input type="number" id="itemBox" min="0" value="0"><span class="unit">個</span>
+</div>
+<div class="otherRow">
+<span style="font-size:16px;font-weight:bold;color:#333;white-space:nowrap;">その他</span>
+<input type="text" id="itemOther" placeholder="品名・数量など">
+</div>
+</div>
+
+<div class="btnGrid">
+<button class="actionBtn save" onclick="saveRequest()">💾 保存</button>
+<button class="actionBtn line" onclick="shareLine()">📱 ライン</button>
+<button class="actionBtn mail" onclick="shareMail()">✉️ メール</button>
+<button class="actionBtn printBtn" onclick="window.print()">🖨 印刷</button>
+<button class="actionBtn pdfBtn" onclick="exportPdf()">📄 PDF</button>
+<button class="actionBtn back" onclick="history.back()">← 戻る</button>
+</div>
+
+</div>
+
+<!-- 印刷/PDF用レイアウト -->
+<div class="box printOnly" id="printBox">
+<h2 style="text-align:center;">電話依頼票</h2>
+<div style="font-size:18px;line-height:2;">
+<div><b>依頼日：</b><span id="pRequestDate"></span></div>
+<div><b>引取先：</b><span id="pClient"></span></div>
+<div><b>担当者：</b><span id="pStaff"></span></div>
+<div><b>電話番号：</b><span id="pPhone"></span></div>
+<div><b>依頼内容：</b><span id="pContents"></span></div>
+<div><b>対応内容：</b><span id="pResponse" style="white-space:pre-wrap;"></span></div>
+<div><b>回収予定日：</b><span id="pPickupDate"></span>（<span id="pAmpm"></span>）</div>
+<div><b>持ち物：</b><span id="pItems"></span></div>
+</div>
+</div>
+
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyD99MxOMnGplSQjV7830bS7-gdCBSM9DGY",
+authDomain:"sekine-store.firebaseapp.com",
+projectId:"sekine-store",
+storageBucket:"sekine-store.firebasestorage.app",
+messagingSenderId:"781856496751",
+appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
+};
+if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
+const db=firebase.firestore();
+
+const defaultStaff=["未選択","古川","石原","宮嶋","長村","川村"];
+
+function todayStr(){
+const d=new Date();
+const y=d.getFullYear();
+const m=String(d.getMonth()+1).padStart(2,"0");
+const day=String(d.getDate()).padStart(2,"0");
+return y+"-"+m+"-"+day;
+}
+
+function loadStaff(){
+const sel=document.getElementById("staffSelect");
+sel.innerHTML="";
+defaultStaff.forEach(function(name){
+const op=document.createElement("option");
+op.value=name;op.textContent=name;
+sel.appendChild(op);
+});
+}
+
+document.querySelectorAll("#contentGroup input[type=checkbox]").forEach(function(cb){
+cb.addEventListener("change",function(){
+cb.closest("label").classList.toggle("checked",cb.checked);
+});
+});
+
+document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
+r.addEventListener("change",function(){
+document.querySelectorAll("#ampmGroup label").forEach(l=>l.classList.remove("checked"));
+r.closest("label").classList.add("checked");
+});
+});
+
+function collectData(){
+const staff=document.getElementById("staffSelect").value;
+const client=document.getElementById("clientName").value.trim();
+const contents=Array.from(document.querySelectorAll("#contentGroup input:checked")).map(cb=>cb.value);
+const ampmEl=document.querySelector("#ampmGroup input[name=ampm]:checked");
+
+return {
+requestDate:document.getElementById("requestDate").value,
+client:client,
+staff:staff,
+phone:document.getElementById("phone").value.trim(),
+contents:contents,
+responseText:document.getElementById("responseText").value.trim(),
+pickupDate:document.getElementById("pickupDate").value,
+ampm:ampmEl?ampmEl.value:"",
+items:{
+holeDrum:Number(document.getElementById("itemHoleDrum").value||0),
+noHoleDrum:Number(document.getElementById("itemNoHoleDrum").value||0),
+flexBag:Number(document.getElementById("itemFlexBag").value||0),
+box:Number(document.getElementById("itemBox").value||0),
+other:document.getElementById("itemOther").value.trim()
+}
+};
+}
+
+function validate(data){
+if(!data.client){alert("引取先を入力してください");return false;}
+if(!data.staff||data.staff==="未選択"){alert("担当者を選んでください");return false;}
+return true;
+}
+
+function itemsSummaryText(items){
+const parts=[];
+if(items.holeDrum>0)parts.push("穴ありドラム缶 "+items.holeDrum+"本");
+if(items.noHoleDrum>0)parts.push("穴なしドラム缶 "+items.noHoleDrum+"本");
+if(items.flexBag>0)parts.push("フレコン "+items.flexBag+"枚");
+if(items.box>0)parts.push("箱 "+items.box+"個");
+if(items.other)parts.push("その他："+items.other);
+return parts.length?parts.join("、"):"なし";
+}
+
+function fillPrintBox(data){
+document.getElementById("pRequestDate").textContent=data.requestDate||"-";
+document.getElementById("pClient").textContent=data.client||"-";
+document.getElementById("pStaff").textContent=data.staff||"-";
+document.getElementById("pPhone").textContent=data.phone||"-";
+document.getElementById("pContents").textContent=data.contents.length?data.contents.join("、"):"-";
+document.getElementById("pResponse").textContent=data.responseText||"-";
+document.getElementById("pPickupDate").textContent=data.pickupDate||"-";
+document.getElementById("pAmpm").textContent=data.ampm||"-";
+document.getElementById("pItems").textContent=itemsSummaryText(data.items);
+}
+
+function saveRequest(){
+const data=collectData();
+if(!validate(data))return;
+
+const record=Object.assign({},data,{
+createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+createdAtText:new Date().toLocaleString()
+});
+
+db.collection("phoneRequests").add(record).then(function(){
+const msg=document.getElementById("savedMsg");
+msg.style.display="block";
+setTimeout(function(){msg.style.display="none";},3000);
+fillPrintBox(data);
+}).catch(function(){
+alert("保存に失敗しました。通信を確認してください。");
+});
+}
+
+function shareLine(){
+const data=collectData();
+if(!validate(data))return;
+const text=
+"【電話依頼】\n"+
+"依頼日："+(data.requestDate||"-")+"\n"+
+"引取先："+data.client+"\n"+
+"担当者："+data.staff+"\n"+
+"電話番号："+(data.phone||"-")+"\n"+
+"依頼内容："+(data.contents.length?data.contents.join("、"):"-")+"\n"+
+"対応内容："+(data.responseText||"-")+"\n"+
+"回収予定日："+(data.pickupDate||"-")+"（"+(data.ampm||"-")+"）\n"+
+"持ち物："+itemsSummaryText(data.items);
+const url="https://line.me/R/msg/text/?"+encodeURIComponent(text);
+window.open(url,"_blank");
+}
+
+function shareMail(){
+const data=collectData();
+if(!validate(data))return;
+const subject="電話依頼："+data.client;
+const body=
+"依頼日："+(data.requestDate||"-")+"\n"+
+"引取先："+data.client+"\n"+
+"担当者："+data.staff+"\n"+
+"電話番号："+(data.phone||"-")+"\n"+
+"依頼内容："+(data.contents.length?data.contents.join("、"):"-")+"\n"+
+"対応内容："+(data.responseText||"-")+"\n"+
+"回収予定日："+(data.pickupDate||"-")+"（"+(data.ampm||"-")+"）\n"+
+"持ち物："+itemsSummaryText(data.items);
+const url="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+window.location.href=url;
+}
+
+function exportPdf(){
+const data=collectData();
+if(!validate(data))return;
+fillPrintBox(data);
+
+const printBox=document.getElementById("printBox");
+const prevDisplay=printBox.style.display;
+printBox.style.display="block";
+
+html2canvas(printBox,{scale:2,backgroundColor:"#ffffff"}).then(function(canvas){
+printBox.style.display=prevDisplay;
+
+const {jsPDF}=window.jspdf;
+const doc=new jsPDF("p","mm","a4");
+const pageWidth=doc.internal.pageSize.getWidth();
+const imgWidth=pageWidth-20;
+const imgHeight=canvas.height*imgWidth/canvas.width;
+const imgData=canvas.toDataURL("image/png");
+
+doc.addImage(imgData,"PNG",10,10,imgWidth,imgHeight);
+
+const fileName="電話依頼_"+(data.client||"未記入")+"_"+(data.requestDate||todayStr())+".pdf";
+doc.save(fileName);
+}).catch(function(){
+printBox.style.display=prevDisplay;
+alert("PDFの作成に失敗しました。");
+});
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+document.getElementById("requestDate").value=todayStr();
+loadStaff();
+});
+
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("service-worker.js").catch(function(){});
+});
+}
+</script>
+</body>
+</html>
