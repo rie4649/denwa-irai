@@ -52,7 +52,7 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .back{background:#888;grid-column:1/3;}
 .printOnly{display:none;}
 @media print{
-header,.btnGrid,.noPrint{display:none !important;}
+header,.btnGrid,.noPrint,#mainBox{display:none !important;}
 .printOnly{display:block !important;}
 body{background:white;padding-bottom:0;}
 .box{box-shadow:none;border:1px solid #333;}
@@ -66,7 +66,7 @@ body{background:white;padding-bottom:0;}
 </header>
 
 <main>
-<div class="box">
+<div class="box" id="mainBox">
 
 <div class="field">
 <label>依頼日</label>
@@ -136,12 +136,6 @@ body{background:white;padding-bottom:0;}
 <button class="actionBtn printBtn" onclick="window.print()">🖨 印刷</button>
 <button class="actionBtn pdfBtn" onclick="exportPdf()">📄 PDF</button>
 <button class="actionBtn install" id="installBtn" style="display:none;" onclick="installApp()">📲 アプリを追加</button>
-<div id="iosInstallGuide" style="display:none;grid-column:1/3;background:#fff8e1;border:2px solid #ff9800;border-radius:12px;padding:14px;font-size:15px;line-height:1.6;color:#333;">
-📲 <b>iPhoneでホーム画面に追加する方法</b><br>
-①画面下（または上）の <b>共有ボタン</b>（四角から矢印が出ているマーク）をタップ<br>
-②メニューから <b>「ホーム画面に追加」</b> を選ぶ<br>
-③右上の「追加」をタップで完了です
-</div>
 <button class="actionBtn clear" onclick="clearForm()">🗑 入力クリア</button>
 <button class="actionBtn back" onclick="history.back()">← 戻る</button>
 </div>
@@ -151,16 +145,7 @@ body{background:white;padding-bottom:0;}
 <!-- 印刷/PDF用レイアウト -->
 <div class="box printOnly" id="printBox">
 <h2 style="text-align:center;">電話依頼票</h2>
-<div style="font-size:18px;line-height:2;">
-<div><b>依頼日：</b><span id="pRequestDate"></span></div>
-<div><b>引取先：</b><span id="pClient"></span></div>
-<div><b>担当者：</b><span id="pStaff"></span></div>
-<div><b>電話番号：</b><span id="pPhone"></span></div>
-<div><b>依頼内容：</b><span id="pContents"></span></div>
-<div><b>対応内容：</b><span id="pResponse" style="white-space:pre-wrap;"></span></div>
-<div><b>回収予定日：</b><span id="pPickupDate"></span>（<span id="pAmpm"></span>）</div>
-<div><b>持ち物：</b><span id="pItems"></span></div>
-</div>
+<div style="font-size:18px;line-height:2;" id="printBoxBody"></div>
 </div>
 
 </main>
@@ -242,31 +227,39 @@ if(items.other)parts.push("その他："+items.other);
 return parts.length?parts.join("、"):"なし";
 }
 
+function escapeHtml(s){
+return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function buildSummaryLines(data){
+const lines=[];
+if(data.requestDate)lines.push("依頼日："+data.requestDate);
+lines.push("引取先："+data.client);
+lines.push("担当者："+data.staff);
+if(data.phone)lines.push("電話番号："+data.phone);
+if(data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
+if(data.responseText)lines.push("対応内容："+data.responseText);
+if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
+const itemsText=itemsSummaryText(data.items);
+if(itemsText!=="なし")lines.push("持ち物："+itemsText);
+return lines;
+}
+
 function fillPrintBox(data){
-document.getElementById("pRequestDate").textContent=data.requestDate||"-";
-document.getElementById("pClient").textContent=data.client||"-";
-document.getElementById("pStaff").textContent=data.staff||"-";
-document.getElementById("pPhone").textContent=data.phone||"-";
-document.getElementById("pContents").textContent=data.contents.length?data.contents.join("、"):"-";
-document.getElementById("pResponse").textContent=data.responseText||"-";
-document.getElementById("pPickupDate").textContent=data.pickupDate||"-";
-document.getElementById("pAmpm").textContent=data.ampm||"-";
-document.getElementById("pItems").textContent=itemsSummaryText(data.items);
+const lines=buildSummaryLines(data);
+document.getElementById("printBoxBody").innerHTML=lines.map(function(line){
+const idx=line.indexOf("：");
+if(idx===-1)return "<div>"+escapeHtml(line)+"</div>";
+const label=line.slice(0,idx+1);
+const rest=line.slice(idx+1).replace(/\n/g,"<br>");
+return "<div><b>"+escapeHtml(label)+"</b>"+escapeHtml(rest)+"</div>";
+}).join("");
 }
 
 function shareLine(){
 const data=collectData();
 if(!validate(data))return;
-const text=
-"【電話依頼】\n"+
-"依頼日："+(data.requestDate||"-")+"\n"+
-"引取先："+data.client+"\n"+
-"担当者："+data.staff+"\n"+
-"電話番号："+(data.phone||"-")+"\n"+
-"依頼内容："+(data.contents.length?data.contents.join("、"):"-")+"\n"+
-"対応内容："+(data.responseText||"-")+"\n"+
-"回収予定日："+(data.pickupDate||"-")+"（"+(data.ampm||"-")+"）\n"+
-"持ち物："+itemsSummaryText(data.items);
+const text="【電話依頼】\n"+buildSummaryLines(data).join("\n");
 const url="https://line.me/R/msg/text/?"+encodeURIComponent(text);
 window.open(url,"_blank");
 }
@@ -275,15 +268,7 @@ function shareMail(){
 const data=collectData();
 if(!validate(data))return;
 const subject="電話依頼："+data.client;
-const body=
-"依頼日："+(data.requestDate||"-")+"\n"+
-"引取先："+data.client+"\n"+
-"担当者："+data.staff+"\n"+
-"電話番号："+(data.phone||"-")+"\n"+
-"依頼内容："+(data.contents.length?data.contents.join("、"):"-")+"\n"+
-"対応内容："+(data.responseText||"-")+"\n"+
-"回収予定日："+(data.pickupDate||"-")+"（"+(data.ampm||"-")+"）\n"+
-"持ち物："+itemsSummaryText(data.items);
+const body=buildSummaryLines(data).join("\n");
 const url="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 window.location.href=url;
 }
@@ -360,14 +345,12 @@ if(!deferredPrompt)return;
 deferredPrompt.prompt();
 deferredPrompt.userChoice.then(function(){
 deferredPrompt=null;
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="none";
+document.getElementById("installBtn").style.display="none";
 });
 }
 
 window.addEventListener("appinstalled",function(){
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="none";
+document.getElementById("installBtn").style.display="none";
 });
 
 document.addEventListener("DOMContentLoaded",function(){
@@ -376,9 +359,6 @@ loadStaff();
 if(isStandalone()){
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="none";
-}else if(isIos()){
-const guide=document.getElementById("iosInstallGuide");
-if(guide)guide.style.display="block";
 }
 });
 
