@@ -79,7 +79,7 @@ body{background:white;padding-bottom:0;}
 </div>
 
 <div class="field">
-<label>担当者</label>
+<label>電話受付者</label>
 <select id="staffSelect"></select>
 </div>
 
@@ -213,7 +213,7 @@ other:document.getElementById("itemOther").value.trim()
 
 function validate(data){
 if(!data.client){alert("引取先を入力してください");return false;}
-if(!data.staff||data.staff==="未選択"){alert("担当者を選んでください");return false;}
+if(!data.staff||data.staff==="未選択"){alert("電話受付者を選んでください");return false;}
 return true;
 }
 
@@ -235,7 +235,7 @@ function buildSummaryLines(data){
 const lines=[];
 if(data.requestDate)lines.push("依頼日："+data.requestDate);
 lines.push("引取先："+data.client);
-lines.push("担当者："+data.staff);
+lines.push("電話受付者："+data.staff);
 if(data.phone)lines.push("電話番号："+data.phone);
 if(data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
 if(data.responseText)lines.push("対応内容："+data.responseText);
