@@ -133,7 +133,7 @@ body{background:white;padding-bottom:0;}
 <div class="btnGrid">
 <button class="actionBtn line" onclick="shareLine()">📱 ライン</button>
 <button class="actionBtn mail" onclick="shareMail()">✉️ メール</button>
-<button class="actionBtn printBtn" onclick="window.print()">🖨 印刷</button>
+<button class="actionBtn printBtn" onclick="printForm()">🖨 印刷</button>
 <button class="actionBtn pdfBtn" onclick="exportPdf()">📄 PDF</button>
 <button class="actionBtn install" id="installBtn" style="display:none;" onclick="installApp()">📲 アプリを追加</button>
 <button class="actionBtn clear" onclick="clearForm()">🗑 入力クリア</button>
@@ -271,6 +271,13 @@ const subject="電話依頼："+data.client;
 const body=buildSummaryLines(data).join("\n");
 const url="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 window.location.href=url;
+}
+
+function printForm(){
+const data=collectData();
+if(!validate(data))return;
+fillPrintBox(data);
+window.print();
 }
 
 function exportPdf(){
