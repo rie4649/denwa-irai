@@ -15,7 +15,9 @@ header{background:#1565c0;color:white;padding:20px 10px;text-align:center;positi
 header h1{font-size:26px;margin:0;}
 .gear{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
 .wrap{max-width:640px;margin:0 auto;padding:16px;}
-.sectionLabel{font-size:15px;font-weight:bold;color:#555;margin:14px 4px 8px;}
+.sectionLabel{font-size:20px;font-weight:bold;padding:14px;border-radius:14px;text-align:center;margin:16px 0 10px;color:white;}
+.sectionLabel.pending{background:#e53935;}
+.sectionLabel.doneLabel{background:#2e9d45;}
 .reqCard{background:white;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:16px;margin-bottom:10px;cursor:pointer;}
 .reqCard.done{opacity:.6;}
 .reqTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
@@ -42,13 +44,11 @@ header h1{font-size:26px;margin:0;}
 .statusBtn{padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:bold;color:white;}
 .statusBtn.toDone{background:#2e9d45;}
 .statusBtn.toPending{background:#e53935;}
-.shareBtnGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
-.shareBtn{padding:16px;border:none;border-radius:14px;font-size:16px;font-weight:bold;color:white;}
+.shareBtnGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.shareBtn{padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:bold;color:white;}
 .shareBtn.line{background:#06c755;}
-.shareBtn.mail{background:#1976d2;}
-.shareBtn.print{background:#555;}
-.shareBtn.pdf{background:#8e24aa;}
-.deleteBtn{width:100%;padding:16px;border:none;border-radius:14px;font-size:16px;font-weight:bold;color:white;background:#333;margin-top:10px;}
+.shareBtn.print{background:#555;grid-column:1/3;}
+.deleteBtn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:bold;color:white;background:#333;margin-top:8px;}
 
 /* 設定（入力フォーム）画面 */
 .settingsScreen{display:none;position:fixed;inset:0;background:#eef3f8;z-index:999;overflow-y:auto;}
@@ -108,9 +108,9 @@ body{background:white;padding-bottom:0;}
 </header>
 
 <div class="wrap">
-<div class="sectionLabel">🔴 未対応</div>
+<div class="sectionLabel pending">🔴 未対応</div>
 <div id="pendingList"></div>
-<div class="sectionLabel">✅ 対応済み</div>
+<div class="sectionLabel doneLabel">✅ 対応済み</div>
 <div id="doneList"></div>
 </div>
 
@@ -199,8 +199,10 @@ body{background:white;padding-bottom:0;}
 
 <div class="btnGrid">
 <button class="actionBtn save" onclick="saveRequest()">💾 保存する</button>
-<button class="actionBtn install" id="installBtn" style="display:none;" onclick="installApp()">📲 アプリを追加</button>
 <button class="actionBtn clear" onclick="clearForm()">🗑 入力クリア</button>
+<button class="actionBtn" style="background:#06c755;" onclick="shareFormLine()">📱 ライン</button>
+<button class="actionBtn" style="background:#555;" onclick="printFormOnly()">🖨 印刷</button>
+<button class="actionBtn install" id="installBtn" style="display:none;grid-column:1/3;" onclick="installApp()">📲 アプリを追加</button>
 <button class="actionBtn back" onclick="closeSettings()">← 戻る</button>
 </div>
 </div>
@@ -350,6 +352,21 @@ alert("保存に失敗しました。通信を確認してください。");
 });
 }
 
+function shareFormLine(){
+const data=collectData();
+if(!validate(data))return;
+const text="【電話依頼】\n"+buildSummaryLines(data).join("\n");
+const url="https://line.me/R/msg/text/?"+encodeURIComponent(text);
+window.open(url,"_blank");
+}
+
+function printFormOnly(){
+const data=collectData();
+if(!validate(data))return;
+fillPrintBox(data);
+window.print();
+}
+
 function clearForm(){
 document.getElementById("requestDate").value=todayStr();
 document.getElementById("clientName").value="";
@@ -443,9 +460,7 @@ detailHtml+
 "</div>"+
 "<div class='shareBtnGrid'>"+
 "<button class='shareBtn line' onclick=\"shareDetailLine('"+id+"')\">📱 ライン</button>"+
-"<button class='shareBtn mail' onclick=\"shareDetailMail('"+id+"')\">✉️ メール</button>"+
 "<button class='shareBtn print' onclick=\"printDetail('"+id+"')\">🖨 印刷</button>"+
-"<button class='shareBtn pdf' onclick=\"exportDetailPdf('"+id+"')\">📄 PDF</button>"+
 "</div>"+
 "<button class='deleteBtn' onclick=\"deleteRequest('"+id+"')\">🗑 この依頼を削除</button>";
 
