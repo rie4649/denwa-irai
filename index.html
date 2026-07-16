@@ -148,13 +148,23 @@ body{background:white;padding-bottom:0;}
 </div>
 
 <div class="field">
-<label>電話受付者</label>
-<select id="staffSelect"></select>
+<label>取引先部署</label>
+<input type="text" id="clientDept" placeholder="例：営業部">
+</div>
+
+<div class="field">
+<label>担当者名</label>
+<input type="text" id="clientContact" placeholder="例：山田様">
 </div>
 
 <div class="field">
 <label>電話番号</label>
 <input type="tel" id="phone" placeholder="例：0263-00-0000">
+</div>
+
+<div class="field">
+<label>電話受付者</label>
+<select id="staffSelect"></select>
 </div>
 
 <div class="field">
@@ -212,8 +222,8 @@ body{background:white;padding-bottom:0;}
 
 <!-- 印刷/PDF用レイアウト -->
 <div class="box printOnly" id="printBox">
-<h2 style="text-align:center;">電話依頼票</h2>
-<div style="font-size:18px;line-height:2;" id="printBoxBody"></div>
+<h2 style="text-align:center;color:#000;font-weight:900;-webkit-print-color-adjust:exact;print-color-adjust:exact;">電話依頼票</h2>
+<div style="font-size:18px;line-height:2;color:#000;" id="printBoxBody"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -279,6 +289,8 @@ const ampmEl=document.querySelector("#ampmGroup input[name=ampm]:checked");
 return {
 requestDate:document.getElementById("requestDate").value,
 client:client,
+clientDept:document.getElementById("clientDept").value.trim(),
+clientContact:document.getElementById("clientContact").value.trim(),
 staff:staff,
 phone:document.getElementById("phone").value.trim(),
 contents:contents,
@@ -319,8 +331,10 @@ function buildSummaryLines(data){
 const lines=[];
 if(data.requestDate)lines.push("依頼日："+data.requestDate);
 lines.push("引取先："+data.client);
-lines.push("電話受付者："+data.staff);
+if(data.clientDept)lines.push("取引先部署："+data.clientDept);
+if(data.clientContact)lines.push("担当者名："+data.clientContact);
 if(data.phone)lines.push("電話番号："+data.phone);
+lines.push("電話受付者："+data.staff);
 if(data.contents && data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
 if(data.responseText)lines.push("対応内容："+data.responseText);
 if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
@@ -372,6 +386,8 @@ window.print();
 function clearForm(){
 document.getElementById("requestDate").value=todayStr();
 document.getElementById("clientName").value="";
+document.getElementById("clientDept").value="";
+document.getElementById("clientContact").value="";
 document.getElementById("staffSelect").value="未選択";
 document.getElementById("phone").value="";
 document.querySelectorAll("#contentGroup input[type=checkbox]").forEach(function(cb){
