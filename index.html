@@ -14,8 +14,9 @@ body{background:#eef3f8;margin:0;padding-bottom:60px;font-family:Arial,"Hiragino
 header{background:#1565c0;color:white;padding:20px 10px;text-align:center;position:relative;}
 header h1{font-size:26px;margin:0;}
 .gear{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
+.installIconBtn{position:absolute;top:16px;left:16px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
 .wrap{max-width:640px;margin:0 auto;padding:16px;}
-.sectionLabel{font-size:20px;font-weight:bold;padding:14px 20px;border-radius:14px;text-align:left;margin:16px 0 10px;color:white;}
+.sectionLabel{display:inline-block;font-size:18px;font-weight:bold;padding:10px 22px;border-radius:14px;margin:16px 0 10px;color:white;}
 .sectionLabel.pending{background:#e53935;}
 .sectionLabel.doneLabel{background:#2e9d45;}
 .reqCard{background:white;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:18px;margin-bottom:10px;cursor:pointer;}
@@ -36,7 +37,7 @@ header h1{font-size:26px;margin:0;}
 .modalScreen.show{display:block;}
 .modalHeader{background:#1565c0;color:white;padding:18px 10px;text-align:center;position:relative;}
 .modalHeader h2{font-size:20px;margin:0;}
-.modalClose{position:absolute;top:14px;left:14px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
+.modalClose{position:absolute;top:16px;left:14px;background:none;border:none;color:white;font-size:17px;font-weight:bold;cursor:pointer;}
 .modalBox{max-width:640px;margin:20px auto;background:white;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
 .detailRow{font-size:17px;line-height:1.9;color:#222;margin-bottom:6px;}
 .detailRow b{color:#333;}
@@ -103,6 +104,7 @@ body{background:white;padding-bottom:0;}
 <body>
 
 <header>
+<button class="installIconBtn" id="installIconBtn" style="display:none;" onclick="installApp()">📲</button>
 <h1>📞 電話依頼</h1>
 <button class="gear" onclick="openSettings()">⚙️</button>
 </header>
@@ -119,7 +121,7 @@ body{background:white;padding-bottom:0;}
 <!-- 詳細モーダル -->
 <div class="modalScreen" id="modalScreen">
 <div class="modalHeader">
-<button class="modalClose" onclick="closeModal()">←</button>
+<button class="modalClose" onclick="closeModal()">← 戻る</button>
 <h2>依頼の詳細</h2>
 </div>
 <div class="modalBox" id="modalBox"></div>
@@ -588,6 +590,8 @@ e.preventDefault();
 deferredPrompt=e;
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="block";
+const iconBtn=document.getElementById("installIconBtn");
+if(iconBtn)iconBtn.style.display="block";
 });
 
 function installApp(){
@@ -597,12 +601,16 @@ deferredPrompt.userChoice.then(function(){
 deferredPrompt=null;
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="none";
+const iconBtn=document.getElementById("installIconBtn");
+if(iconBtn)iconBtn.style.display="none";
 });
 }
 
 window.addEventListener("appinstalled",function(){
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="none";
+const iconBtn=document.getElementById("installIconBtn");
+if(iconBtn)iconBtn.style.display="none";
 });
 
 document.addEventListener("DOMContentLoaded",function(){
@@ -611,6 +619,8 @@ loadRequests();
 if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone){
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="none";
+const iconBtn=document.getElementById("installIconBtn");
+if(iconBtn)iconBtn.style.display="none";
 }
 });
 
