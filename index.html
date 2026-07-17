@@ -29,9 +29,7 @@ header h1{font-size:26px;margin:0;}
 .reqClient{font-size:23px;font-weight:bold;color:#222;margin-bottom:6px;}
 .reqContent{font-size:16px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .empty{text-align:center;color:#888;font-size:15px;margin:24px 0;}
-
 .fab{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:#1565c0;color:white;border:none;font-size:28px;box-shadow:0 4px 10px rgba(0,0,0,.3);z-index:500;}
-
 /* 詳細モーダル */
 .modalScreen{display:none;position:fixed;inset:0;background:#eef3f8;z-index:998;overflow-y:auto;}
 .modalScreen.show{display:block;}
@@ -50,7 +48,6 @@ header h1{font-size:26px;margin:0;}
 .shareBtn.line{background:#06c755;}
 .shareBtn.print{background:#555;}
 .deleteBtn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:bold;color:white;background:#333;margin-top:8px;}
-
 /* 設定（入力フォーム）画面 */
 .settingsScreen{display:none;position:fixed;inset:0;background:#eef3f8;z-index:999;overflow-y:auto;}
 .settingsScreen.show{display:block;}
@@ -94,28 +91,25 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .savedMsg{display:none;background:#e8f8ec;color:#1b7d34;border:2px solid #2e9d45;border-radius:12px;padding:14px;text-align:center;font-size:18px;font-weight:bold;margin-bottom:16px;}
 .printOnly{display:none;}
 @media print{
-header,.btnGrid,.noPrint,.wrap>.fab{display:none !important;}
-.printOnly{display:block !important;}
+body *{display:none !important;}
+#printBox,#printBox *{display:block !important;}
 body{background:white;padding-bottom:0;}
 .box{box-shadow:none;border:1px solid #333;}
 }
 </style>
 </head>
 <body>
-
 <header>
 <button class="installIconBtn" id="installIconBtn" style="display:none;" onclick="installApp()">📲</button>
 <h1>📞 電話依頼</h1>
 <button class="gear" onclick="openSettings()">⚙️</button>
 </header>
-
 <div class="wrap">
 <div class="sectionLabel pending">🔴 未対応</div>
 <div id="pendingList"></div>
 <div class="sectionLabel doneLabel">✅ 対応済み</div>
 <div id="doneList"></div>
 </div>
-
 <button class="fab" onclick="openSettings()">＋</button>
 
 <!-- 詳細モーダル -->
@@ -133,7 +127,6 @@ body{background:white;padding-bottom:0;}
 <button class="closeSet" onclick="closeSettings()">←</button>
 <h2>新しい依頼を入力</h2>
 </div>
-
 <div class="box" id="mainBox">
 <div class="savedMsg" id="savedMsg">✅ 保存しました</div>
 
@@ -242,10 +235,8 @@ appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
 if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
 const db=firebase.firestore();
 const colRef=db.collection("phoneRequests");
-
 const defaultStaff=["未選択","古川","石原","宮嶋","長村","川村"];
 const TWO_DAYS_MS=2*24*60*60*1000;
-
 let requestCache=[];
 let currentDetailId=null;
 
@@ -285,7 +276,6 @@ const staff=document.getElementById("staffSelect").value;
 const client=document.getElementById("clientName").value.trim();
 const contents=Array.from(document.querySelectorAll("#contentGroup input:checked")).map(cb=>cb.value);
 const ampmEl=document.querySelector("#ampmGroup input[name=ampm]:checked");
-
 return {
 requestDate:document.getElementById("requestDate").value,
 client:client,
@@ -411,18 +401,15 @@ document.getElementById("itemOther").value="";
 function renderLists(){
 const pendingBox=document.getElementById("pendingList");
 const doneBox=document.getElementById("doneList");
-
 const pending=requestCache.filter(function(r){return r.status!=="対応済み";})
 .sort(function(a,b){return (b.requestDate||"").localeCompare(a.requestDate||"");});
 const done=requestCache.filter(function(r){return r.status==="対応済み";})
 .sort(function(a,b){return (b.requestDate||"").localeCompare(a.requestDate||"");});
-
 if(pending.length===0){
 pendingBox.innerHTML="<div class='empty'>未対応の依頼はありません</div>";
 }else{
 pendingBox.innerHTML=pending.map(renderCard).join("");
 }
-
 if(done.length===0){
 doneBox.innerHTML="<div class='empty'>対応済みの依頼はありません</div>";
 }else{
@@ -464,14 +451,12 @@ function openDetail(id){
 const item=requestCache.find(function(r){return r.id===id;});
 if(!item)return;
 currentDetailId=id;
-const isDone=item.status==="対応済み";
 const lines=buildSummaryLines(item);
 const detailHtml=lines.map(function(line){
 const idx=line.indexOf("：");
 if(idx===-1)return "<div class='detailRow'>"+escapeHtml(line)+"</div>";
 return "<div class='detailRow'><b>"+escapeHtml(line.slice(0,idx+1))+"</b>"+escapeHtml(line.slice(idx+1))+"</div>";
 }).join("");
-
 document.getElementById("modalBox").innerHTML=
 detailHtml+
 "<div class='shareBtnGrid'>"+
@@ -479,7 +464,6 @@ detailHtml+
 "<button class='shareBtn print' onclick=\"printDetail('"+id+"')\">🖨 印刷</button>"+
 "</div>"+
 "<button class='deleteBtn' onclick=\"deleteRequest('"+id+"')\">🗑 この依頼を削除</button>";
-
 document.getElementById("modalScreen").classList.add("show");
 }
 
@@ -562,23 +546,18 @@ function exportDetailPdf(id){
 const item=requestCache.find(function(r){return r.id===id;});
 if(!item)return;
 fillPrintBox(item);
-
 const printBox=document.getElementById("printBox");
 const prevDisplay=printBox.style.display;
 printBox.style.display="block";
-
 html2canvas(printBox,{scale:2,backgroundColor:"#ffffff"}).then(function(canvas){
 printBox.style.display=prevDisplay;
-
 const {jsPDF}=window.jspdf;
 const doc=new jsPDF("p","mm","a4");
 const pageWidth=doc.internal.pageSize.getWidth();
 const imgWidth=pageWidth-20;
 const imgHeight=canvas.height*imgWidth/canvas.width;
 const imgData=canvas.toDataURL("image/png");
-
 doc.addImage(imgData,"PNG",10,10,imgWidth,imgHeight);
-
 const fileName="電話依頼_"+(item.client||"未記入")+"_"+(item.requestDate||todayStr())+".pdf";
 doc.save(fileName);
 }).catch(function(){
