@@ -1,4 +1,4 @@
-const CACHE_NAME = "denwa-irai-cache-v1";
+const CACHE_NAME = "denwa-irai-cache-v2";
 const urlsToCache = [
   "./",
   "./index.html",
@@ -26,14 +26,23 @@ self.addEventListener("activate", function(event){
           return caches.delete(name);
         })
       );
+    }).then(function(){
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
+// ネット優先: いつも最新を取りに行き、オフラインのときだけキャッシュを使う
 self.addEventListener("fetch", function(event){
+  if(event.request.method !== "GET") return;
   event.respondWith(
-    fetch(event.request).catch(function(){
+    fetch(event.request).then(function(response){
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(function(cache){
+        cache.put(event.request, copy);
+      });
+      return response;
+    }).catch(function(){
       return caches.match(event.request);
     })
   );
