@@ -152,8 +152,8 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .anger .bar{height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden;}
 .anger .bar i{display:block;height:100%;border-radius:99px;}
 .anger.a1 .bar i{background:#22c55e;} .anger.a2 .bar i{background:#eab308;} .anger.a3 .bar i{background:#f97316;} .anger.a4 .bar i{background:#dc2626;}
-.anger.a3{border-color:#fdba74;color:#c2410c;}
-.anger.max{background:#fee2e2;}
+.anger.a3{border-color:#d1d5db;color:#374151;}
+.anger.max{background:#fff;}
 .bombBtn{width:62px;height:62px;border-radius:50%;border:3px solid #111;background:radial-gradient(circle at 35% 35%,#666,#111);font-size:32px;cursor:pointer;animation:bombShake .5s infinite;box-shadow:0 0 0 4px rgba(220,38,38,.35);}
 @keyframes bombShake{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg) scale(1.06);}}
 #bombPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;}
@@ -165,7 +165,7 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 #bombPop .t2{font-size:16px;color:#333;margin-top:6px;line-height:1.6;}
 #bombPop a,#bombPop button{display:block;width:100%;margin-top:12px;padding:14px;border-radius:12px;font-size:17px;font-weight:bold;border:none;text-decoration:none;}
 #bombPop a{background:#dc2626;color:#fff;}
-#bombPop button{background:#eee;color:#333;} .anger.a4{border-color:#dc2626;color:#dc2626;animation:urgBlink 1.2s infinite;}
+#bombPop button{background:#eee;color:#333;} .anger.a4{border-color:#d1d5db;color:#374151;}
 /* カード:急ぎは左の枠、右に情報 */
 .reqCard{display:flex;padding:0;overflow:hidden;}
 .reqCard .cardMain{flex:1;min-width:0;padding:16px 18px;}
@@ -199,7 +199,7 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
 .callRow .callBtn{margin:0;}
 .elapsed{display:inline-flex;align-items:center;gap:4px;font-size:16px;font-weight:900;padding:10px 14px;border-radius:12px;background:#f1f5f9;color:#334155;border:2px solid #cbd5e1;}
-.elapsed.tora{color:#dc2626;border-color:#dc2626;background:#fff5f5;}
+.elapsed.tora{color:#111827;border-color:#6b7280;background:#fff;}
 /* 現場確認希望・見積依頼(電話対応ボタンと同じ形。点滅はしない) */
 .taskBtn{display:inline-block;border:none;font-size:17px;font-weight:bold;padding:12px 18px;border-radius:12px;cursor:pointer;}
 .taskBtn:active{transform:scale(.95);}
@@ -468,8 +468,8 @@ const mul=item.urgency==="大至急"?2:item.urgency==="至急"?1.5:item.urgency=
 const pct=Math.min(180,Math.round(el.hours/48*100*mul));
 const lv=pct<25?1:pct<50?2:pct<80?3:4;
 const face=["","😊","😐","😠","😡"][lv];
-return "<span class='anger a"+lv+(pct>=100?" max":"")+"'><span>"+face+" 事務所の怒り度 "+pct+"%</span><span class='bar'><i style='width:"+Math.max(pct/1.8,2)+"%'></i></span></span>"+
-(pct>=100?"<button class='bombBtn' title='押してみて' onclick=\"event.stopPropagation();bomb('"+item.id+"',"+pct+")\">💣</button>":"");
+return "<span class='anger a"+lv+(pct>=90?" max":"")+"'><span>"+face+" 事務所の怒り度 "+pct+"%</span><span class='bar'><i style='width:"+Math.max(pct/1.8,2)+"%'></i></span></span>"+
+(pct>=90?"<button class='bombBtn' title='押してみて' onclick=\"event.stopPropagation();bomb('"+item.id+"',"+pct+")\">💣</button>":"");
 }
 function bomb(id,pct){
 const item=requestCache.find(function(r){return r.id===id;})||{};
