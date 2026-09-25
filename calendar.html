@@ -51,9 +51,18 @@
   .it { display:flex; align-items:baseline; gap:4px; font-weight:800; line-height:1.35; cursor:pointer; white-space:nowrap; overflow:hidden; border-radius:4px; padding:0 2px; }
   .it:hover { background:#f5f5f4; }
   .it .mk { flex-shrink:0; font-size:.8em; }
-  .bx { display:inline-block; font-size:.62em; font-weight:bold; border:1.5px solid currentColor; border-radius:3px; padding:0 2px; line-height:1.2; color:#78716c; vertical-align:.12em; }
-  .it.urgent .bx { color:#dc2626; }
-  .legendMini { font-size:13px; color:#78716c; white-space:nowrap; }
+  .bx { display:inline-block; font-size:.72em; font-weight:900; border:2px solid #1f2937; border-radius:4px; padding:0 3px; line-height:1.2; color:#1f2937; background:#fff; vertical-align:.08em; }
+  .it.isDone .bx { color:#a8a29e; border-color:#a8a29e; }
+  .it.isMissed .bx { color:#b45309; border-color:#b45309; }
+  .it.urgent .bx { color:#dc2626; border-color:#dc2626; }
+  .legendMini { font-size:15px; font-weight:bold; color:#1f2937; white-space:nowrap; }
+  .it .acts { margin-left:auto; display:flex; gap:6px; flex-shrink:0; padding-left:8px; }
+  .it .acts button { width:44px; height:38px; border-radius:10px; border:2px solid #d6d3d1; background:#fff; font-size:20px; font-weight:900; cursor:pointer; line-height:1; }
+  .it .acts .ok { color:#16a34a; } .it .acts .ng { color:#d97706; }
+  .it .acts .ok.on { background:#16a34a; border-color:#16a34a; color:#fff; }
+  .it .acts .ng.on { background:#d97706; border-color:#d97706; color:#fff; }
+  .moveBtns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .moveBtns button { padding:14px 6px; font-size:16px; font-weight:bold; border:2px solid #0f766e; background:#f0fdfa; color:#0f766e; border-radius:12px; cursor:pointer; }
   .it .nm { overflow:hidden; text-overflow:ellipsis; }
   .it.urgent { color:#dc2626; }
   .it.isDone { color:#a8a29e; }
@@ -275,6 +284,24 @@
   </div>
 </div>
 
+<!-- 行けなかった → 別の日へ -->
+<div class="modalBg" id="missBg" onclick="if(event.target===this)closeMiss()">
+  <div class="modal" style="max-width:460px;">
+    <h3 id="missTitle">✕ 行けなかった</h3>
+    <div class="hint" id="missSub"></div>
+    <div class="moveBtns">
+      <button onclick="missMove(1)" id="mv1">明日に移す</button>
+      <button onclick="missMove(2)" id="mv2">あさってに移す</button>
+    </div>
+    <label class="f">日付を選んで移す</label>
+    <div class="row2"><input type="date" id="mvDate"><button class="btn main" style="flex:0 0 auto;" onclick="missMove(0)">この日に移す</button></div>
+    <div class="btnRow">
+      <button class="btn sub" onclick="missKeep()">移さない(行けなかったで残す)</button>
+      <button class="btn sub" onclick="closeMiss()">やめる</button>
+    </div>
+  </div>
+</div>
+
 <!-- 電話依頼の引取(詳細) -->
 <div class="modalBg" id="phoneBg" onclick="if(event.target===this)closePhone()">
   <div class="modal">
@@ -442,7 +469,9 @@ function sectioned(items, fn){
 }
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
-    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+'</div>'+
+    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+
+    (withSub ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
+      '<button class="ng'+(it.missed?' on':'')+'" title="行けなかった" onclick="event.stopPropagation();openMiss(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✕</button></span>' : '')+'</div>'+
     (withSub && it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : '');
 }
 
@@ -744,6 +773,66 @@ async function deleteFromForm(){
     await db.collection(EVENT_COL).doc(ev.id).delete();
     closeForm(); toast("消しました");
   } catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
+}
+
+/* ===== 行けた・行けなかった(3日表示のボタン) ===== */
+let missTarget = null;
+const FVx = () => firebase.firestore.FieldValue;
+async function quickDone(type, id, ds){
+  try {
+    if (type === "pickup"){
+      const p = phones.find(x => x.id === id); if (!p) return;
+      await db.collection(PHONE_COL).doc(id).update({ pickupResult: p.pickupResult === "done" ? "" : "done" });
+    } else {
+      const ev = events.find(e => e.id === id); if (!ev) return;
+      const on = (ev.doneDates||[]).includes(ds);
+      await db.collection(EVENT_COL).doc(id).update({ doneDates: on ? FVx().arrayRemove(ds) : FVx().arrayUnion(ds), missedDates: FVx().arrayRemove(ds) });
+    }
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+function openMiss(type, id, ds){
+  const name = type === "pickup" ? ((phones.find(x => x.id === id)||{}).client||"") : ((events.find(e => e.id === id)||{}).title||"");
+  missTarget = { type, id, ds };
+  document.getElementById("missTitle").textContent = "✕ 行けなかった:"+name;
+  document.getElementById("missSub").textContent = mdw(ds)+" の分です。別の日に移すか、このまま「行けなかった」で残せます。";
+  document.getElementById("mv1").textContent = "明日 "+mdw(addDays(ds,1))+" に移す";
+  document.getElementById("mv2").textContent = "あさって "+mdw(addDays(ds,2))+" に移す";
+  document.getElementById("mvDate").value = addDays(ds, 3);
+  document.getElementById("missBg").classList.add("show");
+}
+function closeMiss(){ document.getElementById("missBg").classList.remove("show"); missTarget = null; }
+async function missKeep(){
+  const t = missTarget; if (!t) return;
+  try {
+    if (t.type === "pickup") await db.collection(PHONE_COL).doc(t.id).update({ pickupResult:"missed" });
+    else await db.collection(EVENT_COL).doc(t.id).update({ missedDates: FVx().arrayUnion(t.ds), doneDates: FVx().arrayRemove(t.ds) });
+    closeMiss(); toast("「行けなかった」にしました");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+async function missMove(n){
+  const t = missTarget; if (!t) return;
+  const nd = n ? addDays(t.ds, n) : document.getElementById("mvDate").value;
+  if (!nd){ toast("日付を選んでください"); return; }
+  try {
+    if (t.type === "pickup"){
+      // 電話依頼:回収予定日を移す(電話依頼の方にも反映)
+      await db.collection(PHONE_COL).doc(t.id).update({ pickupDate: nd, pickupResult:"" });
+    } else {
+      const ev = events.find(e => e.id === t.id); if (!ev) return;
+      if ((ev.repeat||"none") === "none"){
+        // 1回だけの予定:日付ごと移す
+        await db.collection(EVENT_COL).doc(t.id).update({ date: nd, missedDates: [], doneDates: [] });
+      } else {
+        // 繰り返しの予定:この日は「行けなかった」にして、移した日に1回分を作る(繰り返しはそのまま続く)
+        await db.collection(EVENT_COL).doc(t.id).update({ missedDates: FVx().arrayUnion(t.ds), doneDates: FVx().arrayRemove(t.ds) });
+        await db.collection(EVENT_COL).add({ kind:ev.kind||"regular", title:ev.title||"", clientId:ev.clientId||"", work:ev.work||"", date:nd, ampm:ev.ampm||"",
+          repeat:"none", endDate:"", hinmoku:ev.hinmoku||"", items:ev.items||{}, contact:ev.contact||"", tel:ev.tel||"",
+          memo:((ev.memo||"")+" ("+mdw(t.ds)+"の振替)").trim(), skipDates:[], doneDates:[], missedDates:[],
+          createdAt: FVx().serverTimestamp(), updatedAt: FVx().serverTimestamp() });
+      }
+    }
+    closeMiss(); toast("📅 "+mdw(nd)+" に移しました");
+  } catch(e){ console.error(e); toast("⚠️ 移せませんでした"); }
 }
 
 /* ===== 印刷 ===== */
