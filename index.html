@@ -106,7 +106,8 @@ font-size:16px;font-weight:bold;color:#333;cursor:pointer;
 }
 .checkGroup input{transform:scale(1.3);}
 .checkGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
-.radioGroup{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.radioGroup{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+#ampmGroup label{white-space:nowrap;font-size:16px;padding:14px 4px;}
 .radioGroup label{
 display:flex;align-items:center;justify-content:center;gap:8px;
 background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:14px 6px;
@@ -140,6 +141,20 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
 .calLink span{font-size:13px;font-weight:normal;opacity:.9;}
 .calLink:active{transform:scale(.97);}
+.pickCal{border:1px solid #cbd5e1;border-radius:14px;padding:10px;background:#fff;}
+.pcHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.pcHead span{font-size:19px;font-weight:bold;}
+.pcHead button{border:1px solid #cbd5e1;background:#fff;border-radius:10px;width:48px;height:40px;font-size:18px;}
+.pcGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.pcGrid .w{text-align:center;font-size:13px;font-weight:bold;color:#555;padding:2px 0;}
+.pcGrid .w.su{color:#dc2626;} .pcGrid .w.sa{color:#1d4ed8;}
+.pcGrid button{height:46px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;font-size:18px;font-weight:bold;color:#1f2937;}
+.pcGrid button.su{color:#dc2626;} .pcGrid button.sa{color:#1d4ed8;}
+.pcGrid button.past{opacity:.35;}
+.pcGrid button.today{border:2px solid #f59e0b;}
+.pcGrid button.sel{background:#1565c0;color:#fff;border-color:#1565c0;}
+.pcGrid button.fix{background:#16a34a;color:#fff;border-color:#16a34a;}
+.pcGrid .blank{height:46px;}
 .candList{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
 .cand{display:flex;align-items:center;gap:8px;background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:8px 10px;font-size:18px;font-weight:bold;}
 .cand.fixed{background:#e7f1ff;border-color:#1565c0;color:#0b3d91;}
@@ -351,11 +366,12 @@ body{background:white;padding-bottom:0;}
 </div>
 
 <div class="field">
-<label>回収予定日 <span style="font-weight:normal;font-size:14px;color:#666;">(希望日をいくつでも追加 → 決まったら「この日に決定」)</span></label>
-<div style="display:flex;gap:8px;">
-<input type="date" id="pickupAddDate" style="flex:1;">
-<button type="button" onclick="addPickupCand()" style="flex-shrink:0;border:none;background:#1565c0;color:#fff;font-size:17px;font-weight:bold;border-radius:12px;padding:0 18px;">＋ 追加</button>
+<label>回収予定日 <span style="font-weight:normal;font-size:14px;color:#666;">(希望日を押して選ぶ・いくつでもOK。もう一度押すと外れます)</span></label>
+<div class="pickCal">
+<div class="pcHead"><button type="button" onclick="pcMove(-1)">◀</button><span id="pcTitle"></span><button type="button" onclick="pcMove(1)">▶</button></div>
+<div class="pcGrid" id="pcGrid"></div>
 </div>
+<input type="hidden" id="pickupAddDate">
 <div id="pickupCandList" class="candList"></div>
 <input type="hidden" id="pickupDate">
 <input type="text" id="pickupNote" placeholder="自由に書けます(例:来週中ならいつでも・月末希望)" lang="ja" autocomplete="off" style="margin-top:10px;">
@@ -366,6 +382,7 @@ body{background:white;padding-bottom:0;}
 <div class="radioGroup" id="ampmGroup">
 <label><input type="radio" name="ampm" value="午前">午前</label>
 <label><input type="radio" name="ampm" value="午後">午後</label>
+<label><input type="radio" name="ampm" value="どちらでも">どちらでも</label>
 </div>
 </div>
 
@@ -613,6 +630,27 @@ return "（内容なし）";
 
 // ==== 回収予定日(希望日の候補と決定) ====
 let pickupCands=[];
+// 押して選ぶミニカレンダー
+let pcY=new Date().getFullYear(), pcM=new Date().getMonth();
+function pcMove(n){pcM+=n;if(pcM<0){pcM=11;pcY--;}if(pcM>11){pcM=0;pcY++;}renderPickCal();}
+function pcYmd(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
+function renderPickCal(){
+document.getElementById("pcTitle").textContent=pcY+"年"+(pcM+1)+"月";
+const first=new Date(pcY,pcM,1).getDay(), last=new Date(pcY,pcM+1,0).getDate();
+const fixed=document.getElementById("pickupDate").value, today=todayStr();
+let h=["日","月","火","水","木","金","土"].map(function(w,i){return "<div class='w"+(i===0?" su":i===6?" sa":"")+"'>"+w+"</div>";}).join("");
+for(let i=0;i<first;i++)h+="<div class='blank'></div>";
+for(let d=1;d<=last;d++){
+const ds=pcYmd(pcY,pcM,d), wd=(first+d-1)%7;
+const c=[wd===0?"su":wd===6?"sa":"", ds<today?"past":"", ds===today?"today":"", ds===fixed?"fix":(pickupCands.indexOf(ds)!==-1?"sel":"")].filter(Boolean).join(" ");
+h+="<button type='button' class='"+c+"' onclick=\"togglePickDay('"+ds+"')\">"+d+"</button>";
+}
+document.getElementById("pcGrid").innerHTML=h;
+}
+function togglePickDay(ds){
+if(pickupCands.indexOf(ds)!==-1)removePickupCand(ds);
+else{pickupCands.push(ds);renderPickupCands();}
+}
 function renderPickupCands(){
 const fixed=document.getElementById("pickupDate").value;
 pickupCands.sort();
@@ -622,6 +660,7 @@ return "<div class='cand"+(on?" fixed":"")+"'><span class='d'>"+(on?"✅ ":"")+e
 "<button type='button' class='fix' onclick=\"fixPickup('"+d+"')\">"+(on?"決定を外す":"この日に決定")+"</button>"+
 "<button type='button' class='rm' onclick=\"removePickupCand('"+d+"')\">✕</button></div>";
 }).join("");
+renderPickCal();
 }
 function addPickupCand(){
 const d=document.getElementById("pickupAddDate").value;
@@ -648,6 +687,8 @@ if(fixed&&pickupCands.indexOf(fixed)===-1)pickupCands.push(fixed);
 document.getElementById("pickupDate").value=fixed;
 document.getElementById("pickupNote").value=(item&&item.pickupNote)||"";
 document.getElementById("pickupAddDate").value="";
+const base=fixed||pickupCands.slice().sort()[0];
+if(base){pcY=Number(base.slice(0,4));pcM=Number(base.slice(5,7))-1;}else{pcY=new Date().getFullYear();pcM=new Date().getMonth();}
 renderPickupCands();
 }
 function pickupText(item){
