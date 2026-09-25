@@ -21,6 +21,23 @@
   .modeSw button { border:none; background:#fff; color:#0f766e; font-size:18px; font-weight:900; padding:8px 22px; cursor:pointer; }
   .modeSw button.on { background:#0f766e; color:#fff; }
   .spacer { flex:1; }
+  .backPhone { border:none; background:#1565c0; color:#fff; border-radius:10px; padding:10px 14px; font-size:16px; font-weight:bold; cursor:pointer; white-space:nowrap; }
+  .it.isMissed { color:#b45309; }
+  .it.isMissed .nm { text-decoration:line-through; }
+  .miss { flex-shrink:0; font-size:.6em; font-weight:bold; background:#fef3c7; color:#b45309; border:1px solid #f59e0b; border-radius:4px; padding:0 3px; }
+  /* 会社さがし */
+  .kana { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+  .kana button { min-width:40px; padding:7px 0; border:1px solid #d6d3d1; background:#fff; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; }
+  .kana button.on { background:#0f766e; color:#fff; border-color:#0f766e; }
+  .pickList { max-height:210px; overflow-y:auto; border:1px solid #e7e5e4; border-radius:10px; margin-top:6px; }
+  .pickList div { padding:10px 12px; border-bottom:1px solid #f5f5f4; cursor:pointer; font-size:17px; font-weight:bold; }
+  .pickList div:hover { background:#f0fdfa; }
+  .pickList small { display:block; font-size:12px; color:#78716c; font-weight:normal; }
+  .pickList .none2 { color:#a8a29e; font-weight:normal; cursor:default; }
+  .cInfo { margin-top:8px; background:#f0fdfa; border:1px solid #99f6e4; border-radius:10px; padding:10px 12px; font-size:15px; line-height:1.7; display:none; }
+  .cInfo a { display:inline-block; margin-right:8px; margin-top:4px; background:#fff; border:1px solid #0f766e; color:#0f766e; border-radius:8px; padding:6px 10px; font-weight:bold; text-decoration:none; }
+  .stSeg button[data-v="done"].on { background:#16a34a; border-color:#16a34a; }
+  .stSeg button[data-v="missed"].on { background:#d97706; border-color:#d97706; }
   .addBtn { border:none; background:#0f766e; color:#fff; border-radius:10px; padding:10px 16px; font-size:16px; font-weight:bold; cursor:pointer; white-space:nowrap; }
   .menuWrap { position:relative; }
   .menu { display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #d6d3d1; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.15); z-index:50; min-width:200px; overflow:hidden; }
@@ -64,13 +81,14 @@
   .none { color:#d6d3d1; font-size:18px; text-align:center; margin-top:24px; }
 
   /* ===== 1か月表示(紙のカレンダーの形) ===== */
-  .mWrap { flex:1; min-height:0; display:flex; flex-direction:column; border:2px solid #57534e; background:#fff; }
+  .mWrap { border:2px solid #57534e; background:#fff; }
+  main.scrollMain { overflow-y:auto; display:block; }
   .dow { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:2px solid #57534e; background:#44403c; color:#fff; }
   .dow div { text-align:center; font-weight:900; font-size:16px; padding:3px 0; border-right:1px solid #78716c; }
   .dow div:last-child { border-right:none; }
   .dow .sa { background:#1d4ed8; } .dow .su { background:#dc2626; }
-  .mGrid { flex:1; min-height:0; display:grid; grid-template-columns:repeat(7,1fr); }
-  .mc { border-right:1px solid #a8a29e; border-bottom:1px solid #a8a29e; display:flex; flex-direction:column; min-height:0; overflow:hidden; cursor:pointer; padding:2px 4px; }
+  .mGrid { display:grid; grid-template-columns:repeat(7,1fr); grid-auto-rows:minmax(120px,auto); }
+  .mc { border-right:1px solid #a8a29e; border-bottom:1px solid #a8a29e; display:flex; flex-direction:column; cursor:pointer; padding:2px 4px 6px; min-width:0; }
   .mc:nth-child(7n) { border-right:none; }
   .mc.other { background:#fafaf9; }
   .mc.other .mn { color:#d6d3d1 !important; }
@@ -81,7 +99,7 @@
   .mc.sun .mn, .mc.hol .mn { color:#dc2626; }
   .mhol { font-size:10px; color:#dc2626; font-weight:bold; white-space:nowrap; overflow:hidden; }
   .mcnt { margin-left:auto; font-size:11px; color:#78716c; font-weight:bold; }
-  .mb { flex:1; min-height:0; overflow:hidden; --fs:14px; font-size:var(--fs); }
+  .mb { --fs:14px; font-size:var(--fs); }
   .mb.two { column-count:2; column-gap:4px; }
   .mb .it { line-height:1.25; }
   .mb .sec { display:none; }
@@ -152,7 +170,7 @@
 <body>
 
 <header>
-  <h1>📅 関根商店</h1>
+  <button class="backPhone" onclick="location.href='index.html'">← 📞 電話依頼へ</button>
   <button class="nav" onclick="move(-1)">◀</button>
   <div class="title" id="title"></div>
   <button class="nav" onclick="move(1)">▶</button>
@@ -162,13 +180,12 @@
     <button id="swM" onclick="setMode('month')">1か月</button>
   </div>
   <div class="spacer"></div>
-  <span class="legendMini"><span class="bx">電</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx">他</span>その他</span>
+  <span class="legendMini"><span class="bx">電</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx">機</span>機械移動</span>
   <button class="addBtn" onclick="openForm(null, focusDay)">＋ 予定を追加</button>
   <div class="menuWrap">
     <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
     <div class="menu" id="menu">
       <button onclick="printView()">🖨 この画面を印刷</button>
-      <button onclick="location.href='index.html'">📞 電話依頼へ</button>
     </div>
   </div>
 </header>
@@ -184,12 +201,17 @@
     <label class="f">種類</label>
     <div class="seg" id="kindSeg">
       <button type="button" data-v="regular" onclick="setSeg('kindSeg',this)">🔁 通常回収</button>
-      <button type="button" data-v="other" onclick="setSeg('kindSeg',this)">📝 その他</button>
+      <button type="button" data-v="machine" onclick="setSeg('kindSeg',this)">🏗 機械移動</button>
     </div>
 
-    <label class="f" id="nameLabel">会社名(取引先マスタから選べます)</label>
-    <input type="text" id="fName" list="clientList" placeholder="会社名の一部やよみがなで探せます" lang="ja" autocomplete="off">
-    <datalist id="clientList"></datalist>
+    <label class="f">会社名(取引先マスタから、あいうえお・よみがなで探せます)</label>
+    <input type="text" id="fName" placeholder="会社名かよみがなを入れる(マスタにない会社も書けます)" lang="ja" autocomplete="off" oninput="kanaSel='';renderPicker()" onfocus="renderPicker()">
+    <div class="kana" id="kanaRow"></div>
+    <div class="pickList" id="pickList"></div>
+    <div class="cInfo" id="cInfo"></div>
+
+    <div id="workWrap"><label class="f">仕事内容</label>
+    <textarea id="fWork" rows="3" placeholder="例:ユンボを〇〇現場へ移動・回収" lang="ja"></textarea></div>
 
     <div class="row2">
       <div><label class="f">日付(繰り返しは開始日)</label><input type="date" id="fDate"></div>
@@ -213,6 +235,7 @@
     <div class="hint" id="repHint"></div>
     <div id="endWrap"><label class="f">繰り返しの終わり(空欄ならずっと)</label><input type="date" id="fEnd"></div>
 
+    <div id="collectWrap">
     <label class="f">品目</label>
     <input type="text" id="fHinmoku" placeholder="例:廃プラ・金属くず" lang="ja" autocomplete="off">
 
@@ -224,6 +247,7 @@
       <span>箱</span><input type="text" id="iBox" value="0" onfocus="this.select()"><span>個</span>
     </div>
     <input type="text" id="iOther" placeholder="持ち物その他(品名・数量など)" lang="ja" autocomplete="off" style="margin-top:8px;">
+    </div>
 
     <div class="row2">
       <div><label class="f">先方の担当者</label><input type="text" id="fContact" placeholder="例:山田様" lang="ja" autocomplete="off"></div>
@@ -233,7 +257,15 @@
     <label class="f">メモ</label>
     <textarea id="fMemo" rows="2" placeholder="注意点・連絡事項など" lang="ja"></textarea>
 
-    <label class="doneBox" id="doneWrap"><input type="checkbox" id="fDone"> <span id="doneLabel">この日の回収済み</span></label>
+    <div id="doneWrap">
+      <label class="f" id="doneLabel">この日の結果</label>
+      <div class="seg stSeg" id="stSeg">
+        <button type="button" data-v="" onclick="setSeg('stSeg',this)">予定</button>
+        <button type="button" data-v="done" onclick="setSeg('stSeg',this)">✅ 行けた</button>
+        <button type="button" data-v="missed" onclick="setSeg('stSeg',this)">✖ 行けなかった</button>
+      </div>
+      <button type="button" class="btn sub" id="redoBtn" style="width:100%;margin-top:8px;display:none;" onclick="redoOther()">📅 別の日に入れ直す</button>
+    </div>
 
     <div class="btnRow">
       <button class="btn sub" onclick="closeForm()">閉じる</button>
@@ -257,9 +289,16 @@
         <button type="button" data-v="午後" onclick="setSeg('phApSeg',this)">午後</button>
       </div>
     </div>
+    <label class="f">引取の結果</label>
+    <div class="seg stSeg" id="phStSeg">
+      <button type="button" data-v="" onclick="setSeg('phStSeg',this)">予定</button>
+      <button type="button" data-v="done" onclick="setSeg('phStSeg',this)">✅ 行けた</button>
+      <button type="button" data-v="missed" onclick="setSeg('phStSeg',this)">✖ 行けなかった</button>
+    </div>
+    <div class="hint">行けなかったときは、回収予定日を別の日に直して保存すれば入れ直せます</div>
     <div class="btnRow">
       <button class="btn sub" onclick="closePhone()">閉じる</button>
-      <button class="btn main" onclick="savePhone()">日付を保存</button>
+      <button class="btn main" onclick="savePhone()">保存</button>
       <button class="btn blue" style="flex:0 0 100%;" onclick="window.open('https://rie4649.github.io/denwa-irai/','_blank')">📞 電話依頼で開く(ほかの内容を直す)</button>
     </div>
   </div>
@@ -362,15 +401,17 @@ function itemsOn(ds){
     if (p.pickupDate !== ds) return;
     const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
     list.push({ type:"pickup", id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
-      done:p.status==="対応済み", sub:[urg, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
+      done:p.status==="対応済み"||p.pickupResult==="done", missed:p.pickupResult==="missed"&&p.status!=="対応済み", sub:[urg, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
   });
   events.forEach(ev => {
     if (!occursOn(ev, ds)) return;
     const rt = repeatText(ev);
-    list.push({ type:ev.kind==="other"?"other":"regular", id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
-      done:(ev.doneDates||[]).includes(ds), sub:[ev.hinmoku, itemsText(ev.items), ev.memo, rt].filter(Boolean).join(" / "), src:ev });
+    const isM = ev.kind==="machine" || ev.kind==="other";
+    list.push({ type:isM?"machine":"regular", id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
+      done:(ev.doneDates||[]).includes(ds), missed:(ev.missedDates||[]).includes(ds),
+      sub:(isM ? [ev.work, ev.memo, rt] : [ev.hinmoku, itemsText(ev.items), ev.memo, rt]).filter(Boolean).join(" / "), src:ev });
   });
-  const ar = {"午前":0, "":1, "午後":2}, tr = {pickup:0, regular:1, other:2};
+  const ar = {"午前":0, "":1, "午後":2}, tr = {pickup:0, regular:1, machine:2};
   list.sort((a,b) => (ar[a.ampm]-ar[b.ampm]) || (tr[a.type]-tr[b.type]) || a.name.localeCompare(b.name,"ja"));
   return list;
 }
@@ -380,9 +421,9 @@ let focusDay = todayYmd(); // 3日表示の真ん中の日
 let monthY, monthM;        // 1か月表示の年・月
 
 const SEC_LABEL = {"午前":"午前", "":"時間指定なし", "午後":"午後"};
-function iconOf(it){ return '<span class="bx">'+(it.type==="pickup" ? "電" : it.type==="regular" ? "定" : "他")+'</span>'; }
-function iconTxt(it){ return it.type==="pickup" ? "[電]" : it.type==="regular" ? "[定]" : "[他]"; }
-function clsOf(it){ return (it.urgent&&!it.done?"urgent ":"")+(it.done?"isDone":""); }
+function iconOf(it){ return '<span class="bx">'+(it.type==="pickup" ? "電" : it.type==="regular" ? "定" : "機")+'</span>'; }
+function iconTxt(it){ return it.type==="pickup" ? "[電]" : it.type==="regular" ? "[定]" : "[機]"; }
+function clsOf(it){ return (it.urgent&&!it.done&&!it.missed?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
 function dayClass(ds){
   const d = parseYmd(ds), c = [];
   if (d.getDay()===6) c.push("sat"); if (d.getDay()===0) c.push("sun");
@@ -401,12 +442,13 @@ function sectioned(items, fn){
 }
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
-    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done?'<span class="mk">✅</span>':'')+'</div>'+
+    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+'</div>'+
     (withSub && it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : '');
 }
 
 /* ===== 描画 ===== */
 function render(){
+  document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
   if (viewMode === "three") renderThree(); else renderMonth();
@@ -444,11 +486,10 @@ function renderMonth(){
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
       (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+
-      '<div class="mb">'+items.map(it => itHtml(it, ds, false)).join("")+'</div></div>';
+      '<div class="mb'+(items.length>10?' two':'')+'">'+items.map(it => itHtml(it, ds, false)).join("")+'</div></div>';
   }
   document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
-    '<div class="mGrid" style="grid-template-rows:repeat('+weeks+',1fr)">'+cells+'</div></div>';
-  requestAnimationFrame(() => fitBoxes(".mb", 14, 9, true));
+    '<div class="mGrid" style="grid-auto-rows:minmax(max(110px, calc((100vh - 110px) / '+weeks+')), auto)">'+cells+'</div></div>';
 }
 
 /* 入りきらないときは隠さず、文字を小さく(1か月は2列にも)して全部入れる */
@@ -507,21 +548,31 @@ function openPhone(id){
   document.getElementById("phInfo").innerHTML = lines.map(l => "<div><b>"+l[0]+":</b>"+l[1]+"</div>").join("");
   document.getElementById("phDate").value = p.pickupDate || "";
   setSegVal("phApSeg", p.ampm || "");
+  setSegVal("phStSeg", p.pickupResult || "");
   document.getElementById("phoneBg").classList.add("show");
 }
 function closePhone(){ document.getElementById("phoneBg").classList.remove("show"); phoneId = null; }
 async function savePhone(){
   if (!phoneId) return;
   try {
-    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: document.getElementById("phDate").value, ampm: segVal("phApSeg") });
-    closePhone(); toast("✅ 回収予定日を直しました(電話依頼にも反映)");
+    const p = phones.find(x => x.id === phoneId) || {};
+    const newDate = document.getElementById("phDate").value;
+    let result = segVal("phStSeg");
+    if (result === "missed" && newDate && newDate !== p.pickupDate) result = "";  // 別の日に入れ直したら「予定」に戻す
+    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: newDate, ampm: segVal("phApSeg"), pickupResult: result });
+    closePhone(); toast("✅ 保存しました(電話依頼にも反映)");
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
 }
 
 /* --- 通常回収・その他 --- */
 function setSeg(id, btn){
   document.querySelectorAll("#"+id+" button").forEach(b => b.classList.toggle("on", b === btn));
-  if (id === "kindSeg") document.getElementById("nameLabel").textContent = btn.dataset.v==="other" ? "内容(例:来客・点検・会議)" : "会社名(取引先マスタから選べます)";
+  if (id === "kindSeg"){
+    const m = btn.dataset.v === "machine";
+    document.getElementById("workWrap").style.display = m ? "" : "none";
+    document.getElementById("collectWrap").style.display = m ? "none" : "";
+  }
+  if (id === "stSeg") document.getElementById("redoBtn").style.display = (btn.dataset.v === "missed" && editingId) ? "" : "none";
   if (id === "repSeg") document.getElementById("endWrap").style.display = btn.dataset.v==="none" ? "none" : "";
   updateRepHint();
 }
@@ -532,19 +583,63 @@ function updateRepHint(){
   document.getElementById("repHint").textContent = (ds && rep && rep !== "none") ? "→ "+repeatText({date:ds, repeat:rep})+" に表示します" : "";
 }
 document.getElementById("fDate").addEventListener("change", updateRepHint);
-document.getElementById("fName").addEventListener("change", () => {
-  const c = (clients||[]).find(x => x.name === document.getElementById("fName").value.trim());
-  const tel = document.getElementById("fTel");
-  if (c && c.tel && !tel.value) tel.value = c.tel;
-});
+/* ===== 会社さがし(あいうえお・よみがな) ===== */
+const KANA_ROWS = [["あ","あいうえおぁぃぅぇぉ"],["か","かきくけこがぎぐげご"],["さ","さしすせそざじずぜぞ"],["た","たちつてとだぢづでどっ"],["な","なにぬねの"],
+  ["は","はひふへほばびぶべぼぱぴぷぺぽ"],["ま","まみむめも"],["や","やゆよゃゅょ"],["ら","らりるれろ"],["わ","わをん"]];
+let kanaSel = "";
+function toHira(s){ return String(s||"").normalize("NFKC").replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0)-0x60)); }
+function rowOf(c){
+  const h = toHira((c.yomi||c.name||"").trim()).charAt(0);
+  const r = KANA_ROWS.find(r => r[1].includes(h));
+  return r ? r[0] : "他";
+}
+function buildKana(){
+  document.getElementById("kanaRow").innerHTML = KANA_ROWS.map(r => '<button type="button" data-k="'+r[0]+'" onclick="pickKana(\''+r[0]+'\')">'+r[0]+'</button>').join("")+
+    '<button type="button" data-k="他" onclick="pickKana(\'他\')">他</button>';
+}
+function pickKana(k){ kanaSel = (kanaSel === k) ? "" : k; document.getElementById("fName").value = ""; renderPicker(); }
+function renderPicker(){
+  document.querySelectorAll("#kanaRow button").forEach(b => b.classList.toggle("on", b.dataset.k === kanaSel));
+  const box = document.getElementById("pickList");
+  if (!clients){ box.innerHTML = '<div class="none2">取引先を読み込み中…</div>'; return; }
+  const q = document.getElementById("fName").value.trim();
+  let list;
+  if (kanaSel) list = clients.filter(c => rowOf(c) === kanaSel);
+  else if (q) { const hq = toHira(q).toLowerCase(); list = clients.filter(c => toHira(c.name).toLowerCase().includes(hq) || toHira(c.yomi||"").includes(hq)); }
+  else { box.innerHTML = '<div class="none2">上の「あかさたな」を押すか、名前を入れると候補が出ます</div>'; return; }
+  box.innerHTML = list.length ? list.slice(0,80).map(c => '<div onclick="chooseClient(\''+c.id+'\')">'+esc(c.name)+(c.yomi?'<small>'+esc(c.yomi)+'</small>':'')+'</div>').join("")
+    : '<div class="none2">マスタに見つかりません(このまま名前を書いて保存もできます)</div>';
+}
+function chooseClient(id){
+  const c = clients.find(x => x.id === id); if (!c) return;
+  document.getElementById("fName").value = c.name;
+  kanaSel = ""; document.getElementById("pickList").innerHTML = "";
+  document.querySelectorAll("#kanaRow button").forEach(b => b.classList.remove("on"));
+  const tel = document.getElementById("fTel"); if (c.tel && !tel.value) tel.value = c.tel;
+  showClientInfo(c);
+}
+function showClientInfo(c){
+  const box = document.getElementById("cInfo");
+  if (!c || (!c.address && !c.tel)){ box.style.display = "none"; return; }
+  box.innerHTML = (c.address ? '📍 '+esc(c.address)+'<br>' : '')+(c.tel ? '☎ '+esc(c.tel)+'<br>' : '')+
+    (c.address ? '<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(c.address)+'" target="_blank">🗺 Googleマップで開く</a>' : '')+
+    (c.address ? '<a href="https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent("長野県上田市住吉316-2")+'&destination='+encodeURIComponent(c.address)+'" target="_blank">🚚 会社からの道順</a>' : '')+
+    (c.tel ? '<a href="tel:'+esc(c.tel)+'">☎ 電話する</a>' : '');
+  box.style.display = "block";
+}
+buildKana();
 
+function kindOf(ev){ return (ev.kind==="machine"||ev.kind==="other") ? "machine" : "regular"; }
 async function loadClients(){
   if (clients) return;
   try {
     const snap = await db.collection(CLIENT_COL).get();
     clients = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.name);
-    clients.sort((a,b) => (a.yomi||a.name).localeCompare(b.yomi||b.name, "ja"));
-    document.getElementById("clientList").innerHTML = clients.map(c => '<option value="'+esc(c.name)+'">'+esc(c.yomi||"")+'</option>').join("");
+    clients.sort((a,b) => toHira(a.yomi||a.name).localeCompare(toHira(b.yomi||b.name), "ja"));
+    if (document.getElementById("formBg").classList.contains("show")){
+      renderPicker();
+      const c = clients.find(x => x.name === document.getElementById("fName").value.trim()); if (c) showClientInfo(c);
+    }
   } catch(e){ console.error(e); clients = []; }
 }
 
@@ -552,10 +647,15 @@ function openForm(id, ds){
   loadClients();
   editingId = id || null; editingDate = ds || todayYmd();
   const ev = id ? events.find(e => e.id === id) : null;
-  document.getElementById("formTitle").textContent = ev ? (ev.kind==="other"?"📝 ":"🔁 ")+(ev.title||"") : "＋ 予定を追加";
+  document.getElementById("formTitle").textContent = ev ? (kindOf(ev)==="machine"?"🏗 ":"🔁 ")+(ev.title||"") : "＋ 予定を追加";
   document.getElementById("formSub").textContent = ev ? mdw(editingDate)+" の予定"+(repeatText(ev)?"(繰り返し:"+repeatText(ev)+")":"") : "";
-  setSegVal("kindSeg", ev ? (ev.kind||"regular") : "regular");
+  setSegVal("kindSeg", ev ? kindOf(ev) : "regular");
   document.getElementById("fName").value = ev ? (ev.title||"") : "";
+  document.getElementById("fWork").value = ev ? (ev.work||"") : "";
+  kanaSel = ""; document.getElementById("pickList").innerHTML = "";
+  document.querySelectorAll("#kanaRow button").forEach(b => b.classList.remove("on"));
+  const cc = ev && clients ? clients.find(x => x.id === ev.clientId || x.name === ev.title) : null;
+  showClientInfo(cc);
   document.getElementById("fDate").value = ev ? ev.date : editingDate;
   setSegVal("apSeg", ev ? (ev.ampm||"") : "");
   setSegVal("repSeg", ev ? (ev.repeat||"none") : "none");
@@ -571,8 +671,8 @@ function openForm(id, ds){
   document.getElementById("fTel").value = ev ? (ev.tel||"") : "";
   document.getElementById("fMemo").value = ev ? (ev.memo||"") : "";
   document.getElementById("doneWrap").style.display = ev ? "" : "none";
-  document.getElementById("doneLabel").textContent = mdw(editingDate)+" の回収済み";
-  document.getElementById("fDone").checked = ev ? (ev.doneDates||[]).includes(editingDate) : false;
+  document.getElementById("doneLabel").textContent = mdw(editingDate)+" の結果";
+  setSegVal("stSeg", ev ? ((ev.doneDates||[]).includes(editingDate) ? "done" : (ev.missedDates||[]).includes(editingDate) ? "missed" : "") : "");
   document.getElementById("delBtn").style.display = ev ? "" : "none";
   updateRepHint();
   document.getElementById("formBg").classList.add("show");
@@ -582,7 +682,7 @@ function closeForm(){ document.getElementById("formBg").classList.remove("show")
 async function saveForm(){
   const title = document.getElementById("fName").value.trim();
   const date = document.getElementById("fDate").value;
-  if (!title){ toast("会社名(内容)を入れてください"); return; }
+  if (!title){ toast("会社名を入れてください"); return; }
   if (!date){ toast("日付を入れてください"); return; }
   const rep = segVal("repSeg") || "none";
   const endDate = rep === "none" ? "" : document.getElementById("fEnd").value;
@@ -590,6 +690,7 @@ async function saveForm(){
   const c = (clients||[]).find(x => x.name === title);
   const data = {
     kind: segVal("kindSeg") || "regular", title, clientId: c ? c.id : "",
+    work: document.getElementById("fWork").value.trim(),
     date, ampm: segVal("apSeg"), repeat: rep, endDate,
     hinmoku: document.getElementById("fHinmoku").value.trim(),
     items: { holeDrum:numOf(gv("iHole")), noHoleDrum:numOf(gv("iNoHole")), flexBag:numOf(gv("iFlex")), box:numOf(gv("iBox")), other:gv("iOther").trim() },
@@ -602,14 +703,32 @@ async function saveForm(){
   try {
     if (editingId){
       const FV = firebase.firestore.FieldValue;
-      data.doneDates = document.getElementById("fDone").checked ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
+      const st = segVal("stSeg");
+      data.doneDates = st === "done" ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
+      data.missedDates = st === "missed" ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
       await db.collection(EVENT_COL).doc(editingId).update(data);
     } else {
-      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], missedDates:[], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeForm(); toast("✅ 保存しました");
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
   finally { btn.disabled = false; }
+}
+/* 行けなかった予定を、別の日に1回分だけ入れ直す(元の予定は「行けなかった」のまま残る) */
+async function redoOther(){
+  if (editingId){
+    try { await db.collection(EVENT_COL).doc(editingId).update({
+      missedDates: firebase.firestore.FieldValue.arrayUnion(editingDate),
+      doneDates: firebase.firestore.FieldValue.arrayRemove(editingDate) }); } catch(e){ console.error(e); }
+  }
+  editingId = null;
+  document.getElementById("formTitle").textContent = "📅 別の日に入れ直す";
+  document.getElementById("formSub").textContent = "日付を選んで保存してください(1回だけの予定になります)";
+  document.getElementById("fDate").value = addDays(editingDate, 1);
+  setSegVal("repSeg", "none");
+  document.getElementById("doneWrap").style.display = "none";
+  document.getElementById("delBtn").style.display = "none";
+  document.getElementById("fDate").focus();
 }
 async function deleteFromForm(){
   const ev = events.find(e => e.id === editingId); if (!ev) return;
@@ -635,7 +754,7 @@ function doPrint(html, size){
   setTimeout(() => window.print(), 50);
 }
 function prItem(it, withSub){
-  const c = it.done ? "g" : (it.urgent ? "u" : "");
+  const c = (it.done||it.missed) ? "g" : (it.urgent ? "u" : "");
   return '<div><span class="ck"></span><span class="'+c+'">'+iconTxt(it)+esc(withSub?it.name:shortName(it.name))+(it.ampm&&withSub?'('+esc(it.ampm)+')':'')+'</span></div>'+
     (withSub&&it.sub?'<div class="x">'+esc(it.sub)+'</div>':'');
 }
