@@ -3,1139 +3,683 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>電話依頼</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1565c0">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<title>関根商店カレンダー</title>
+<style id="pageStyle"></style>
 <style>
-*{box-sizing:border-box;}
-body{background:#eef3f8;margin:0;padding-bottom:60px;font-family:Arial,"Hiragino Sans",sans-serif;}
-header{background:#1565c0;color:white;padding:20px 10px;text-align:center;position:relative;}
-header h1{font-size:26px;margin:0;}
-.gear{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
-.installIconBtn{position:absolute;top:16px;left:16px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
-.wrap{max-width:640px;margin:0 auto;padding:16px;}
-.sectionLabel{display:inline-block;font-size:18px;font-weight:bold;padding:10px 22px;border-radius:14px;margin:16px 0 10px;color:white;}
-.sectionLabel.pending{background:#e53935;}
-.sectionLabel.doneLabel{background:#2e9d45;}
-.reportCard{background:#fff8e1;border:2px solid #f59e0b;border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:reportIn .3s ease;}
-@keyframes reportIn{from{transform:translateY(-8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.reportCard .rIcon{font-size:26px;}
-.reportCard .rBody{flex:1;font-size:14px;line-height:1.5;}
-.reportCard .rBody b{font-size:16px;}
-.reportCard .rOk{border:none;background:#f59e0b;color:#fff;font-weight:bold;font-size:14px;padding:10px 16px;border-radius:10px;cursor:pointer;flex-shrink:0;}
-.reportCard .rOk:active{transform:scale(.95);}
-.reqCard{background:white;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:18px;margin-bottom:10px;cursor:pointer;}
-.reqCard.done{opacity:.6;}
-.urgBtnRow{display:flex;gap:12px;}
-.urgBigBtn{flex:1;padding:26px 10px;font-size:26px;font-weight:900;border-radius:16px;cursor:pointer;transition:.15s;letter-spacing:2px;}
-.urgBigBtn.u1{border:3px solid #f59e0b;background:#fff;color:#b45309;}
-.urgBigBtn.u2{border:3px solid #dc2626;background:#fff;color:#dc2626;}
-.urgBigBtn.u1.selected{background:#f59e0b;color:#fff;box-shadow:0 4px 16px rgba(245,158,11,.5);transform:scale(1.03);}
-.urgBigBtn.u2.selected{background:#dc2626;color:#fff;box-shadow:0 4px 16px rgba(220,38,38,.5);transform:scale(1.03);animation:urgBlink 1s infinite;}
-.urgBigBtn:active{transform:scale(.95);}
-.reqCard.urgent1{border-left:6px solid #f59e0b;}
-.reqCard.urgent2{border-left:6px solid #dc2626;background:#fff5f5;}
-.urgBadge{display:block;text-align:center;padding:12px;border-radius:12px;font-size:24px;font-weight:900;letter-spacing:4px;margin:4px 0 10px;}
-.urgBadge.u1{background:#f59e0b;color:#fff;box-shadow:0 3px 10px rgba(245,158,11,.4);}
-.urgBadge.u2{background:#dc2626;color:#fff;animation:urgBlink 1s infinite;box-shadow:0 3px 14px rgba(220,38,38,.5);}
-@keyframes urgBlink{0%,100%{opacity:1;}50%{opacity:.5;}}
-.doneInfo{font-size:13px;color:#1b7d34;margin-top:6px;font-weight:bold;}
-.reqPickup{font-size:19px;font-weight:bold;color:#0b5ed7;background:#e7f1ff;border-radius:10px;padding:8px 12px;margin-top:8px;display:inline-block;}
-.callBtn{display:inline-block;border:none;background:#0b5ed7;color:#fff;font-size:17px;font-weight:bold;padding:12px 18px;border-radius:12px;margin-top:8px;margin-right:8px;cursor:pointer;box-shadow:0 3px 10px rgba(11,94,215,.35);animation:callBlink 1.2s infinite;}
-@keyframes callBlink{0%,100%{opacity:1;}50%{opacity:.45;}}
-.callBtn:active{transform:scale(.95);}
-.callBtn.done{background:#e8f8ec;color:#1b7d34;box-shadow:none;animation:none;font-size:15px;padding:8px 14px;}
-#acceptPop .popBtnRow{display:flex;gap:8px;margin-top:14px;}
-#acceptPop .popBtn{flex:1;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:bold;}
-#acceptPop .popBtn.line{background:#06c755;color:#fff;}
-#acceptPop .popBtn.close{background:#eee;color:#555;}
-#doneSheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1500;align-items:flex-end;}
-#doneSheet.show{display:flex;}
-#doneSheet .dsBox{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px 16px 30px;}
-#doneSheet h3{font-size:17px;margin:0 0 4px;}
-#doneSheet .dsClient{font-size:14px;color:#666;margin-bottom:12px;}
-#doneSheet textarea{width:100%;min-height:70px;font-size:16px;padding:10px;border:1.5px solid #aaa;border-radius:10px;box-sizing:border-box;}
-#doneSheet .dsBtn{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:bold;color:#fff;background:#2e9d45;margin-top:12px;}
-#doneSheet .dsCancel{width:100%;padding:13px;border:none;border-radius:12px;font-size:15px;color:#555;background:#eee;margin-top:8px;}
-.reqTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.reqDate{font-size:26px;color:#1f2937;font-weight:900;letter-spacing:.5px;}
-.badge{font-size:15px;font-weight:bold;padding:8px 18px;border-radius:999px;color:white;border:none;cursor:pointer;}
-.badge.pending{background:#e53935;}
-.badge.done{background:#2e9d45;}
-.reqClient{font-size:23px;font-weight:bold;color:#222;margin-bottom:6px;}
-.reqContent{font-size:16px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.empty{text-align:center;color:#888;font-size:15px;margin:24px 0;}
-.fab{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:#1565c0;color:white;border:none;font-size:28px;box-shadow:0 4px 10px rgba(0,0,0,.3);z-index:500;}
-/* 詳細モーダル */
-.modalScreen{display:none;position:fixed;inset:0;background:#eef3f8;z-index:998;overflow-y:auto;}
-.modalScreen.show{display:block;}
-.modalHeader{background:#1565c0;color:white;padding:18px 10px;text-align:center;position:relative;}
-.modalHeader h2{font-size:20px;margin:0;}
-.modalClose{position:absolute;top:16px;left:14px;background:none;border:none;color:white;font-size:17px;font-weight:bold;cursor:pointer;}
-.modalBox{max-width:640px;margin:20px auto;background:white;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
-.detailRow{font-size:17px;line-height:1.9;color:#222;margin-bottom:6px;}
-.detailRow b{color:#333;}
-.statusBtnGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 10px;}
-.statusBtn{padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:bold;color:white;}
-.statusBtn.toDone{background:#2e9d45;}
-.statusBtn.toPending{background:#e53935;}
-.shareBtnGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.shareBtn{padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:bold;color:white;}
-.shareBtn.line{background:#06c755;}
-.shareBtn.print{background:#555;}
-.deleteBtn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:bold;color:white;background:#333;margin-top:8px;}
-/* 設定（入力フォーム）画面 */
-.settingsScreen{display:none;position:fixed;inset:0;background:#eef3f8;z-index:999;overflow-y:auto;}
-.settingsScreen.show{display:block;}
-.setHeader{background:#1565c0;color:white;padding:18px 10px;text-align:center;position:relative;}
-.setHeader h2{font-size:20px;margin:0;}
-.closeSet{position:absolute;top:14px;left:14px;background:none;border:none;color:white;font-size:26px;cursor:pointer;}
-.box{background:white;margin:16px auto;padding:20px;border-radius:16px;max-width:640px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
-.field{margin-bottom:18px;}
-.field label{display:block;font-size:17px;font-weight:bold;margin-bottom:8px;color:#333;}
-.field input[type=text],.field input[type=tel],.field input[type=date],.field input[type=number],.field textarea,.field select{
-width:100%;font-size:19px;padding:13px;border-radius:12px;border:1px solid #aaa;
-}
-.checkGroup{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.checkGroup label{
-display:flex;align-items:center;gap:8px;
-background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:12px 10px;
-font-size:16px;font-weight:bold;color:#333;cursor:pointer;
-}
-.checkGroup input{transform:scale(1.3);}
-.checkGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
-.radioGroup{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.radioGroup label{
-display:flex;align-items:center;justify-content:center;gap:8px;
-background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:14px 6px;
-font-size:17px;font-weight:bold;color:#333;cursor:pointer;
-}
-.radioGroup input{transform:scale(1.3);}
-.radioGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
-.itemsGrid{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;margin-bottom:12px;}
-.itemsGrid span{font-size:17px;font-weight:bold;color:#333;}
-.itemsGrid input{padding:12px 8px;font-size:18px;width:100%;border-radius:12px;border:1px solid #aaa;text-align:center;}
-.itemsGrid .unit{font-size:15px;color:#666;}
-.otherRow{display:flex;gap:10px;align-items:center;}
-.otherRow input{flex:1;}
-.btnGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
-.actionBtn{padding:18px;border:none;border-radius:16px;font-size:19px;font-weight:bold;color:white;}
-.save{background:#2e9d45;}
-.install{background:#ff9800;}
-.clear{background:#e53935;}
-.back{background:#888;grid-column:1/3;}
-.savedMsg{display:none;background:#e8f8ec;color:#1b7d34;border:2px solid #2e9d45;border-radius:12px;padding:14px;text-align:center;font-size:18px;font-weight:bold;margin-bottom:16px;}
-.actionBtn:active{transform:scale(.96);filter:brightness(.9);}
-.actionBtn:disabled{opacity:.6;}
-#acceptPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center;}
-#acceptPop.show{display:flex;}
-#acceptPop .popBox{background:#fff;border-radius:20px;padding:30px 26px;text-align:center;max-width:320px;width:85%;box-shadow:0 10px 40px rgba(0,0,0,.3);animation:popIn .25s ease;}
-@keyframes popIn{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
-#acceptPop .popIcon{font-size:56px;margin-bottom:8px;}
-#acceptPop .popTitle{font-size:20px;font-weight:bold;color:#1b7d34;margin-bottom:6px;}
-#acceptPop .popSub{font-size:14px;color:#555;line-height:1.5;}
-.printOnly{display:none;}
-.calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
-.calLink span{font-size:13px;font-weight:normal;opacity:.9;}
-.calLink:active{transform:scale(.97);}
-/* カード:急ぎは左の枠、右に情報 */
-.reqCard{display:flex;padding:0;overflow:hidden;}
-.reqCard .cardMain{flex:1;min-width:0;padding:16px 18px;}
-.urgSide{width:104px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 4px;color:#fff;font-weight:900;text-align:center;}
-.urgSide .ut{font-size:19px;letter-spacing:1px;line-height:1.2;}
-.urgSide.u2{background:#dc2626;}
-.urgSide.u2 .ut{animation:urgBlink 1s infinite;}
-.urgSide.u1{background:#f59e0b;}
-.urgSide.u0{background:#9333ea;}
-.reqCard.urgent0,.reqCard.urgent1,.reqCard.urgent2{border-left:none;}
-.reqCard.urgent2{background:#fff;}
-.infoRows{margin:6px 0 4px;border-top:1px solid #e5e7eb;}
-.infoRow{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:16px;line-height:1.5;}
-.infoRow .k{flex-shrink:0;width:64px;color:#64748b;font-size:14px;font-weight:bold;padding-top:1px;}
-.infoRow .v{flex:1;min-width:0;color:#1f2937;word-break:break-all;}
-.infoRow .v.big{font-weight:bold;}
-.infoRow .v a{color:#1d4ed8;font-weight:bold;text-decoration:none;}
-.infoRow .v .free{display:block;background:#fffbeb;border-left:4px solid #f59e0b;padding:4px 8px;margin-top:4px;border-radius:4px;white-space:pre-wrap;}
-@media(max-width:480px){.urgSide{width:76px;}.urgSide svg{width:52px;height:52px;}.urgSide .ut{font-size:15px;}.reqCard .cardMain{padding:12px;}.infoRow .k{width:52px;}}
-.cardSetBtn{display:block;width:100%;border:none;background:#fff;color:#475569;border-radius:12px;padding:10px;font-size:15px;font-weight:bold;margin:0 0 6px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;}
-#cardSetPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2100;align-items:center;justify-content:center;padding:16px;}
-#cardSetPop.show{display:flex;}
-#cardSetPop .box2{background:#fff;border-radius:18px;padding:20px;max-width:420px;width:100%;}
-#cardSetPop h3{font-size:18px;margin:0 0 4px;}
-#cardSetPop .sub{font-size:13px;color:#64748b;margin-bottom:12px;}
-#cardSetPop label{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:bold;padding:10px 12px;border:2px solid #e5e7eb;border-radius:12px;margin-bottom:8px;cursor:pointer;}
-#cardSetPop label input{transform:scale(1.4);}
-#cardSetPop .ok{width:100%;padding:14px;border:none;border-radius:12px;background:#1565c0;color:#fff;font-size:16px;font-weight:bold;margin-top:6px;}
-/* 経過時間(24時間を超えたら黄黒のトラ柄) */
-.callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
-.callRow .callBtn{margin:0;}
-.elapsed{display:inline-flex;align-items:center;gap:4px;font-size:16px;font-weight:900;padding:10px 14px;border-radius:12px;background:#f1f5f9;color:#334155;border:2px solid #cbd5e1;}
-.elapsed.tora{color:#111;border:3px solid #111;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;
-background:repeating-linear-gradient(-45deg,#facc15 0 14px,#111 14px 24px);animation:toraMove 1.2s linear infinite;background-size:200% 200%;}
-@keyframes toraMove{from{background-position:0 0;}to{background-position:34px 0;}}
-.elapsed.tora span{background:#facc15;padding:2px 8px;border-radius:8px;}
-.reqCard.toraCard{border-top:10px solid transparent;border-image:repeating-linear-gradient(-45deg,#facc15 0 12px,#111 12px 22px) 10;}
-/* 現場確認希望・見積依頼(電話対応ボタンと同じ形。点滅はしない) */
-.taskBtn{display:inline-block;border:none;font-size:17px;font-weight:bold;padding:12px 18px;border-radius:12px;cursor:pointer;}
-.taskBtn:active{transform:scale(.95);}
-.taskBtn.genba{background:#16a34a;color:#fff;box-shadow:0 3px 10px rgba(22,163,74,.35);}
-.taskBtn.mitsu{background:#facc15;color:#422006;box-shadow:0 3px 10px rgba(202,138,4,.35);}
-.taskBtn.done{background:#e8f8ec;color:#1b7d34;box-shadow:none;font-size:15px;padding:8px 14px;}
-/* 鬼と早急対応 */
-.oniPick{display:flex;gap:12px;margin-bottom:12px;}
-.oniPick button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border:3px solid #ddd;border-radius:16px;padding:8px 4px;font-size:15px;font-weight:bold;color:#555;cursor:pointer;}
-.oniPick button.selected{border-color:#1565c0;background:#e3f2fd;color:#1565c0;box-shadow:0 3px 10px rgba(21,101,192,.25);}
-.urgBtnRow.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.urgBtnRow.three .urgBigBtn{font-size:21px;padding:22px 6px;letter-spacing:1px;}
-.urgBigBtn.u0{border:3px solid #9333ea;background:#fff;color:#7e22ce;}
-.urgBigBtn.u0.selected{background:#9333ea;color:#fff;box-shadow:0 4px 16px rgba(147,51,234,.5);transform:scale(1.03);}
-.reqCard.urgent0{border-left:6px solid #9333ea;}
-.urgBadge{display:flex;align-items:center;justify-content:center;gap:10px;}
-.urgBadge.u0{background:#9333ea;color:#fff;box-shadow:0 3px 10px rgba(147,51,234,.4);}
-.urgBadge span{white-space:nowrap;}
-.urgBadge.u2{letter-spacing:1px;}
-.urgBadge .oni{flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
-@media print{
-body *{display:none !important;}
-#printBox,#printBox *{display:block !important;}
-body{background:white;padding-bottom:0;}
-.box{box-shadow:none;border:1px solid #333;}
-}
+  * { box-sizing:border-box; margin:0; padding:0; font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; }
+  html, body { height:100%; }
+  body { background:#f5f5f4; color:#111827; display:flex; flex-direction:column; }
+  button { font-family:inherit; }
+
+  /* ===== ヘッダー(1行・シンプル) ===== */
+  header { background:#fff; border-bottom:2px solid #d6d3d1; padding:8px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  header h1 { font-size:18px; color:#44403c; white-space:nowrap; }
+  .nav { border:1px solid #d6d3d1; background:#fff; border-radius:10px; width:44px; height:42px; font-size:18px; cursor:pointer; color:#44403c; }
+  .title { font-size:26px; font-weight:900; white-space:nowrap; min-width:170px; text-align:center; }
+  .tBtn { border:1px solid #d6d3d1; background:#fff; border-radius:10px; padding:9px 14px; font-size:15px; font-weight:bold; cursor:pointer; color:#44403c; white-space:nowrap; }
+  .modeSw { display:flex; border:2px solid #0f766e; border-radius:12px; overflow:hidden; }
+  .modeSw button { border:none; background:#fff; color:#0f766e; font-size:18px; font-weight:900; padding:8px 22px; cursor:pointer; }
+  .modeSw button.on { background:#0f766e; color:#fff; }
+  .spacer { flex:1; }
+  .addBtn { border:none; background:#0f766e; color:#fff; border-radius:10px; padding:10px 16px; font-size:16px; font-weight:bold; cursor:pointer; white-space:nowrap; }
+  .menuWrap { position:relative; }
+  .menu { display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #d6d3d1; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.15); z-index:50; min-width:200px; overflow:hidden; }
+  .menu.show { display:block; }
+  .menu button { display:block; width:100%; text-align:left; border:none; background:#fff; padding:14px 16px; font-size:16px; font-weight:bold; cursor:pointer; border-bottom:1px solid #f5f5f4; }
+  .menu button:hover { background:#f5f5f4; }
+
+  main { flex:1; min-height:0; padding:8px; display:flex; flex-direction:column; }
+
+  /* ===== 共通:予定の行(紙のカレンダーのように黒文字・印だけ) ===== */
+  .it { display:flex; align-items:baseline; gap:4px; font-weight:800; line-height:1.35; cursor:pointer; white-space:nowrap; overflow:hidden; border-radius:4px; padding:0 2px; }
+  .it:hover { background:#f5f5f4; }
+  .it .mk { flex-shrink:0; font-size:.8em; }
+  .bx { display:inline-block; font-size:.62em; font-weight:bold; border:1.5px solid currentColor; border-radius:3px; padding:0 2px; line-height:1.2; color:#78716c; vertical-align:.12em; }
+  .it.urgent .bx { color:#dc2626; }
+  .legendMini { font-size:13px; color:#78716c; white-space:nowrap; }
+  .it .nm { overflow:hidden; text-overflow:ellipsis; }
+  .it.urgent { color:#dc2626; }
+  .it.isDone { color:#a8a29e; }
+  .it.isDone .nm { text-decoration:line-through; }
+  .sec { color:#78716c; font-weight:bold; }
+
+  /* ===== 3日表示 ===== */
+  .three { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1.25fr 1fr; border:2px solid #57534e; background:#fff; }
+  .day { display:flex; flex-direction:column; min-height:0; border-right:1px solid #a8a29e; }
+  .day:last-child { border-right:none; }
+  .dHead { display:flex; align-items:baseline; gap:8px; padding:6px 12px; border-bottom:2px solid #57534e; background:#fafaf9; cursor:pointer; }
+  .dHead .dn { font-size:40px; font-weight:900; line-height:1; }
+  .dHead .dw { font-size:20px; font-weight:bold; }
+  .dHead .dh { font-size:14px; font-weight:bold; color:#dc2626; }
+  .dHead .cnt { margin-left:auto; font-size:15px; font-weight:bold; color:#57534e; }
+  .dHead .mini { border:1px solid #d6d3d1; background:#fff; border-radius:8px; padding:4px 9px; font-size:14px; cursor:pointer; }
+  .day.sat .dn, .day.sat .dw { color:#1d4ed8; }
+  .day.sun .dn, .day.sun .dw, .day.hol .dn, .day.hol .dw { color:#dc2626; }
+  .day.today .dHead { background:#fef9c3; }
+  .todayMark { font-size:14px; font-weight:bold; background:#facc15; color:#422006; border-radius:6px; padding:2px 8px; }
+  .dBody { flex:1; min-height:0; overflow:hidden; padding:8px 12px; --fs:24px; font-size:var(--fs); }
+  .dBody.scroll { overflow-y:auto; }
+  .dBody .sec { font-size:calc(var(--fs)*.55); margin:6px 0 2px; border-bottom:1px dashed #d6d3d1; }
+  .dBody .sub { font-size:calc(var(--fs)*.55); color:#57534e; font-weight:normal; margin:-2px 0 4px 1.4em; white-space:normal; }
+  .none { color:#d6d3d1; font-size:18px; text-align:center; margin-top:24px; }
+
+  /* ===== 1か月表示(紙のカレンダーの形) ===== */
+  .mWrap { flex:1; min-height:0; display:flex; flex-direction:column; border:2px solid #57534e; background:#fff; }
+  .dow { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:2px solid #57534e; background:#44403c; color:#fff; }
+  .dow div { text-align:center; font-weight:900; font-size:16px; padding:3px 0; border-right:1px solid #78716c; }
+  .dow div:last-child { border-right:none; }
+  .dow .sa { background:#1d4ed8; } .dow .su { background:#dc2626; }
+  .mGrid { flex:1; min-height:0; display:grid; grid-template-columns:repeat(7,1fr); }
+  .mc { border-right:1px solid #a8a29e; border-bottom:1px solid #a8a29e; display:flex; flex-direction:column; min-height:0; overflow:hidden; cursor:pointer; padding:2px 4px; }
+  .mc:nth-child(7n) { border-right:none; }
+  .mc.other { background:#fafaf9; }
+  .mc.other .mn { color:#d6d3d1 !important; }
+  .mc.today { background:#fef9c3; }
+  .mh { display:flex; align-items:baseline; gap:4px; }
+  .mn { font-size:24px; font-weight:900; line-height:1.05; }
+  .mc.sat .mn { color:#1d4ed8; }
+  .mc.sun .mn, .mc.hol .mn { color:#dc2626; }
+  .mhol { font-size:10px; color:#dc2626; font-weight:bold; white-space:nowrap; overflow:hidden; }
+  .mcnt { margin-left:auto; font-size:11px; color:#78716c; font-weight:bold; }
+  .mb { flex:1; min-height:0; overflow:hidden; --fs:14px; font-size:var(--fs); }
+  .mb.two { column-count:2; column-gap:4px; }
+  .mb .it { line-height:1.25; }
+  .mb .sec { display:none; }
+  /* ===== モーダル ===== */
+  .modalBg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:center; justify-content:center; padding:14px; }
+  .modalBg.show { display:flex; }
+  .modal { background:#fff; border-radius:18px; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:18px; }
+  .modal h3 { font-size:20px; margin-bottom:6px; }
+  label.f { display:block; font-size:14px; font-weight:bold; color:#475569; margin:12px 0 5px; }
+  .modal input, .modal select, .modal textarea { width:100%; padding:11px; font-size:17px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; }
+  .seg { display:flex; gap:6px; flex-wrap:wrap; }
+  .seg button { flex:1; min-width:74px; padding:10px 6px; font-size:15px; font-weight:bold; border:2px solid #cbd5e1; border-radius:10px; background:#f8fafc; color:#334155; cursor:pointer; }
+  .seg button.on { border-color:#0f766e; background:#0f766e; color:#fff; }
+  .row2 { display:flex; gap:8px; }
+  .row2 > * { flex:1; min-width:0; }
+  .itemsGrid { display:grid; grid-template-columns:1fr 80px 28px; gap:8px; align-items:center; }
+  .itemsGrid span { font-size:16px; font-weight:bold; }
+  .itemsGrid input { text-align:center; }
+  .doneBox { display:flex; align-items:center; gap:10px; background:#f0fdf4; border:2px solid #86efac; border-radius:12px; padding:12px; margin-top:14px; font-size:17px; font-weight:bold; color:#166534; cursor:pointer; }
+  .doneBox input { width:24px; height:24px; }
+  .btnRow { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .btn { flex:1; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:bold; cursor:pointer; }
+  .btn.main { background:#0f766e; color:#fff; }
+  .btn.sub { background:#e2e8f0; color:#334155; }
+  .btn.del { background:#fee2e2; color:#dc2626; flex:0 0 100%; }
+  .btn.blue { background:#2563eb; color:#fff; }
+  .hint { font-size:12px; color:#64748b; margin-top:4px; line-height:1.6; }
+  .info { font-size:17px; line-height:1.9; }
+  .info b { color:#475569; }
+  .info a { color:#2563eb; font-weight:bold; }
+  #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 22px; border-radius:999px; font-size:15px; opacity:0; pointer-events:none; transition:.25s; z-index:300; white-space:nowrap; }
+  #toast.show { opacity:1; }
+
+
+  /* ===== 印刷 ===== */
+  #printArea { display:none; }
+  @media print {
+    body > *:not(#printArea) { display:none !important; }
+    #printArea { display:block !important; }
+    body { background:#fff; display:block; height:auto; }
+    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+  .pr h2 { font-size:17pt; margin-bottom:5pt; }
+  .prT { width:100%; border-collapse:collapse; table-layout:fixed; }
+  .prT th { border:1px solid #444; background:#eee; font-size:12pt; padding:3pt; }
+  .prT th.sa { color:#1d4ed8; } .prT th.su { color:#dc2626; }
+  .prT td { border:1px solid #444; vertical-align:top; padding:3pt; font-size:10.5pt; font-weight:bold; }
+  .prT td .d { font-size:14pt; font-weight:900; }
+  .prT td .x { font-weight:normal; font-size:8.5pt; color:#444; margin-left:1.2em; }
+  .prT td .u { color:#dc2626; }
+  .prT td .g { color:#999; text-decoration:line-through; }
+  .ck { display:inline-block; width:10pt; height:10pt; border:1.2pt solid #333; margin-right:4pt; vertical-align:-1pt; }
+
+  @media (max-width:760px) {
+    body { height:auto; }
+    .title { font-size:19px; min-width:0; }
+    header h1 { display:none; }
+    .three { grid-template-columns:1fr; }
+    .day { border-right:none; border-bottom:2px solid #57534e; }
+    .dBody { --fs:19px !important; overflow:visible !important; }
+    .mGrid { grid-auto-rows:minmax(90px,auto); }
+    .mb { --fs:10px !important; overflow:visible; }
+    .mb.two { column-count:1; }
+    .mn { font-size:15px; } .mhol, .mcnt { display:none; }
+  }
 </style>
 </head>
 <body>
+
 <header>
-<button class="installIconBtn" id="installIconBtn" style="display:none;" onclick="installApp()">📲</button>
-<h1>📞 電話依頼</h1>
-<button class="gear" onclick="openSettings()">⚙️</button>
+  <h1>📅 関根商店</h1>
+  <button class="nav" onclick="move(-1)">◀</button>
+  <div class="title" id="title"></div>
+  <button class="nav" onclick="move(1)">▶</button>
+  <button class="tBtn" onclick="goToday()">今日</button>
+  <div class="modeSw">
+    <button id="sw3" onclick="setMode('three')">3日</button>
+    <button id="swM" onclick="setMode('month')">1か月</button>
+  </div>
+  <div class="spacer"></div>
+  <span class="legendMini"><span class="bx">電</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx">他</span>その他</span>
+  <button class="addBtn" onclick="openForm(null, focusDay)">＋ 予定を追加</button>
+  <div class="menuWrap">
+    <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
+    <div class="menu" id="menu">
+      <button onclick="printView()">🖨 この画面を印刷</button>
+      <button onclick="location.href='index.html'">📞 電話依頼へ</button>
+    </div>
+  </div>
 </header>
-<div class="wrap">
-<a class="calLink" href="calendar.html">📅 引取カレンダーを見る<span>回収予定日が入った依頼が自動で並びます</span></a>
-<button class="cardSetBtn" onclick="openCardSet()">🧩 カードに出す項目を選ぶ</button>
-<div id="reportArea"></div>
 
-<div class="sectionLabel pending">🔴 未対応</div>
-<div id="pendingList"></div>
-<div class="sectionLabel doneLabel">✅ 対応済み</div>
-<div id="doneList"></div>
-</div>
-<button class="fab" onclick="openSettings()">＋</button>
+<main id="main"></main>
 
-<!-- カードに出す項目 -->
-<div id="cardSetPop" onclick="if(event.target===this)closeCardSet()">
-<div class="box2">
-<h3>🧩 カードに出す項目</h3>
-<div class="sub">チェックした項目だけ、一覧のカードに表示します(全員の画面で共通)</div>
-<div id="cardSetList"></div>
-<button class="ok" onclick="saveCardSet()">これで表示する</button>
-</div>
-</div>
+<!-- 予定(通常回収・その他)の入力・詳細 -->
+<div class="modalBg" id="formBg" onclick="if(event.target===this)closeForm()">
+  <div class="modal">
+    <h3 id="formTitle">＋ 予定を追加</h3>
+    <div class="hint" id="formSub"></div>
 
-<!-- 受付完了ポップ -->
-<div id="acceptPop" onclick="this.classList.remove('show')">
-<div class="popBox" onclick="event.stopPropagation()">
-<div class="popIcon" id="acceptPopIcon">📞✅</div>
-<div class="popTitle" id="acceptPopTitle">電話依頼を受け付けました</div>
-<div class="popSub" id="acceptPopSub"></div>
-<div class="popBtnRow" id="acceptPopBtns" style="display:none">
-<button class="popBtn line" id="popLineBtn">📱 LINEで報告</button>
-<button class="popBtn close" onclick="document.getElementById('acceptPop').classList.remove('show')">閉じる</button>
-</div>
-</div>
-</div>
+    <label class="f">種類</label>
+    <div class="seg" id="kindSeg">
+      <button type="button" data-v="regular" onclick="setSeg('kindSeg',this)">🔁 通常回収</button>
+      <button type="button" data-v="other" onclick="setSeg('kindSeg',this)">📝 その他</button>
+    </div>
 
-<!-- 詳細モーダル -->
-<div class="modalScreen" id="modalScreen">
-<div class="modalHeader">
-<button class="modalClose" onclick="closeModal()">← 戻る</button>
-<h2>依頼の詳細</h2>
-</div>
-<div class="modalBox" id="modalBox"></div>
-</div>
+    <label class="f" id="nameLabel">会社名(取引先マスタから選べます)</label>
+    <input type="text" id="fName" list="clientList" placeholder="会社名の一部やよみがなで探せます" lang="ja" autocomplete="off">
+    <datalist id="clientList"></datalist>
 
-<!-- 設定（入力フォーム）画面 -->
-<div class="settingsScreen" id="settingsScreen">
-<div class="setHeader">
-<button class="closeSet" onclick="closeSettings()">←</button>
-<h2>新しい依頼を入力</h2>
-</div>
-<div class="box" id="mainBox">
-<div class="savedMsg" id="savedMsg">✅ 保存しました</div>
+    <div class="row2">
+      <div><label class="f">日付(繰り返しは開始日)</label><input type="date" id="fDate"></div>
+      <div><label class="f">時間</label>
+        <div class="seg" id="apSeg">
+          <button type="button" data-v="" onclick="setSeg('apSeg',this)">なし</button>
+          <button type="button" data-v="午前" onclick="setSeg('apSeg',this)">午前</button>
+          <button type="button" data-v="午後" onclick="setSeg('apSeg',this)">午後</button>
+        </div>
+      </div>
+    </div>
 
-<div class="field">
-<label>依頼日</label>
-<input type="date" id="requestDate">
-</div>
+    <label class="f">繰り返し</label>
+    <div class="seg" id="repSeg">
+      <button type="button" data-v="none" onclick="setSeg('repSeg',this)">なし</button>
+      <button type="button" data-v="weekly" onclick="setSeg('repSeg',this)">毎週</button>
+      <button type="button" data-v="biweekly" onclick="setSeg('repSeg',this)">隔週</button>
+      <button type="button" data-v="monthlyDate" onclick="setSeg('repSeg',this)">毎月○日</button>
+      <button type="button" data-v="monthlyNth" onclick="setSeg('repSeg',this)">毎月第○○曜</button>
+    </div>
+    <div class="hint" id="repHint"></div>
+    <div id="endWrap"><label class="f">繰り返しの終わり(空欄ならずっと)</label><input type="date" id="fEnd"></div>
 
-<div class="field">
-<label>引取先</label>
-<input type="text" id="clientName" placeholder="例：〇〇商店" lang="ja" inputmode="text" autocomplete="off">
-</div>
+    <label class="f">品目</label>
+    <input type="text" id="fHinmoku" placeholder="例:廃プラ・金属くず" lang="ja" autocomplete="off">
 
-<div class="field">
-<label>取引先部署</label>
-<input type="text" id="clientDept" placeholder="例：営業部" lang="ja" inputmode="text" autocomplete="off">
-</div>
+    <label class="f">持ち物</label>
+    <div class="itemsGrid">
+      <span>穴ありドラム缶</span><input type="text" id="iHole" value="0" onfocus="this.select()"><span>本</span>
+      <span>穴なしドラム缶</span><input type="text" id="iNoHole" value="0" onfocus="this.select()"><span>本</span>
+      <span>フレコン</span><input type="text" id="iFlex" value="0" onfocus="this.select()"><span>枚</span>
+      <span>箱</span><input type="text" id="iBox" value="0" onfocus="this.select()"><span>個</span>
+    </div>
+    <input type="text" id="iOther" placeholder="持ち物その他(品名・数量など)" lang="ja" autocomplete="off" style="margin-top:8px;">
 
-<div class="field">
-<label>担当者名</label>
-<input type="text" id="clientContact" placeholder="例：山田様" lang="ja" inputmode="text" autocomplete="off">
+    <div class="row2">
+      <div><label class="f">先方の担当者</label><input type="text" id="fContact" placeholder="例:山田様" lang="ja" autocomplete="off"></div>
+      <div><label class="f">電話番号</label><input type="text" id="fTel" placeholder="マスタから自動で入ります" autocomplete="off"></div>
+    </div>
+
+    <label class="f">メモ</label>
+    <textarea id="fMemo" rows="2" placeholder="注意点・連絡事項など" lang="ja"></textarea>
+
+    <label class="doneBox" id="doneWrap"><input type="checkbox" id="fDone"> <span id="doneLabel">この日の回収済み</span></label>
+
+    <div class="btnRow">
+      <button class="btn sub" onclick="closeForm()">閉じる</button>
+      <button class="btn main" id="saveBtn" onclick="saveForm()">保存</button>
+      <button class="btn del" id="delBtn" onclick="deleteFromForm()">🗑 この予定を消す</button>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<label>電話番号</label>
-<input type="text" id="phone" placeholder="例：0263-00-0000(全角でもOK)" lang="ja" inputmode="text" autocomplete="off">
+<!-- 電話依頼の引取(詳細) -->
+<div class="modalBg" id="phoneBg" onclick="if(event.target===this)closePhone()">
+  <div class="modal">
+    <h3 id="phTitle"></h3>
+    <div class="info" id="phInfo"></div>
+    <label class="f">回収予定日(直すと電話依頼の方も直ります)</label>
+    <div class="row2">
+      <input type="date" id="phDate">
+      <div class="seg" id="phApSeg">
+        <button type="button" data-v="" onclick="setSeg('phApSeg',this)">なし</button>
+        <button type="button" data-v="午前" onclick="setSeg('phApSeg',this)">午前</button>
+        <button type="button" data-v="午後" onclick="setSeg('phApSeg',this)">午後</button>
+      </div>
+    </div>
+    <div class="btnRow">
+      <button class="btn sub" onclick="closePhone()">閉じる</button>
+      <button class="btn main" onclick="savePhone()">日付を保存</button>
+      <button class="btn blue" style="flex:0 0 100%;" onclick="window.open('https://rie4649.github.io/denwa-irai/','_blank')">📞 電話依頼で開く(ほかの内容を直す)</button>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<label>電話受付者</label>
-<select id="staffSelect"></select>
-</div>
-
-<div class="field">
-<label>依頼内容</label>
-<div class="checkGroup" id="contentGroup">
-<label><input type="checkbox" value="電話欲しい">電話欲しい</label>
-<label><input type="checkbox" value="メール欲しい">メール欲しい</label>
-<label><input type="checkbox" value="引き取り希望">引き取り希望</label>
-<label><input type="checkbox" value="現場確認希望">🔍 現場確認希望</label>
-<label><input type="checkbox" value="見積依頼">📝 見積依頼</label>
-<label><input type="checkbox" value="その他">その他</label>
-</div>
-<textarea id="contentsFree" rows="2" placeholder="依頼内容を自由に書けます(例:ドラム缶3本、午前中希望)" lang="ja" style="margin-top:10px;"></textarea>
-</div>
-
-<div class="field">
-<label>対応内容</label>
-<textarea id="responseText" rows="4" placeholder="対応した内容・連絡事項を自由に入力" lang="ja" inputmode="text"></textarea>
-</div>
-
-<div class="field">
-<label>緊急度 <span style="font-weight:normal;font-size:14px;color:#666;">(急ぎのときだけ押す。もう一度押すと解除)</span></label>
-<div style="font-size:14px;color:#666;margin-bottom:6px;">カードに出す鬼を選んでね</div>
-<div class="oniPick">
-<button type="button" id="oniBtnRed" onclick="setOni('red')"><span id="oniPickRed"></span>赤鬼</button>
-<button type="button" id="oniBtnBlue" onclick="setOni('blue')"><span id="oniPickBlue"></span>青鬼</button>
-</div>
-<div class="urgBtnRow three">
-<button type="button" class="urgBigBtn u0" id="urgBtn0" onclick="setUrgency('早急対応')">早急対応</button>
-<button type="button" class="urgBigBtn u1" id="urgBtn1" onclick="setUrgency('至急')">🔥 至急</button>
-<button type="button" class="urgBigBtn u2" id="urgBtn2" onclick="setUrgency('大至急')">🚨 大至急</button>
-</div>
-</div>
-
-<div class="field">
-<label>回収予定日</label>
-<input type="date" id="pickupDate">
-</div>
-
-<div class="field">
-<label>時間</label>
-<div class="radioGroup" id="ampmGroup">
-<label><input type="radio" name="ampm" value="午前">午前</label>
-<label><input type="radio" name="ampm" value="午後">午後</label>
-</div>
-</div>
-
-<div class="field">
-<label>持ち物</label>
-<div class="itemsGrid">
-<span>穴ありドラム缶</span><input type="text" id="itemHoleDrum" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">本</span>
-<span>穴なしドラム缶</span><input type="text" id="itemNoHoleDrum" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">本</span>
-<span>フレコン</span><input type="text" id="itemFlexBag" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">枚</span>
-<span>箱</span><input type="text" id="itemBox" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">個</span>
-</div>
-<div class="otherRow">
-<span style="font-size:16px;font-weight:bold;color:#333;white-space:nowrap;">その他</span>
-<input type="text" id="itemOther" placeholder="品名・数量など" lang="ja" inputmode="text" autocomplete="off">
-</div>
-</div>
-
-<div class="btnGrid">
-<button class="actionBtn save" onclick="saveRequest()">💾 保存する</button>
-<button class="actionBtn clear" onclick="clearForm()">🗑 入力クリア</button>
-<button class="actionBtn" style="background:#06c755;" onclick="shareFormLine()">📱 ライン</button>
-<button class="actionBtn" style="background:#555;" onclick="printFormOnly()">🖨 印刷</button>
-<button class="actionBtn install" id="installBtn" style="display:none;grid-column:1/3;" onclick="installApp()">📲 アプリを追加</button>
-<button class="actionBtn back" onclick="closeSettings()">← 戻る</button>
-</div>
-</div>
-</div>
-
-<!-- 印刷/PDF用レイアウト -->
-<div class="box printOnly" id="printBox">
-<h2 style="text-align:center;color:#000;font-weight:900;-webkit-print-color-adjust:exact;print-color-adjust:exact;">電話依頼票</h2>
-<div style="font-size:18px;line-height:2;color:#000;" id="printBoxBody"></div>
-</div>
+<div id="printArea"></div>
+<div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-const firebaseConfig={
-apiKey:"AIzaSyD99MxOMnGplSQjV7830bS7-gdCBSM9DGY",
-authDomain:"sekine-store.firebaseapp.com",
-projectId:"sekine-store",
-storageBucket:"sekine-store.firebasestorage.app",
-messagingSenderId:"781856496751",
-appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
+const firebaseConfig = {
+  apiKey:"AIzaSyD99MxOMnGplSQjV7830bS7-gdCBSM9DGY",
+  authDomain:"sekine-store.firebaseapp.com",
+  projectId:"sekine-store",
+  storageBucket:"sekine-store.firebasestorage.app",
+  messagingSenderId:"781856496751",
+  appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
 };
-if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
-const db=firebase.firestore();
-const colRef=db.collection("phoneRequests");
-const defaultStaff=["未選択","古川","石原","宮嶋","長村","川村"];
-const TWO_DAYS_MS=2*24*60*60*1000;
-let requestCache=[];
-let currentDetailId=null;
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const EVENT_COL = "calendarEvents";   // カレンダーで入れる予定(通常回収・その他)
+const PHONE_COL = "phoneRequests";    // 電話依頼(回収予定日があるものを表示)
+const CLIENT_COL = "master_clients";  // 取引先マスタ(会社名・電話の候補)
 
-// ==== 鬼のイラスト(オリジナル・金棒つき全身) ====
-function oniSvg(kind,size){
-const red=kind!=="blue";
-const skin=red?"#e8533f":"#2f6fd6", skinD=red?"#c43d2b":"#2156ad";
-const horns=red
-?'<path d="M24 30 L14 4 L36 20Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5"/><path d="M76 30 L86 4 L64 20Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5"/><path d="M18 13 L27 17 M21 21 L30 24 M82 13 L73 17 M79 21 L70 24" stroke="#1f2937" stroke-width="2.4"/>'
-:'<path d="M50 16 L42 -2 L58 -2Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5" transform="translate(0,4)"/><path d="M44 5 L56 5 M45 11 L55 11" stroke="#1f2937" stroke-width="2.4"/>';
-return '<svg class="oni" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'+
-horns+
-'<ellipse cx="11" cy="58" rx="7" ry="10" fill="'+skinD+'"/><ellipse cx="89" cy="58" rx="7" ry="10" fill="'+skinD+'"/>'+
-'<path d="M14 50 Q14 20 50 20 Q86 20 86 50 L84 74 Q80 94 50 94 Q20 94 16 74Z" fill="'+skin+'"/>'+
-'<g fill="#1f2937"><circle cx="20" cy="30" r="10"/><circle cx="33" cy="20" r="11"/><circle cx="50" cy="17" r="11"/><circle cx="67" cy="20" r="11"/><circle cx="80" cy="30" r="10"/><circle cx="15" cy="42" r="7"/><circle cx="85" cy="42" r="7"/></g>'+
-'<path d="M27 42 Q35 37 44 44 M73 42 Q65 37 56 44" stroke="#f4a340" stroke-width="5" stroke-linecap="round" fill="none"/>'+
-'<circle cx="37" cy="52" r="7" fill="#fff"/><circle cx="63" cy="52" r="7" fill="#fff"/><circle cx="38.5" cy="53" r="3.6" fill="#1f2937"/><circle cx="61.5" cy="53" r="3.6" fill="#1f2937"/>'+
-'<ellipse cx="50" cy="62" rx="6.5" ry="5" fill="'+skinD+'"/>'+
-'<path d="M28 68 Q50 64 72 68 Q70 90 50 90 Q30 90 28 68Z" fill="#2b2b2b"/>'+
-'<path d="M31 69 L35 77 L39 68.5Z M69 69 L65 77 L61 68.5Z M40 89 L43 83 L46 89.6Z M60 89 L57 83 L54 89.6Z" fill="#fff"/>'+
-'</svg>';
-}
-let currentOni="red";
-function setOni(k){
-currentOni=k;
-document.getElementById("oniBtnRed").classList.toggle("selected",k==="red");
-document.getElementById("oniBtnBlue").classList.toggle("selected",k==="blue");
-}
+let events = [], phones = [];
+let clients = null;       // 入力画面を開いたときだけ読む(読み取り節約)
+let editingId = null, editingDate = null, phoneId = null;
 
-// ==== 経過時間 ====
-function createdMs(item){
-if(item.createdAt && typeof item.createdAt.toMillis==="function")return item.createdAt.toMillis();
-const t=Date.parse(item.createdAtText||"");
-if(!isNaN(t))return t;
-const d=Date.parse((item.requestDate||"")+"T09:00:00");
-return isNaN(d)?null:d;
-}
-function elapsedInfo(item){
-const ms=createdMs(item);
-if(ms===null)return null;
-const h=Math.max(0,Math.floor((Date.now()-ms)/3600000));
-const text="電話未対応 "+(h<1?"1時間以内":h+"時間経過");
-return {hours:h,text:text,over:h>=24};
-}
-// 全角数字などを半角に(ひらがな入力のまま数字を打っても大丈夫なように)
-function toHalfNum(s){
-return String(s||"").normalize("NFKC").replace(/[ー－―]/g,"-").trim();
-}
-function numVal(id){
-const n=parseInt(toHalfNum(document.getElementById(id).value).replace(/[^0-9]/g,""),10);
-return isNaN(n)?0:n;
-}
+/* ===== 日付 ===== */
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (ds, n) => { const d = parseYmd(ds); d.setDate(d.getDate()+n); return ymd(d); };
+const WD = ["日","月","火","水","木","金","土"];
+const todayYmd = () => ymd(new Date());
+function mondayOf(ds){ const d = parseYmd(ds); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d; }
+function mdw(ds){ const d = parseYmd(ds); return (d.getMonth()+1)+"/"+d.getDate()+"("+WD[d.getDay()]+")"; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2200); }
+function shortName(n){ return String(n||"").replace(/株式会社|有限会社|合同会社|㈱|㈲|\(株\)|（株）|\(有\)|（有）/g,"").trim() || n; }
+const gv = id => document.getElementById(id).value;
+function numOf(v){ const n = parseInt(String(v||"").normalize("NFKC").replace(/[^0-9]/g,""),10); return isNaN(n)?0:n; }
 
-function todayStr(){
-const d=new Date();
-const y=d.getFullYear();
-const m=String(d.getMonth()+1).padStart(2,"0");
-const day=String(d.getDate()).padStart(2,"0");
-return y+"-"+m+"-"+day;
+/* ===== 祝日(自動計算) ===== */
+const holCache = {};
+function nthWeekday(y,m,wd,n){ const f = new Date(y,m-1,1).getDay(); return 1+((wd-f+7)%7)+(n-1)*7; }
+function holidaysOf(y){
+  if (holCache[y]) return holCache[y];
+  const h = {}; const add = (m,d,n) => { h[y+"-"+pad(m)+"-"+pad(d)] = n; };
+  add(1,1,"元日"); add(2,11,"建国記念の日"); add(2,23,"天皇誕生日"); add(4,29,"昭和の日");
+  add(5,3,"憲法記念日"); add(5,4,"みどりの日"); add(5,5,"こどもの日"); add(8,11,"山の日");
+  add(11,3,"文化の日"); add(11,23,"勤労感謝の日");
+  add(1,nthWeekday(y,1,1,2),"成人の日"); add(7,nthWeekday(y,7,1,3),"海の日");
+  add(9,nthWeekday(y,9,1,3),"敬老の日"); add(10,nthWeekday(y,10,1,2),"スポーツの日");
+  const k = y-1980;
+  add(3,Math.floor(20.8431+0.242194*k-Math.floor(k/4)),"春分の日");
+  add(9,Math.floor(23.2488+0.242194*k-Math.floor(k/4)),"秋分の日");
+  Object.keys(h).forEach(key => { const mid = addDays(key,1), nx = addDays(key,2);
+    if (h[nx] && !h[mid] && parseYmd(mid).getDay() !== 0) h[mid] = "国民の休日"; });
+  Object.keys(h).sort().forEach(key => { if (parseYmd(key).getDay() === 0){ let s = addDays(key,1); while (h[s]) s = addDays(s,1); h[s] = "振替休日"; } });
+  return holCache[y] = h;
 }
+const holidayName = ds => holidaysOf(Number(ds.slice(0,4)))[ds] || "";
 
-function loadStaff(){
-const sel=document.getElementById("staffSelect");
-sel.innerHTML="";
-defaultStaff.forEach(function(name){
-const op=document.createElement("option");
-op.value=name;op.textContent=name;
-sel.appendChild(op);
-});
+/* ===== 繰り返し ===== */
+function occursOn(ev, ds){
+  if (!ev.date || ds < ev.date) return false;
+  if (ev.endDate && ds > ev.endDate) return false;
+  if ((ev.skipDates||[]).includes(ds)) return false;
+  const rep = ev.repeat || "none";
+  if (rep === "none") return ds === ev.date;
+  const d = parseYmd(ds), s = parseYmd(ev.date);
+  if (rep === "weekly") return d.getDay() === s.getDay();
+  if (rep === "biweekly") return d.getDay() === s.getDay() && Math.round((d-s)/(7*86400000)) % 2 === 0;
+  if (rep === "monthlyDate") return d.getDate() === s.getDate();
+  if (rep === "monthlyNth") return d.getDay() === s.getDay() && Math.ceil(d.getDate()/7) === Math.ceil(s.getDate()/7);
+  return false;
 }
-
-document.querySelectorAll("#contentGroup input[type=checkbox]").forEach(function(cb){
-cb.addEventListener("change",function(){
-cb.closest("label").classList.toggle("checked",cb.checked);
-});
-});
-
-document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
-r.addEventListener("change",function(){
-document.querySelectorAll("#ampmGroup label").forEach(l=>l.classList.remove("checked"));
-r.closest("label").classList.add("checked");
-});
-});
-
-function collectData(){
-const staff=document.getElementById("staffSelect").value;
-const client=document.getElementById("clientName").value.trim();
-const contents=Array.from(document.querySelectorAll("#contentGroup input:checked")).map(cb=>cb.value);
-const ampmEl=document.querySelector("#ampmGroup input[name=ampm]:checked");
-return {
-urgency:currentUrgency||"通常",
-oni:currentOni||"red",
-requestDate:document.getElementById("requestDate").value,
-client:client,
-clientDept:document.getElementById("clientDept").value.trim(),
-clientContact:document.getElementById("clientContact").value.trim(),
-staff:staff,
-phone:toHalfNum(document.getElementById("phone").value),
-contents:contents,
-contentsFree:document.getElementById("contentsFree").value.trim(),
-responseText:document.getElementById("responseText").value.trim(),
-pickupDate:document.getElementById("pickupDate").value,
-ampm:ampmEl?ampmEl.value:"",
-items:{
-holeDrum:numVal("itemHoleDrum"),
-noHoleDrum:numVal("itemNoHoleDrum"),
-flexBag:numVal("itemFlexBag"),
-box:numVal("itemBox"),
-other:document.getElementById("itemOther").value.trim()
+function repeatText(ev){
+  const rep = ev.repeat || "none"; if (rep === "none" || !ev.date) return "";
+  const s = parseYmd(ev.date);
+  return rep==="weekly" ? "毎週"+WD[s.getDay()]+"曜" : rep==="biweekly" ? "隔週"+WD[s.getDay()]+"曜"
+    : rep==="monthlyDate" ? "毎月"+s.getDate()+"日" : rep==="monthlyNth" ? "毎月第"+Math.ceil(s.getDate()/7)+WD[s.getDay()]+"曜" : "";
 }
-};
+function itemsText(it){
+  it = it || {}; const p = [];
+  if (it.holeDrum>0) p.push("穴ありドラム缶"+it.holeDrum+"本");
+  if (it.noHoleDrum>0) p.push("穴なしドラム缶"+it.noHoleDrum+"本");
+  if (it.flexBag>0) p.push("フレコン"+it.flexBag+"枚");
+  if (it.box>0) p.push("箱"+it.box+"個");
+  if (it.other) p.push(it.other);
+  return p.join("・");
 }
 
-function validate(data){
-if(!data.client){alert("引取先を入力してください");return false;}
-if(!data.staff||data.staff==="未選択"){alert("電話受付者を選んでください");return false;}
-return true;
+/* その日の予定(午前 → 時間なし → 午後、その中は 電話依頼 → 通常回収 → その他) */
+function itemsOn(ds){
+  const list = [];
+  phones.forEach(p => {
+    if (p.pickupDate !== ds) return;
+    const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
+    list.push({ type:"pickup", id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
+      done:p.status==="対応済み", sub:[urg, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
+  });
+  events.forEach(ev => {
+    if (!occursOn(ev, ds)) return;
+    const rt = repeatText(ev);
+    list.push({ type:ev.kind==="other"?"other":"regular", id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
+      done:(ev.doneDates||[]).includes(ds), sub:[ev.hinmoku, itemsText(ev.items), ev.memo, rt].filter(Boolean).join(" / "), src:ev });
+  });
+  const ar = {"午前":0, "":1, "午後":2}, tr = {pickup:0, regular:1, other:2};
+  list.sort((a,b) => (ar[a.ampm]-ar[b.ampm]) || (tr[a.type]-tr[b.type]) || a.name.localeCompare(b.name,"ja"));
+  return list;
+}
+/* ===== 表示の状態 ===== */
+let viewMode = "three";   // "three" = 3日 / "month" = 1か月
+let focusDay = todayYmd(); // 3日表示の真ん中の日
+let monthY, monthM;        // 1か月表示の年・月
+
+const SEC_LABEL = {"午前":"午前", "":"時間指定なし", "午後":"午後"};
+function iconOf(it){ return '<span class="bx">'+(it.type==="pickup" ? "電" : it.type==="regular" ? "定" : "他")+'</span>'; }
+function iconTxt(it){ return it.type==="pickup" ? "[電]" : it.type==="regular" ? "[定]" : "[他]"; }
+function clsOf(it){ return (it.urgent&&!it.done?"urgent ":"")+(it.done?"isDone":""); }
+function dayClass(ds){
+  const d = parseYmd(ds), c = [];
+  if (d.getDay()===6) c.push("sat"); if (d.getDay()===0) c.push("sun");
+  if (holidayName(ds)) c.push("hol");
+  if (ds === todayYmd()) c.push("today");
+  return c.join(" ");
+}
+function sectioned(items, fn){
+  let out = "", last = null;
+  const useSec = items.some(it => it.ampm);
+  items.forEach(it => {
+    if (useSec && it.ampm !== last){ out += '<div class="sec">'+SEC_LABEL[it.ampm]+'</div>'; last = it.ampm; }
+    out += fn(it);
+  });
+  return out;
+}
+function itHtml(it, ds, withSub){
+  return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
+    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done?'<span class="mk">✅</span>':'')+'</div>'+
+    (withSub && it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : '');
 }
 
-function itemsSummaryText(items){
-const parts=[];
-if(items.holeDrum>0)parts.push("穴ありドラム缶 "+items.holeDrum+"本");
-if(items.noHoleDrum>0)parts.push("穴なしドラム缶 "+items.noHoleDrum+"本");
-if(items.flexBag>0)parts.push("フレコン "+items.flexBag+"枚");
-if(items.box>0)parts.push("箱 "+items.box+"個");
-if(items.other)parts.push("その他："+items.other);
-return parts.length?parts.join("、"):"なし";
+/* ===== 描画 ===== */
+function render(){
+  document.getElementById("sw3").classList.toggle("on", viewMode==="three");
+  document.getElementById("swM").classList.toggle("on", viewMode==="month");
+  if (viewMode === "three") renderThree(); else renderMonth();
 }
 
-function escapeHtml(s){
-return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function renderThree(){
+  const days = [addDays(focusDay,-1), focusDay, addDays(focusDay,1)];
+  const f = parseYmd(focusDay);
+  document.getElementById("title").textContent = f.getFullYear()+"年"+(f.getMonth()+1)+"月"+f.getDate()+"日("+WD[f.getDay()]+")";
+  document.getElementById("main").innerHTML = '<div class="three">'+days.map(ds => {
+    const d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
+    return '<div class="day '+dayClass(ds)+'">'+
+      '<div class="dHead" onclick="openForm(null,\''+ds+'\')" title="押すとこの日に予定を追加">'+
+        '<span class="dn">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="dw">('+WD[d.getDay()]+')</span>'+
+        (hol?'<span class="dh">'+esc(hol)+'</span>':'')+(ds===todayYmd()?'<span class="todayMark">今日</span>':'')+
+        '<span class="cnt">'+(items.length?items.length+'件':'')+'</span>'+
+        '<button class="mini" onclick="event.stopPropagation();openForm(null,\''+ds+'\')">＋</button>'+
+        '<button class="mini" onclick="event.stopPropagation();printDay(\''+ds+'\')">🖨</button>'+
+      '</div>'+
+      '<div class="dBody">'+(items.length ? sectioned(items, it => itHtml(it, ds, true)) : '<div class="none">予定なし</div>')+'</div></div>';
+  }).join("")+'</div>';
+  requestAnimationFrame(() => fitBoxes(".dBody", 24, 13, false));
 }
 
-function buildSummaryLines(data){
-// 緊急度・対応メモは先頭・末尾に追加される(下のreturn配列参照)
-const lines=[];
-if(data.urgency && data.urgency!=="通常")lines.push((data.urgency==="大至急"?"🚨":data.urgency==="至急"?"🔥":"👹")+"緊急度："+data.urgency);
-if(data.requestDate)lines.push("依頼日："+data.requestDate);
-lines.push("引取先："+data.client);
-if(data.clientDept)lines.push("取引先部署："+data.clientDept);
-if(data.clientContact)lines.push("担当者名："+data.clientContact);
-if(data.phone)lines.push("電話番号："+data.phone);
-lines.push("電話受付者："+data.staff);
-if(data.contents && data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
-if(data.contentsFree)lines.push("依頼メモ："+data.contentsFree);
-if(data.responseText)lines.push("対応内容："+data.responseText);
-if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
-if(data.calledAtText)lines.push("📞電話済み："+data.calledAtText);
-if(data.genbaAtText)lines.push("🔍現場確認済み："+data.genbaAtText);
-if(data.mitsuAtText)lines.push("📝見積済み："+data.mitsuAtText);
-if(data.doneAtText)lines.push("✅対応済み："+data.doneAtText+(data.doneMemo?"（"+data.doneMemo+"）":""));
-const itemsText=itemsSummaryText(data.items||{});
-if(itemsText!=="なし")lines.push("持ち物："+itemsText);
-return lines;
+function renderMonth(){
+  document.getElementById("title").textContent = monthY+"年"+(monthM+1)+"月";
+  const first = new Date(monthY, monthM, 1);
+  const offset = (first.getDay()+6)%7;
+  const start = ymd(new Date(monthY, monthM, 1-offset));
+  const last = new Date(monthY, monthM+1, 0).getDate();
+  const weeks = Math.ceil((offset+last)/7);
+  let cells = "";
+  for (let i = 0; i < weeks*7; i++){
+    const ds = addDays(start, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
+    cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
+      '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
+      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+
+      '<div class="mb">'+items.map(it => itHtml(it, ds, false)).join("")+'</div></div>';
+  }
+  document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
+    '<div class="mGrid" style="grid-template-rows:repeat('+weeks+',1fr)">'+cells+'</div></div>';
+  requestAnimationFrame(() => fitBoxes(".mb", 14, 9, true));
 }
 
-function contentPreview(data){
-if(data.contents && data.contents.length)return data.contents.join("、");
-if(data.contentsFree)return data.contentsFree;
-if(data.responseText)return data.responseText;
-return "（内容なし）";
+/* 入りきらないときは隠さず、文字を小さく(1か月は2列にも)して全部入れる */
+function fitBoxes(sel, max, min, allowTwo){
+  if (window.innerWidth <= 760) return;
+  document.querySelectorAll(sel).forEach(b => {
+    const over = () => b.scrollHeight > b.clientHeight + 1;
+    let fs = max; b.classList.remove("two","scroll"); b.style.setProperty("--fs", fs+"px");
+    const floor1 = allowTwo ? 12 : min;
+    while (over() && fs > floor1){ fs--; b.style.setProperty("--fs", fs+"px"); }
+    if (over() && allowTwo){
+      b.classList.add("two"); fs = max - 1; b.style.setProperty("--fs", fs+"px");
+      while (over() && fs > min){ fs--; b.style.setProperty("--fs", fs+"px"); }
+    }
+    if (over()) b.classList.add("scroll");
+  });
+}
+window.addEventListener("resize", () => { clearTimeout(window.__rt); window.__rt = setTimeout(render, 200); });
+
+/* ===== 切り替え ===== */
+function setMode(m){
+  if (m === "month"){ const f = parseYmd(focusDay); monthY = f.getFullYear(); monthM = f.getMonth(); }
+  viewMode = m; render();
+}
+function openThree(ds){ focusDay = ds; viewMode = "three"; render(); }
+function move(n){
+  if (viewMode === "three") focusDay = addDays(focusDay, n);
+  else { monthM += n; if (monthM < 0){ monthM = 11; monthY--; } if (monthM > 11){ monthM = 0; monthY++; } }
+  render();
+}
+function goToday(){ focusDay = todayYmd(); const t = new Date(); monthY = t.getFullYear(); monthM = t.getMonth(); render(); }
+function toggleMenu(e){ e.stopPropagation(); document.getElementById("menu").classList.toggle("show"); }
+document.addEventListener("click", () => document.getElementById("menu").classList.remove("show"));
+
+/* ===== 会社名タップ ===== */
+function openItem(type, id, ds){
+  if (type === "pickup") openPhone(id); else openForm(id, ds);
 }
 
-// ==== 保存 ====
-let editingRequestId=null;
-let currentUrgency="";
-function setUrgency(u){
-currentUrgency=(currentUrgency===u)?"":u;
-syncUrgBtns();
+/* --- 電話依頼の引取 --- */
+function openPhone(id){
+  const p = phones.find(x => x.id === id); if (!p) return;
+  phoneId = id;
+  document.getElementById("phTitle").textContent = "🚚 "+(p.client||"");
+  const lines = [];
+  if (p.urgency && p.urgency !== "通常") lines.push(["緊急度", esc(p.urgency)]);
+  lines.push(["状態", p.status==="対応済み" ? "✅ 対応済み" : "未対応"]);
+  if (p.requestDate) lines.push(["依頼日", esc(p.requestDate)]);
+  if (p.clientDept) lines.push(["部署", esc(p.clientDept)]);
+  if (p.clientContact) lines.push(["担当者", esc(p.clientContact)]);
+  if (p.phone) lines.push(["電話", '<a href="tel:'+esc(p.phone)+'">'+esc(p.phone)+'</a>']);
+  if ((p.contents||[]).length) lines.push(["依頼内容", esc(p.contents.join("、"))]);
+  const it = itemsText(p.items); if (it) lines.push(["持ち物", esc(it)]);
+  if (p.responseText) lines.push(["対応内容", esc(p.responseText)]);
+  if (p.staff && p.staff !== "未選択") lines.push(["電話受付", esc(p.staff)]);
+  document.getElementById("phInfo").innerHTML = lines.map(l => "<div><b>"+l[0]+":</b>"+l[1]+"</div>").join("");
+  document.getElementById("phDate").value = p.pickupDate || "";
+  setSegVal("phApSeg", p.ampm || "");
+  document.getElementById("phoneBg").classList.add("show");
 }
-function syncUrgBtns(){
-document.getElementById("urgBtn0").classList.toggle("selected",currentUrgency==="早急対応");
-document.getElementById("urgBtn1").classList.toggle("selected",currentUrgency==="至急");
-document.getElementById("urgBtn2").classList.toggle("selected",currentUrgency==="大至急");
-}
-
-function showAcceptPop(text, opts){
-opts=opts||{};
-document.getElementById("acceptPopIcon").textContent=opts.icon||"📞✅";
-document.getElementById("acceptPopTitle").textContent=opts.title||"電話依頼を受け付けました";
-document.getElementById("acceptPopSub").textContent=text||"";
-const btns=document.getElementById("acceptPopBtns");
-const pop=document.getElementById("acceptPop");
-if(opts.lineText){
-btns.style.display="flex";
-document.getElementById("popLineBtn").onclick=function(){
-window.open("https://line.me/R/msg/text/?"+encodeURIComponent(opts.lineText),"_blank");
-pop.classList.remove("show");
-};
-pop.classList.add("show");
-}else{
-btns.style.display="none";
-pop.classList.add("show");
-setTimeout(function(){pop.classList.remove("show");},2200);
-}
+function closePhone(){ document.getElementById("phoneBg").classList.remove("show"); phoneId = null; }
+async function savePhone(){
+  if (!phoneId) return;
+  try {
+    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: document.getElementById("phDate").value, ampm: segVal("phApSeg") });
+    closePhone(); toast("✅ 回収予定日を直しました(電話依頼にも反映)");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
 }
 
-function nowHM(){
-const d=new Date();
-return (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+/* --- 通常回収・その他 --- */
+function setSeg(id, btn){
+  document.querySelectorAll("#"+id+" button").forEach(b => b.classList.toggle("on", b === btn));
+  if (id === "kindSeg") document.getElementById("nameLabel").textContent = btn.dataset.v==="other" ? "内容(例:来客・点検・会議)" : "会社名(取引先マスタから選べます)";
+  if (id === "repSeg") document.getElementById("endWrap").style.display = btn.dataset.v==="none" ? "none" : "";
+  updateRepHint();
 }
-
-function saveRequest(){
-const data=collectData();
-if(!validate(data))return;
-const btn=document.querySelector(".actionBtn.save");
-btn.disabled=true;
-const origText=btn.textContent;
-btn.textContent="⏳ 保存中…";
-const finish=function(){btn.disabled=false;btn.textContent=origText;};
-if(editingRequestId){
-colRef.doc(editingRequestId).update(Object.assign({},data,{
-updatedAtText:new Date().toLocaleString()
-})).then(function(){
-finish();
-const id=editingRequestId;
-editingRequestId=null;
-document.querySelector("#settingsScreen .setHeader h2").textContent="新しい依頼を入力";
-clearForm();
-closeSettings();
-showAcceptPop((data.client?data.client+" 様の":"")+"依頼内容を訂正しました");
-}).catch(function(){finish();alert("保存に失敗しました。通信を確認してください。");});
-return;
+function segVal(id){ const b = document.querySelector("#"+id+" button.on"); return b ? b.dataset.v : ""; }
+function setSegVal(id, v){ setSeg(id, document.querySelector("#"+id+" button[data-v='"+v+"']") || document.querySelector("#"+id+" button")); }
+function updateRepHint(){
+  const ds = document.getElementById("fDate").value, rep = segVal("repSeg");
+  document.getElementById("repHint").textContent = (ds && rep && rep !== "none") ? "→ "+repeatText({date:ds, repeat:rep})+" に表示します" : "";
 }
-const record=Object.assign({},data,{
-status:"未対応",
-createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-createdAtText:new Date().toLocaleString()
-});
-colRef.add(record).then(function(){
-finish();
-clearForm();
-closeSettings();
-showAcceptPop((data.client?data.client+" 様　":"")+(data.pickupDate?"引取希望: "+data.pickupDate:""));
-}).catch(function(){
-finish();
-alert("保存に失敗しました。通信を確認してください。");
-});
-}
-
-function editRequest(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-closeModal();
-openSettings();
-editingRequestId=id;
-document.querySelector("#settingsScreen .setHeader h2").textContent="依頼内容を訂正";
-document.getElementById("requestDate").value=item.requestDate||todayStr();
-document.getElementById("clientName").value=item.client||"";
-document.getElementById("clientDept").value=item.clientDept||"";
-document.getElementById("clientContact").value=item.clientContact||"";
-document.getElementById("staffSelect").value=item.staff||"未選択";
-document.getElementById("phone").value=item.phone||"";
-document.querySelectorAll("#contentGroup input[type=checkbox]").forEach(function(cb){
-const on=(item.contents||[]).indexOf(cb.value)!==-1;
-cb.checked=on;
-cb.closest("label").classList.toggle("checked",on);
-});
-document.getElementById("responseText").value=item.responseText||"";
-document.getElementById("contentsFree").value=item.contentsFree||"";
-document.getElementById("pickupDate").value=item.pickupDate||"";
-document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
-const on=r.value===(item.ampm||"");
-r.checked=on;
-r.closest("label").classList.toggle("checked",on);
-});
-currentUrgency=(item.urgency && item.urgency!=="通常")?item.urgency:"";
-syncUrgBtns();
-setOni(item.oni==="blue"?"blue":"red");
-const it=item.items||{};
-document.getElementById("itemHoleDrum").value=it.holeDrum||0;
-document.getElementById("itemNoHoleDrum").value=it.noHoleDrum||0;
-document.getElementById("itemFlexBag").value=it.flexBag||0;
-document.getElementById("itemBox").value=it.box||0;
-document.getElementById("itemOther").value=it.other||"";
-}
-
-function shareFormLine(){
-const data=collectData();
-if(!validate(data))return;
-const text="【電話依頼】\n"+buildSummaryLines(data).join("\n");
-const url="https://line.me/R/msg/text/?"+encodeURIComponent(text);
-window.open(url,"_blank");
-}
-
-function printFormOnly(){
-const data=collectData();
-if(!validate(data))return;
-fillPrintBox(data);
-window.print();
-}
-
-function clearForm(){
-document.getElementById("requestDate").value=todayStr();
-document.getElementById("clientName").value="";
-document.getElementById("clientDept").value="";
-document.getElementById("clientContact").value="";
-document.getElementById("staffSelect").value="未選択";
-document.getElementById("phone").value="";
-document.querySelectorAll("#contentGroup input[type=checkbox]").forEach(function(cb){
-cb.checked=false;
-cb.closest("label").classList.remove("checked");
-});
-document.getElementById("responseText").value="";
-document.getElementById("contentsFree").value="";
-document.getElementById("pickupDate").value="";
-document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
-r.checked=false;
-r.closest("label").classList.remove("checked");
-});
-currentUrgency="";
-syncUrgBtns();
-setOni("red");
-document.getElementById("itemHoleDrum").value=0;
-document.getElementById("itemNoHoleDrum").value=0;
-document.getElementById("itemFlexBag").value=0;
-document.getElementById("itemBox").value=0;
-document.getElementById("itemOther").value="";
-}
-
-// ==== 一覧表示 ====
-function renderReports(){
-const box=document.getElementById("reportArea");
-if(!box)return;
-const cards=[];
-requestCache.forEach(function(r){
-const to=(r.staff&&r.staff!=="未選択")?"<b>"+escapeHtml(r.staff)+"さん</b>宛: ":"";
-// 電話対応の報告
-if(r.calledAtText && r.callReportAck===false){
-cards.push({t:r.calledAtText, html:"<div class='reportCard'>"+
-"<div class='rIcon'>📞</div>"+
-"<div class='rBody'>"+to+escapeHtml(r.client||"-")+" 様に<b>電話対応しました</b><br>"+
-"<span style='color:#92400e'>📞 "+escapeHtml(r.calledAtText)+"</span></div>"+
-"<button class='rOk' onclick=\"ackCallReport('"+r.id+"')\">OK</button>"+
-"</div>"});
-}
-// 対応済みの報告
-if(r.status==="対応済み" && r.reportAck===false){
-cards.push({t:r.doneAtText||"", html:"<div class='reportCard'>"+
-"<div class='rIcon'>🔔</div>"+
-"<div class='rBody'>"+to+escapeHtml(r.client||"-")+" 様の依頼に<b>対応しました</b><br>"+
-"<span style='color:#92400e'>✅ "+escapeHtml(r.doneAtText||"")+(r.pickupDate?"　🚚 引取 "+escapeHtml(fmtPickup(r.pickupDate))+(r.ampm?" "+escapeHtml(r.ampm):""):"")+"</span></div>"+
-"<button class='rOk' onclick=\"ackReport('"+r.id+"')\">OK</button>"+
-"</div>"});
-}
-});
-cards.sort(function(a,b){return (b.t||"").localeCompare(a.t||"");});
-box.innerHTML=cards.map(function(c){return c.html;}).join("");
-}
-function ackReport(id){
-colRef.doc(id).update({reportAck:true}).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-}
-function ackCallReport(id){
-colRef.doc(id).update({callReportAck:true}).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-}
-function renderLists(){
-renderReports();
-const pendingBox=document.getElementById("pendingList");
-const doneBox=document.getElementById("doneList");
-const urgRank=function(r){return r.urgency==="大至急"?0:r.urgency==="至急"?1:r.urgency==="早急対応"?2:3;};
-const todayPrefix=(new Date().getMonth()+1)+"/"+new Date().getDate()+" ";
-const doneToday=function(r){return r.status==="対応済み" && (r.doneAtText||"").indexOf(todayPrefix)===0;};
-const pendingOnly=requestCache.filter(function(r){return r.status!=="対応済み";})
-.sort(function(a,b){
-if(urgRank(a)!==urgRank(b))return urgRank(a)-urgRank(b);
-return (b.requestDate||"").localeCompare(a.requestDate||"");
-});
-// 今日対応済みにしたものは、当日中はメインの一覧の下に残す
-const doneTodayList=requestCache.filter(doneToday)
-.sort(function(a,b){return (b.doneAtText||"").localeCompare(a.doneAtText||"");});
-const pending=pendingOnly.concat(doneTodayList);
-const done=requestCache.filter(function(r){return r.status==="対応済み" && !doneToday(r);})
-.sort(function(a,b){return (b.requestDate||"").localeCompare(a.requestDate||"");});
-if(pending.length===0){
-pendingBox.innerHTML="<div class='empty'>未対応の依頼はありません</div>";
-}else{
-pendingBox.innerHTML=pending.map(renderCard).join("");
-}
-if(done.length===0){
-doneBox.innerHTML="<div class='empty'>対応済みの依頼はありません</div>";
-}else{
-doneBox.innerHTML=done.map(renderCard).join("");
-}
-}
-
-function fmtPickup(dateStr){
-const d=new Date(dateStr+"T00:00:00");
-if(isNaN(d))return dateStr;
-const w=["日","月","火","水","木","金","土"][d.getDay()];
-return (d.getMonth()+1)+"/"+d.getDate()+"("+w+")";
-}
-function renderCard(item){
-const isDone=item.status==="対応済み";
-const urgCls=item.urgency==="大至急"?" urgent2":item.urgency==="至急"?" urgent1":item.urgency==="早急対応"?" urgent0":"";
-const oniImg=oniSvg(item.oni==="blue"?"blue":"red",70);
-const urgSide=isDone?"":item.urgency==="大至急"?"<div class='urgSide u2'>"+oniImg+"<div class='ut'>🚨<br>大至急</div></div>"
-:item.urgency==="至急"?"<div class='urgSide u1'>"+oniImg+"<div class='ut'>🔥<br>至急</div></div>"
-:item.urgency==="早急対応"?"<div class='urgSide u0'>"+oniImg+"<div class='ut'>早急<br>対応</div></div>":"";
-const cts=item.contents||[];
-const isGenba=cts.indexOf("現場確認希望")!==-1, isMitsu=cts.indexOf("見積依頼")!==-1;
-const wantsCall0=cts.indexOf("電話欲しい")!==-1;
-const el=(isDone||!wantsCall0)?null:elapsedInfo(item);
-const genbaInfo=!isGenba?"":(item.genbaAtText
-?"<div><span class='taskBtn done' onclick=\"event.stopPropagation();undoTask('"+item.id+"','genba')\">🔍 現場確認済み "+escapeHtml(item.genbaAtText)+"</span></div>"
-:"<div style='margin-top:8px;'><button class='taskBtn genba' onclick=\"event.stopPropagation();markTask('"+item.id+"','genba')\">🔍 現場確認に行ってください！</button></div>");
-const mitsuInfo=!isMitsu?"":(item.mitsuAtText
-?"<div><span class='taskBtn done' onclick=\"event.stopPropagation();undoTask('"+item.id+"','mitsu')\">📝 見積済み "+escapeHtml(item.mitsuAtText)+"</span></div>"
-:"<div style='margin-top:8px;'><button class='taskBtn mitsu' onclick=\"event.stopPropagation();markTask('"+item.id+"','mitsu')\">📝 見積を出してください！</button></div>");
-const doneInfo=(isDone&&item.doneAtText)?"<div class='doneInfo'>✅ "+escapeHtml(item.doneAtText)+" 対応済み</div>":"";
-
-const wantsCall=(item.contents||[]).indexOf("電話欲しい")!==-1;
-const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tora":"")+"'><span>⏰ "+escapeHtml(el.text)+"</span></span>":"";
-const callInfo=!wantsCall?"":(item.calledAtText
-?"<div><span class='callBtn done' onclick=\"event.stopPropagation();undoCalled('"+item.id+"')\">📞 電話済み "+escapeHtml(item.calledAtText)+"</span></div>"
-:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+"</div>");
-const toraCls=(el&&el.over&&!item.calledAtText)?" toraCard":"";
-return "<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
-urgSide+
-"<div class='cardMain'>"+
-"<div class='reqTop'>"+
-"<div class='reqDate'>"+escapeHtml(item.requestDate||"-")+"</div>"+
-"<button class='badge "+(isDone?"done":"pending")+"' onclick=\"event.stopPropagation();toggleStatusFromCard('"+item.id+"','"+(isDone?"未対応":"対応済み")+"')\">"+(isDone?"対応済み":"未対応")+"</button>"+
-"</div>"+
-"<div class='reqClient'>"+escapeHtml(item.client||"-")+"</div>"+
-infoRowsHtml(item)+
-callInfo+
-genbaInfo+
-mitsuInfo+
-doneInfo+
-"</div></div>";
-}
-
-// ==== カードに出す項目(全員共通。Firestoreの appSettings/denwaCard に保存) ====
-const CARD_FIELDS=[
-{k:"contact",label:"👤 先方の担当者・部署"},
-{k:"phone",label:"☎ 電話番号(押すと電話)"},
-{k:"contents",label:"📋 依頼内容"},
-{k:"free",label:"✏️ 依頼の自由記入"},
-{k:"pickup",label:"🚚 引取予定日"},
-{k:"items",label:"🛢 持ち物"},
-{k:"staff",label:"🙋 電話受付者"},
-{k:"response",label:"💬 対応内容"}
-];
-const CARD_DEFAULT=["contact","phone","contents","free","pickup","items","staff"];
-let cardFields=CARD_DEFAULT.slice();
-const cardSetRef=db.collection("appSettings").doc("denwaCard");
-cardSetRef.onSnapshot(function(doc){
-const d=doc.exists?doc.data():null;
-cardFields=(d&&Array.isArray(d.fields))?d.fields:CARD_DEFAULT.slice();
-if(requestCache.length)renderLists();
-},function(){});
-function openCardSet(){
-document.getElementById("cardSetList").innerHTML=CARD_FIELDS.map(function(f){
-return "<label><input type='checkbox' value='"+f.k+"'"+(cardFields.indexOf(f.k)!==-1?" checked":"")+">"+f.label+"</label>";
-}).join("");
-document.getElementById("cardSetPop").classList.add("show");
-}
-function closeCardSet(){document.getElementById("cardSetPop").classList.remove("show");}
-function saveCardSet(){
-const sel=Array.from(document.querySelectorAll("#cardSetList input:checked")).map(function(cb){return cb.value;});
-cardFields=sel;renderLists();closeCardSet();
-cardSetRef.set({fields:sel}).catch(function(){alert("保存に失敗しました。通信を確認してください。");});
-}
-function infoRowsHtml(item){
-const rows=[];
-const on=function(k){return cardFields.indexOf(k)!==-1;};
-if(on("contact")&&(item.clientContact||item.clientDept))rows.push(["担当者",escapeHtml([item.clientDept,item.clientContact].filter(Boolean).join("　")),true]);
-if(on("phone")&&item.phone)rows.push(["電話","<a href='tel:"+escapeHtml(item.phone)+"' onclick='event.stopPropagation()'>☎ "+escapeHtml(item.phone)+"</a>"]);
-const cts=(item.contents||[]).join("・");
-const showC=on("contents")&&cts, showF=on("free")&&item.contentsFree;
-if(showC||showF)rows.push(["依頼",(showC?escapeHtml(cts):"")+(showF?"<span class='free'>"+escapeHtml(item.contentsFree)+"</span>":"")]);
-if(on("pickup")&&item.pickupDate)rows.push(["引取","<b style='color:#0b5ed7;font-size:18px;'>🚚 "+escapeHtml(fmtPickup(item.pickupDate))+(item.ampm?" "+escapeHtml(item.ampm):"")+"</b>"]);
-if(on("items")){const it=itemsSummaryText(item.items||{});if(it!=="なし")rows.push(["持ち物",escapeHtml(it)]);}
-if(on("staff")&&item.staff&&item.staff!=="未選択")rows.push(["受付",escapeHtml(item.staff)]);
-if(on("response")&&item.responseText)rows.push(["対応",escapeHtml(item.responseText)]);
-if(!rows.length)return "";
-return "<div class='infoRows'>"+rows.map(function(r){return "<div class='infoRow'><div class='k'>"+r[0]+"</div><div class='v"+(r[2]?" big":"")+"'>"+r[1]+"</div></div>";}).join("")+"</div>";
-}
-
-function markCalled(id){
-const item=requestCache.find(function(r){return r.id===id;});
-const tm=nowHM();
-colRef.doc(id).update({calledAtText:tm, callReportAck:false}).then(function(){
-const to=(item&&item.staff&&item.staff!=="未選択")?"　"+item.staff+"さんに報告が表示されます":"";
-showAcceptPop((item&&item.client?item.client+" 様":"")+to,
-{icon:"📞",title:"電話対応を記録しました("+tm.split(" ")[1]+")"});
-}).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-}
-const TASK_FIELD={genba:"genbaAtText",mitsu:"mitsuAtText"};
-const TASK_NAME={genba:"現場確認",mitsu:"見積"};
-function markTask(id,kind){
-const tm=nowHM();
-const up={};up[TASK_FIELD[kind]]=tm;
-colRef.doc(id).update(up).then(function(){
-const item=requestCache.find(function(r){return r.id===id;});
-showAcceptPop((item&&item.client?item.client+" 様":""),{icon:kind==="genba"?"🔍":"📝",title:TASK_NAME[kind]+"済みにしました("+tm.split(" ")[1]+")"});
-}).catch(function(){alert("更新に失敗しました。通信を確認してください。");});
-}
-function undoTask(id,kind){
-if(!confirm(TASK_NAME[kind]+"済みの記録を取り消しますか？"))return;
-const up={};up[TASK_FIELD[kind]]=firebase.firestore.FieldValue.delete();
-colRef.doc(id).update(up).catch(function(){alert("更新に失敗しました。通信を確認してください。");});
-}
-function undoCalled(id){
-if(!confirm("電話済みの記録を取り消しますか？"))return;
-colRef.doc(id).update({
-calledAtText:firebase.firestore.FieldValue.delete(),
-callReportAck:firebase.firestore.FieldValue.delete()
-}).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-}
-function toggleStatusFromCard(id,newStatus){
-if(newStatus==="対応済み"){
-const item=requestCache.find(function(r){return r.id===id;});
-const tm=nowHM();
-const update={
-status:"対応済み",
-respondedAt:firebase.firestore.FieldValue.serverTimestamp(),
-doneAtText:tm
-};
-update.reportAck=false;
-colRef.doc(id).update(update).then(function(){
-const to=(item&&item.staff&&item.staff!=="未選択")?item.staff+"さんに報告が表示されます":"";
-showAcceptPop((item&&item.client?item.client+" 様の依頼　":"")+to,
-{icon:"✅",title:"対応済みにしました("+tm.split(" ")[1]+")"});
-}).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-return;
-}
-updateStatus(id,newStatus);
-}
-
-function loadRequests(){
-colRef.orderBy("requestDate","desc").onSnapshot(function(snap){
-requestCache=[];
-snap.forEach(function(doc){
-requestCache.push(Object.assign({id:doc.id},doc.data()));
-});
-renderLists();
-checkAutoDelete();
-},function(){
-document.getElementById("pendingList").innerHTML="<div class='empty'>読み込みに失敗しました。通信を確認してください。</div>";
-});
-}
-
-// ==== 詳細モーダル ====
-function openDetail(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-currentDetailId=id;
-const lines=buildSummaryLines(item);
-const detailHtml=lines.map(function(line){
-const idx=line.indexOf("：");
-if(idx===-1)return "<div class='detailRow'>"+escapeHtml(line)+"</div>";
-return "<div class='detailRow'><b>"+escapeHtml(line.slice(0,idx+1))+"</b>"+escapeHtml(line.slice(idx+1))+"</div>";
-}).join("");
-document.getElementById("modalBox").innerHTML=
-detailHtml+
-"<div class='shareBtnGrid'>"+
-"<button class='shareBtn line' onclick=\"shareDetailLine('"+id+"')\">📱 ライン</button>"+
-"<button class='shareBtn print' onclick=\"printDetail('"+id+"')\">🖨 印刷</button>"+
-"</div>"+
-"<button class='shareBtn' style='width:100%;margin-top:8px;background:#0d6efd;color:#fff;' onclick=\"editRequest('"+id+"')\">✏️ 依頼内容を訂正する</button>"+
-"<button class='deleteBtn' onclick=\"deleteRequest('"+id+"')\">🗑 この依頼を削除</button>";
-document.getElementById("modalScreen").classList.add("show");
-}
-
-function closeModal(){
-document.getElementById("modalScreen").classList.remove("show");
-currentDetailId=null;
-}
-
-function updateStatus(id,status){
-const update={status:status};
-if(status==="対応済み"){
-update.respondedAt=firebase.firestore.FieldValue.serverTimestamp();
-}else{
-update.respondedAt=firebase.firestore.FieldValue.delete();
-update.doneMemo=firebase.firestore.FieldValue.delete();
-update.doneAtText=firebase.firestore.FieldValue.delete();
-update.reportAck=firebase.firestore.FieldValue.delete();
-}
-colRef.doc(id).update(update).catch(function(){
-alert("更新に失敗しました。通信を確認してください。");
-});
-}
-
-function deleteRequest(id){
-if(!confirm("この依頼を削除します。よろしいですか？"))return;
-colRef.doc(id).delete().then(function(){
-closeModal();
-}).catch(function(){
-alert("削除に失敗しました。通信を確認してください。");
-});
-}
-
-// ==== 2日後の自動削除 ====
-function checkAutoDelete(){
-const now=Date.now();
-requestCache.forEach(function(item){
-if(item.status==="対応済み" && item.respondedAt && typeof item.respondedAt.toMillis==="function"){
-const respondedMs=item.respondedAt.toMillis();
-if(now-respondedMs>=TWO_DAYS_MS){
-colRef.doc(item.id).delete().catch(function(){});
-}
-}
-});
-}
-
-// ==== 詳細画面からの共有 ====
-function shareDetailLine(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-const text="【電話依頼】\n"+buildSummaryLines(item).join("\n");
-const url="https://line.me/R/msg/text/?"+encodeURIComponent(text);
-window.open(url,"_blank");
-}
-
-function shareDetailMail(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-const subject="電話依頼："+item.client;
-const body=buildSummaryLines(item).join("\n");
-const url="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
-window.location.href=url;
-}
-
-function fillPrintBox(item){
-const lines=buildSummaryLines(item);
-document.getElementById("printBoxBody").innerHTML=lines.map(function(line){
-const idx=line.indexOf("：");
-if(idx===-1)return "<div>"+escapeHtml(line)+"</div>";
-const label=line.slice(0,idx+1);
-const rest=line.slice(idx+1).replace(/\n/g,"<br>");
-return "<div><b>"+escapeHtml(label)+"</b>"+escapeHtml(rest)+"</div>";
-}).join("");
-}
-
-function printDetail(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-fillPrintBox(item);
-window.print();
-}
-
-function exportDetailPdf(id){
-const item=requestCache.find(function(r){return r.id===id;});
-if(!item)return;
-fillPrintBox(item);
-const printBox=document.getElementById("printBox");
-const prevDisplay=printBox.style.display;
-printBox.style.display="block";
-html2canvas(printBox,{scale:2,backgroundColor:"#ffffff"}).then(function(canvas){
-printBox.style.display=prevDisplay;
-const {jsPDF}=window.jspdf;
-const doc=new jsPDF("p","mm","a4");
-const pageWidth=doc.internal.pageSize.getWidth();
-const imgWidth=pageWidth-20;
-const imgHeight=canvas.height*imgWidth/canvas.width;
-const imgData=canvas.toDataURL("image/png");
-doc.addImage(imgData,"PNG",10,10,imgWidth,imgHeight);
-const fileName="電話依頼_"+(item.client||"未記入")+"_"+(item.requestDate||todayStr())+".pdf";
-doc.save(fileName);
-}).catch(function(){
-printBox.style.display=prevDisplay;
-alert("PDFの作成に失敗しました。");
-});
-}
-
-// ==== 設定（入力フォーム）画面の開閉 ====
-function openSettings(){
-document.getElementById("settingsScreen").classList.add("show");
-if(!document.getElementById("requestDate").value){
-document.getElementById("requestDate").value=todayStr();
-}
-}
-
-function cancelEditMode(){
-if(editingRequestId){
-editingRequestId=null;
-document.querySelector("#settingsScreen .setHeader h2").textContent="新しい依頼を入力";
-clearForm();
-}
-}
-function closeSettings(){
-document.getElementById("settingsScreen").classList.remove("show");
-cancelEditMode();
-}
-
-// ==== PWAインストール ====
-let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",function(e){
-e.preventDefault();
-deferredPrompt=e;
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="block";
-const iconBtn=document.getElementById("installIconBtn");
-if(iconBtn)iconBtn.style.display="block";
+document.getElementById("fDate").addEventListener("change", updateRepHint);
+document.getElementById("fName").addEventListener("change", () => {
+  const c = (clients||[]).find(x => x.name === document.getElementById("fName").value.trim());
+  const tel = document.getElementById("fTel");
+  if (c && c.tel && !tel.value) tel.value = c.tel;
 });
 
-function installApp(){
-if(!deferredPrompt)return;
-deferredPrompt.prompt();
-deferredPrompt.userChoice.then(function(){
-deferredPrompt=null;
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="none";
-const iconBtn=document.getElementById("installIconBtn");
-if(iconBtn)iconBtn.style.display="none";
-});
+async function loadClients(){
+  if (clients) return;
+  try {
+    const snap = await db.collection(CLIENT_COL).get();
+    clients = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.name);
+    clients.sort((a,b) => (a.yomi||a.name).localeCompare(b.yomi||b.name, "ja"));
+    document.getElementById("clientList").innerHTML = clients.map(c => '<option value="'+esc(c.name)+'">'+esc(c.yomi||"")+'</option>').join("");
+  } catch(e){ console.error(e); clients = []; }
 }
 
-window.addEventListener("appinstalled",function(){
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="none";
-const iconBtn=document.getElementById("installIconBtn");
-if(iconBtn)iconBtn.style.display="none";
-});
-
-document.addEventListener("DOMContentLoaded",function(){
-loadStaff();
-document.getElementById("oniPickRed").innerHTML=oniSvg("red",80);
-document.getElementById("oniPickBlue").innerHTML=oniSvg("blue",80);
-setOni("red");
-loadRequests();
-// 経過時間を1分ごとに更新
-setInterval(function(){if(requestCache.length)renderLists();},60000);
-if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone){
-const btn=document.getElementById("installBtn");
-if(btn)btn.style.display="none";
-const iconBtn=document.getElementById("installIconBtn");
-if(iconBtn)iconBtn.style.display="none";
+function openForm(id, ds){
+  loadClients();
+  editingId = id || null; editingDate = ds || todayYmd();
+  const ev = id ? events.find(e => e.id === id) : null;
+  document.getElementById("formTitle").textContent = ev ? (ev.kind==="other"?"📝 ":"🔁 ")+(ev.title||"") : "＋ 予定を追加";
+  document.getElementById("formSub").textContent = ev ? mdw(editingDate)+" の予定"+(repeatText(ev)?"(繰り返し:"+repeatText(ev)+")":"") : "";
+  setSegVal("kindSeg", ev ? (ev.kind||"regular") : "regular");
+  document.getElementById("fName").value = ev ? (ev.title||"") : "";
+  document.getElementById("fDate").value = ev ? ev.date : editingDate;
+  setSegVal("apSeg", ev ? (ev.ampm||"") : "");
+  setSegVal("repSeg", ev ? (ev.repeat||"none") : "none");
+  document.getElementById("fEnd").value = ev ? (ev.endDate||"") : "";
+  document.getElementById("fHinmoku").value = ev ? (ev.hinmoku||"") : "";
+  const it = (ev && ev.items) || {};
+  document.getElementById("iHole").value = it.holeDrum||0;
+  document.getElementById("iNoHole").value = it.noHoleDrum||0;
+  document.getElementById("iFlex").value = it.flexBag||0;
+  document.getElementById("iBox").value = it.box||0;
+  document.getElementById("iOther").value = it.other||"";
+  document.getElementById("fContact").value = ev ? (ev.contact||"") : "";
+  document.getElementById("fTel").value = ev ? (ev.tel||"") : "";
+  document.getElementById("fMemo").value = ev ? (ev.memo||"") : "";
+  document.getElementById("doneWrap").style.display = ev ? "" : "none";
+  document.getElementById("doneLabel").textContent = mdw(editingDate)+" の回収済み";
+  document.getElementById("fDone").checked = ev ? (ev.doneDates||[]).includes(editingDate) : false;
+  document.getElementById("delBtn").style.display = ev ? "" : "none";
+  updateRepHint();
+  document.getElementById("formBg").classList.add("show");
 }
-});
+function closeForm(){ document.getElementById("formBg").classList.remove("show"); editingId = null; }
 
-if("serviceWorker" in navigator){
-window.addEventListener("load",function(){
-navigator.serviceWorker.register("service-worker.js").catch(function(){});
-});
+async function saveForm(){
+  const title = document.getElementById("fName").value.trim();
+  const date = document.getElementById("fDate").value;
+  if (!title){ toast("会社名(内容)を入れてください"); return; }
+  if (!date){ toast("日付を入れてください"); return; }
+  const rep = segVal("repSeg") || "none";
+  const endDate = rep === "none" ? "" : document.getElementById("fEnd").value;
+  if (endDate && endDate < date){ toast("終わりの日が開始日より前です"); return; }
+  const c = (clients||[]).find(x => x.name === title);
+  const data = {
+    kind: segVal("kindSeg") || "regular", title, clientId: c ? c.id : "",
+    date, ampm: segVal("apSeg"), repeat: rep, endDate,
+    hinmoku: document.getElementById("fHinmoku").value.trim(),
+    items: { holeDrum:numOf(gv("iHole")), noHoleDrum:numOf(gv("iNoHole")), flexBag:numOf(gv("iFlex")), box:numOf(gv("iBox")), other:gv("iOther").trim() },
+    contact: document.getElementById("fContact").value.trim(),
+    tel: document.getElementById("fTel").value.normalize("NFKC").trim(),
+    memo: document.getElementById("fMemo").value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  const btn = document.getElementById("saveBtn"); btn.disabled = true;
+  try {
+    if (editingId){
+      const FV = firebase.firestore.FieldValue;
+      data.doneDates = document.getElementById("fDone").checked ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
+      await db.collection(EVENT_COL).doc(editingId).update(data);
+    } else {
+      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    closeForm(); toast("✅ 保存しました");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+  finally { btn.disabled = false; }
 }
+async function deleteFromForm(){
+  const ev = events.find(e => e.id === editingId); if (!ev) return;
+  const ds = editingDate;
+  try {
+    if ((ev.repeat||"none") !== "none"){
+      if (confirm("「"+ev.title+"」\n"+mdw(ds)+" の分だけ消しますか?\n\n[OK] この日だけ消す\n[キャンセル] 繰り返しごと全部消すか選ぶ")){
+        await db.collection(EVENT_COL).doc(ev.id).update({ skipDates: firebase.firestore.FieldValue.arrayUnion(ds) });
+        closeForm(); toast("この日だけ消しました"); return;
+      }
+      if (!confirm("繰り返しの予定「"+ev.title+"」を全部消します。よろしいですか?")) return;
+    } else if (!confirm("「"+ev.title+"」を消しますか?")) return;
+    await db.collection(EVENT_COL).doc(ev.id).delete();
+    closeForm(); toast("消しました");
+  } catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
+}
+
+/* ===== 印刷 ===== */
+function doPrint(html, size){
+  document.getElementById("menu").classList.remove("show");
+  document.getElementById("pageStyle").textContent = "@page { size: "+size+"; margin: 8mm; }";
+  document.getElementById("printArea").innerHTML = html;
+  setTimeout(() => window.print(), 50);
+}
+function prItem(it, withSub){
+  const c = it.done ? "g" : (it.urgent ? "u" : "");
+  return '<div><span class="ck"></span><span class="'+c+'">'+iconTxt(it)+esc(withSub?it.name:shortName(it.name))+(it.ampm&&withSub?'('+esc(it.ampm)+')':'')+'</span></div>'+
+    (withSub&&it.sub?'<div class="x">'+esc(it.sub)+'</div>':'');
+}
+function printView(){
+  if (viewMode === "three"){
+    const days = [addDays(focusDay,-1), focusDay, addDays(focusDay,1)];
+    doPrint('<div class="pr"><h2>📅 '+days.map(mdw).join("・")+'</h2><table class="prT"><tr>'+
+      days.map(ds => '<th class="'+(parseYmd(ds).getDay()===6?"sa":(parseYmd(ds).getDay()===0||holidayName(ds))?"su":"")+'">'+mdw(ds)+'</th>').join("")+'</tr><tr style="height:175mm">'+
+      days.map(ds => '<td>'+itemsOn(ds).map(it => prItem(it, true)).join("")+'</td>').join("")+'</tr></table></div>', "A4 landscape");
+  } else {
+    const first = new Date(monthY, monthM, 1), offset = (first.getDay()+6)%7;
+    const start = ymd(new Date(monthY, monthM, 1-offset)), last = new Date(monthY, monthM+1, 0).getDate();
+    const weeks = Math.ceil((offset+last)/7);
+    let rows = "";
+    for (let w = 0; w < weeks; w++){
+      rows += '<tr style="height:'+Math.floor(250/weeks)+'mm">';
+      for (let i = 0; i < 7; i++){
+        const ds = addDays(start, w*7+i), d = parseYmd(ds);
+        rows += '<td><div class="d" style="color:'+(d.getMonth()!==monthM?"#ccc":(d.getDay()===0||holidayName(ds))?"#dc2626":d.getDay()===6?"#1d4ed8":"#111")+'">'+d.getDate()+'</div>'+
+          (d.getMonth()===monthM ? itemsOn(ds).map(it => '<div class="'+(it.done?"g":it.urgent?"u":"")+'" style="font-size:8pt">'+esc(shortName(it.name))+'</div>').join("") : "")+'</td>';
+      }
+      rows += '</tr>';
+    }
+    doPrint('<div class="pr"><h2>📅 '+monthY+'年'+(monthM+1)+'月</h2><table class="prT"><tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sa">土</th><th class="su">日</th></tr>'+rows+'</table></div>', "A3 landscape");
+  }
+}
+function printDay(ds){
+  const items = itemsOn(ds);
+  doPrint('<div class="pr"><h2>📅 '+mdw(ds)+' の回収予定('+items.length+'件)</h2><table class="prT"><tr><td style="font-size:14pt;">'+
+    (items.length ? sectioned(items, it => prItem(it, true)+((it.src.tel||it.src.phone)?'<div class="x">☎ '+esc(it.src.tel||it.src.phone)+'</div>':'')) : '予定はありません')+
+    '</td></tr></table></div>', "A4 portrait");
+}
+
+/* ===== データ購読 ===== */
+db.collection(EVENT_COL).onSnapshot(snap => { events = snap.docs.map(d => ({ id:d.id, ...d.data() })); render(); },
+  err => { console.error(err); toast("⚠️ 予定の読み込みエラー"); });
+db.collection(PHONE_COL).onSnapshot(snap => { phones = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(p => p.pickupDate); render(); },
+  err => { console.error(err); toast("⚠️ 電話依頼の読み込みエラー"); });
+
+/* 日付が変わったら自動で今日に(モニターに出しっぱなし用) */
+let lastDay = todayYmd();
+setInterval(() => { const t = todayYmd(); if (t !== lastDay){ lastDay = t; goToday(); } }, 60000);
+
+goToday();
 </script>
 </body>
 </html>
