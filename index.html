@@ -60,7 +60,7 @@ header h1{font-size:26px;margin:0;}
 #doneSheet .dsBtn{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:bold;color:#fff;background:#2e9d45;margin-top:12px;}
 #doneSheet .dsCancel{width:100%;padding:13px;border:none;border-radius:12px;font-size:15px;color:#555;background:#eee;margin-top:8px;}
 .reqTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.reqDate{font-size:18px;color:#444;font-weight:bold;}
+.reqDate{font-size:26px;color:#1f2937;font-weight:900;letter-spacing:.5px;}
 .badge{font-size:15px;font-weight:bold;padding:8px 18px;border-radius:999px;color:white;border:none;cursor:pointer;}
 .badge.pending{background:#e53935;}
 .badge.done{background:#2e9d45;}
@@ -116,7 +116,7 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .radioGroup label.checked{background:#1565c0;color:white;border-color:#1565c0;}
 .itemsGrid{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;margin-bottom:12px;}
 .itemsGrid span{font-size:17px;font-weight:bold;color:#333;}
-.itemsGrid input[type=number]{padding:12px 8px;font-size:18px;}
+.itemsGrid input{padding:12px 8px;font-size:18px;width:100%;border-radius:12px;border:1px solid #aaa;text-align:center;}
 .itemsGrid .unit{font-size:15px;color:#666;}
 .otherRow{display:flex;gap:10px;align-items:center;}
 .otherRow input{flex:1;}
@@ -137,6 +137,35 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 #acceptPop .popTitle{font-size:20px;font-weight:bold;color:#1b7d34;margin-bottom:6px;}
 #acceptPop .popSub{font-size:14px;color:#555;line-height:1.5;}
 .printOnly{display:none;}
+/* 経過時間(24時間を超えたら黄黒のトラ柄) */
+.callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
+.callRow .callBtn{margin:0;}
+.elapsed{display:inline-flex;align-items:center;gap:4px;font-size:16px;font-weight:900;padding:10px 14px;border-radius:12px;background:#f1f5f9;color:#334155;border:2px solid #cbd5e1;}
+.elapsed.tora{color:#111;border:3px solid #111;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;
+background:repeating-linear-gradient(-45deg,#facc15 0 14px,#111 14px 24px);animation:toraMove 1.2s linear infinite;background-size:200% 200%;}
+@keyframes toraMove{from{background-position:0 0;}to{background-position:34px 0;}}
+.elapsed.tora span{background:#facc15;padding:2px 8px;border-radius:8px;}
+.reqCard.toraCard{border-top:10px solid transparent;border-image:repeating-linear-gradient(-45deg,#facc15 0 12px,#111 12px 22px) 10;}
+/* 現場確認希望・見積依頼(電話対応ボタンと同じ形。点滅はしない) */
+.taskBtn{display:inline-block;border:none;font-size:17px;font-weight:bold;padding:12px 18px;border-radius:12px;cursor:pointer;}
+.taskBtn:active{transform:scale(.95);}
+.taskBtn.genba{background:#16a34a;color:#fff;box-shadow:0 3px 10px rgba(22,163,74,.35);}
+.taskBtn.mitsu{background:#facc15;color:#422006;box-shadow:0 3px 10px rgba(202,138,4,.35);}
+.taskBtn.done{background:#e8f8ec;color:#1b7d34;box-shadow:none;font-size:15px;padding:8px 14px;}
+/* 鬼と早急対応 */
+.oniPick{display:flex;gap:12px;margin-bottom:12px;}
+.oniPick button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border:3px solid #ddd;border-radius:16px;padding:8px 4px;font-size:15px;font-weight:bold;color:#555;cursor:pointer;}
+.oniPick button.selected{border-color:#1565c0;background:#e3f2fd;color:#1565c0;box-shadow:0 3px 10px rgba(21,101,192,.25);}
+.urgBtnRow.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.urgBtnRow.three .urgBigBtn{font-size:21px;padding:22px 6px;letter-spacing:1px;}
+.urgBigBtn.u0{border:3px solid #6366f1;background:#fff;color:#4f46e5;}
+.urgBigBtn.u0.selected{background:#6366f1;color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.5);transform:scale(1.03);}
+.reqCard.urgent0{border-left:6px solid #6366f1;}
+.urgBadge{display:flex;align-items:center;justify-content:center;gap:10px;}
+.urgBadge.u0{background:#6366f1;color:#fff;box-shadow:0 3px 10px rgba(99,102,241,.4);}
+.urgBadge span{white-space:nowrap;}
+.urgBadge.u2{letter-spacing:1px;}
+.urgBadge .oni{flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
 @media print{
 body *{display:none !important;}
 #printBox,#printBox *{display:block !important;}
@@ -199,22 +228,22 @@ body{background:white;padding-bottom:0;}
 
 <div class="field">
 <label>引取先</label>
-<input type="text" id="clientName" placeholder="例：〇〇商店">
+<input type="text" id="clientName" placeholder="例：〇〇商店" lang="ja" inputmode="text" autocomplete="off">
 </div>
 
 <div class="field">
 <label>取引先部署</label>
-<input type="text" id="clientDept" placeholder="例：営業部">
+<input type="text" id="clientDept" placeholder="例：営業部" lang="ja" inputmode="text" autocomplete="off">
 </div>
 
 <div class="field">
 <label>担当者名</label>
-<input type="text" id="clientContact" placeholder="例：山田様">
+<input type="text" id="clientContact" placeholder="例：山田様" lang="ja" inputmode="text" autocomplete="off">
 </div>
 
 <div class="field">
 <label>電話番号</label>
-<input type="tel" id="phone" placeholder="例：0263-00-0000">
+<input type="text" id="phone" placeholder="例：0263-00-0000(全角でもOK)" lang="ja" inputmode="text" autocomplete="off">
 </div>
 
 <div class="field">
@@ -228,18 +257,26 @@ body{background:white;padding-bottom:0;}
 <label><input type="checkbox" value="電話欲しい">電話欲しい</label>
 <label><input type="checkbox" value="メール欲しい">メール欲しい</label>
 <label><input type="checkbox" value="引き取り希望">引き取り希望</label>
+<label><input type="checkbox" value="現場確認希望">🔍 現場確認希望</label>
+<label><input type="checkbox" value="見積依頼">📝 見積依頼</label>
 <label><input type="checkbox" value="その他">その他</label>
 </div>
 </div>
 
 <div class="field">
 <label>対応内容</label>
-<textarea id="responseText" rows="4" placeholder="対応した内容・連絡事項を自由に入力"></textarea>
+<textarea id="responseText" rows="4" placeholder="対応した内容・連絡事項を自由に入力" lang="ja" inputmode="text"></textarea>
 </div>
 
 <div class="field">
-<label>緊急度(急ぎのときだけ押す。もう一度押すと解除)</label>
-<div class="urgBtnRow">
+<label>緊急度 <span style="font-weight:normal;font-size:14px;color:#666;">(急ぎのときだけ押す。もう一度押すと解除)</span></label>
+<div style="font-size:14px;color:#666;margin-bottom:6px;">カードに出す鬼を選んでね</div>
+<div class="oniPick">
+<button type="button" id="oniBtnRed" onclick="setOni('red')"><span id="oniPickRed"></span>赤鬼</button>
+<button type="button" id="oniBtnBlue" onclick="setOni('blue')"><span id="oniPickBlue"></span>青鬼</button>
+</div>
+<div class="urgBtnRow three">
+<button type="button" class="urgBigBtn u0" id="urgBtn0" onclick="setUrgency('早急対応')">早急対応</button>
 <button type="button" class="urgBigBtn u1" id="urgBtn1" onclick="setUrgency('至急')">🔥 至急</button>
 <button type="button" class="urgBigBtn u2" id="urgBtn2" onclick="setUrgency('大至急')">🚨 大至急</button>
 </div>
@@ -261,14 +298,14 @@ body{background:white;padding-bottom:0;}
 <div class="field">
 <label>持ち物</label>
 <div class="itemsGrid">
-<span>穴ありドラム缶</span><input type="number" id="itemHoleDrum" min="0" value="0"><span class="unit">本</span>
-<span>穴なしドラム缶</span><input type="number" id="itemNoHoleDrum" min="0" value="0"><span class="unit">本</span>
-<span>フレコン</span><input type="number" id="itemFlexBag" min="0" value="0"><span class="unit">枚</span>
-<span>箱</span><input type="number" id="itemBox" min="0" value="0"><span class="unit">個</span>
+<span>穴ありドラム缶</span><input type="text" id="itemHoleDrum" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">本</span>
+<span>穴なしドラム缶</span><input type="text" id="itemNoHoleDrum" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">本</span>
+<span>フレコン</span><input type="text" id="itemFlexBag" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">枚</span>
+<span>箱</span><input type="text" id="itemBox" value="0" lang="ja" inputmode="text" autocomplete="off" onfocus="this.select()"><span class="unit">個</span>
 </div>
 <div class="otherRow">
 <span style="font-size:16px;font-weight:bold;color:#333;white-space:nowrap;">その他</span>
-<input type="text" id="itemOther" placeholder="品名・数量など">
+<input type="text" id="itemOther" placeholder="品名・数量など" lang="ja" inputmode="text" autocomplete="off">
 </div>
 </div>
 
@@ -310,6 +347,56 @@ const TWO_DAYS_MS=2*24*60*60*1000;
 let requestCache=[];
 let currentDetailId=null;
 
+// ==== 鬼のイラスト(オリジナル・金棒つき全身) ====
+function oniSvg(kind,size){
+const red=kind!=="blue";
+const skin=red?"#e8533f":"#2f6fd6", skinD=red?"#c43d2b":"#2156ad";
+const horns=red
+?'<path d="M24 30 L14 4 L36 20Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5"/><path d="M76 30 L86 4 L64 20Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5"/><path d="M18 13 L27 17 M21 21 L30 24 M82 13 L73 17 M79 21 L70 24" stroke="#1f2937" stroke-width="2.4"/>'
+:'<path d="M50 16 L42 -2 L58 -2Z" fill="#f4a340" stroke="#b86a12" stroke-width="1.5" transform="translate(0,4)"/><path d="M44 5 L56 5 M45 11 L55 11" stroke="#1f2937" stroke-width="2.4"/>';
+return '<svg class="oni" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'+
+horns+
+'<ellipse cx="11" cy="58" rx="7" ry="10" fill="'+skinD+'"/><ellipse cx="89" cy="58" rx="7" ry="10" fill="'+skinD+'"/>'+
+'<path d="M14 50 Q14 20 50 20 Q86 20 86 50 L84 74 Q80 94 50 94 Q20 94 16 74Z" fill="'+skin+'"/>'+
+'<g fill="#1f2937"><circle cx="20" cy="30" r="10"/><circle cx="33" cy="20" r="11"/><circle cx="50" cy="17" r="11"/><circle cx="67" cy="20" r="11"/><circle cx="80" cy="30" r="10"/><circle cx="15" cy="42" r="7"/><circle cx="85" cy="42" r="7"/></g>'+
+'<path d="M27 42 Q35 37 44 44 M73 42 Q65 37 56 44" stroke="#f4a340" stroke-width="5" stroke-linecap="round" fill="none"/>'+
+'<circle cx="37" cy="52" r="7" fill="#fff"/><circle cx="63" cy="52" r="7" fill="#fff"/><circle cx="38.5" cy="53" r="3.6" fill="#1f2937"/><circle cx="61.5" cy="53" r="3.6" fill="#1f2937"/>'+
+'<ellipse cx="50" cy="62" rx="6.5" ry="5" fill="'+skinD+'"/>'+
+'<path d="M28 68 Q50 64 72 68 Q70 90 50 90 Q30 90 28 68Z" fill="#2b2b2b"/>'+
+'<path d="M31 69 L35 77 L39 68.5Z M69 69 L65 77 L61 68.5Z M40 89 L43 83 L46 89.6Z M60 89 L57 83 L54 89.6Z" fill="#fff"/>'+
+'</svg>';
+}
+let currentOni="red";
+function setOni(k){
+currentOni=k;
+document.getElementById("oniBtnRed").classList.toggle("selected",k==="red");
+document.getElementById("oniBtnBlue").classList.toggle("selected",k==="blue");
+}
+
+// ==== 経過時間 ====
+function createdMs(item){
+if(item.createdAt && typeof item.createdAt.toMillis==="function")return item.createdAt.toMillis();
+const t=Date.parse(item.createdAtText||"");
+if(!isNaN(t))return t;
+const d=Date.parse((item.requestDate||"")+"T09:00:00");
+return isNaN(d)?null:d;
+}
+function elapsedInfo(item){
+const ms=createdMs(item);
+if(ms===null)return null;
+const h=Math.max(0,Math.floor((Date.now()-ms)/3600000));
+const text="電話未対応 "+(h<1?"1時間以内":h<24?h+"時間経過":Math.floor(h/24)+"日"+(h%24?(h%24)+"時間":"")+"経過");
+return {hours:h,text:text,over:h>=24};
+}
+// 全角数字などを半角に(ひらがな入力のまま数字を打っても大丈夫なように)
+function toHalfNum(s){
+return String(s||"").normalize("NFKC").replace(/[ー－―]/g,"-").trim();
+}
+function numVal(id){
+const n=parseInt(toHalfNum(document.getElementById(id).value).replace(/[^0-9]/g,""),10);
+return isNaN(n)?0:n;
+}
+
 function todayStr(){
 const d=new Date();
 const y=d.getFullYear();
@@ -348,21 +435,22 @@ const contents=Array.from(document.querySelectorAll("#contentGroup input:checked
 const ampmEl=document.querySelector("#ampmGroup input[name=ampm]:checked");
 return {
 urgency:currentUrgency||"通常",
+oni:currentOni||"red",
 requestDate:document.getElementById("requestDate").value,
 client:client,
 clientDept:document.getElementById("clientDept").value.trim(),
 clientContact:document.getElementById("clientContact").value.trim(),
 staff:staff,
-phone:document.getElementById("phone").value.trim(),
+phone:toHalfNum(document.getElementById("phone").value),
 contents:contents,
 responseText:document.getElementById("responseText").value.trim(),
 pickupDate:document.getElementById("pickupDate").value,
 ampm:ampmEl?ampmEl.value:"",
 items:{
-holeDrum:Number(document.getElementById("itemHoleDrum").value||0),
-noHoleDrum:Number(document.getElementById("itemNoHoleDrum").value||0),
-flexBag:Number(document.getElementById("itemFlexBag").value||0),
-box:Number(document.getElementById("itemBox").value||0),
+holeDrum:numVal("itemHoleDrum"),
+noHoleDrum:numVal("itemNoHoleDrum"),
+flexBag:numVal("itemFlexBag"),
+box:numVal("itemBox"),
 other:document.getElementById("itemOther").value.trim()
 }
 };
@@ -391,7 +479,7 @@ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
 function buildSummaryLines(data){
 // 緊急度・対応メモは先頭・末尾に追加される(下のreturn配列参照)
 const lines=[];
-if(data.urgency && data.urgency!=="通常")lines.push((data.urgency==="大至急"?"🚨":"🔥")+"緊急度："+data.urgency);
+if(data.urgency && data.urgency!=="通常")lines.push((data.urgency==="大至急"?"🚨":data.urgency==="至急"?"🔥":"👹")+"緊急度："+data.urgency);
 if(data.requestDate)lines.push("依頼日："+data.requestDate);
 lines.push("引取先："+data.client);
 if(data.clientDept)lines.push("取引先部署："+data.clientDept);
@@ -402,6 +490,8 @@ if(data.contents && data.contents.length)lines.push("依頼内容："+data.conte
 if(data.responseText)lines.push("対応内容："+data.responseText);
 if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
 if(data.calledAtText)lines.push("📞電話済み："+data.calledAtText);
+if(data.genbaAtText)lines.push("🔍現場確認済み："+data.genbaAtText);
+if(data.mitsuAtText)lines.push("📝見積済み："+data.mitsuAtText);
 if(data.doneAtText)lines.push("✅対応済み："+data.doneAtText+(data.doneMemo?"（"+data.doneMemo+"）":""));
 const itemsText=itemsSummaryText(data.items||{});
 if(itemsText!=="なし")lines.push("持ち物："+itemsText);
@@ -419,6 +509,10 @@ let editingRequestId=null;
 let currentUrgency="";
 function setUrgency(u){
 currentUrgency=(currentUrgency===u)?"":u;
+syncUrgBtns();
+}
+function syncUrgBtns(){
+document.getElementById("urgBtn0").classList.toggle("selected",currentUrgency==="早急対応");
 document.getElementById("urgBtn1").classList.toggle("selected",currentUrgency==="至急");
 document.getElementById("urgBtn2").classList.toggle("selected",currentUrgency==="大至急");
 }
@@ -513,8 +607,8 @@ r.checked=on;
 r.closest("label").classList.toggle("checked",on);
 });
 currentUrgency=(item.urgency && item.urgency!=="通常")?item.urgency:"";
-document.getElementById("urgBtn1").classList.toggle("selected",currentUrgency==="至急");
-document.getElementById("urgBtn2").classList.toggle("selected",currentUrgency==="大至急");
+syncUrgBtns();
+setOni(item.oni==="blue"?"blue":"red");
 const it=item.items||{};
 document.getElementById("itemHoleDrum").value=it.holeDrum||0;
 document.getElementById("itemNoHoleDrum").value=it.noHoleDrum||0;
@@ -556,8 +650,8 @@ r.checked=false;
 r.closest("label").classList.remove("checked");
 });
 currentUrgency="";
-document.getElementById("urgBtn1").classList.remove("selected");
-document.getElementById("urgBtn2").classList.remove("selected");
+syncUrgBtns();
+setOni("red");
 document.getElementById("itemHoleDrum").value=0;
 document.getElementById("itemNoHoleDrum").value=0;
 document.getElementById("itemFlexBag").value=0;
@@ -608,7 +702,7 @@ function renderLists(){
 renderReports();
 const pendingBox=document.getElementById("pendingList");
 const doneBox=document.getElementById("doneList");
-const urgRank=function(r){return r.urgency==="大至急"?0:r.urgency==="至急"?1:2;};
+const urgRank=function(r){return r.urgency==="大至急"?0:r.urgency==="至急"?1:r.urgency==="早急対応"?2:3;};
 const todayPrefix=(new Date().getMonth()+1)+"/"+new Date().getDate()+" ";
 const doneToday=function(r){return r.status==="対応済み" && (r.doneAtText||"").indexOf(todayPrefix)===0;};
 const pendingOnly=requestCache.filter(function(r){return r.status!=="対応済み";})
@@ -642,15 +736,30 @@ return (d.getMonth()+1)+"/"+d.getDate()+"("+w+")";
 }
 function renderCard(item){
 const isDone=item.status==="対応済み";
-const urgCls=item.urgency==="大至急"?" urgent2":item.urgency==="至急"?" urgent1":"";
-const urgBadge=item.urgency==="大至急"?"<div class='urgBadge u2'>🚨 大至急 🚨</div>":item.urgency==="至急"?"<div class='urgBadge u1'>🔥 至急</div>":"";
+const urgCls=item.urgency==="大至急"?" urgent2":item.urgency==="至急"?" urgent1":item.urgency==="早急対応"?" urgent0":"";
+const oniImg=oniSvg(item.oni==="blue"?"blue":"red",72);
+const urgBadge=item.urgency==="大至急"?"<div class='urgBadge u2'>"+oniImg+"<span>🚨 大至急 🚨</span>"+oniImg+"</div>"
+:item.urgency==="至急"?"<div class='urgBadge u1'>"+oniImg+"<span>🔥 至急</span></div>"
+:item.urgency==="早急対応"?"<div class='urgBadge u0'>"+oniImg+"<span>早急対応</span></div>":"";
+const cts=item.contents||[];
+const isGenba=cts.indexOf("現場確認希望")!==-1, isMitsu=cts.indexOf("見積依頼")!==-1;
+const wantsCall0=cts.indexOf("電話欲しい")!==-1;
+const el=(isDone||!wantsCall0)?null:elapsedInfo(item);
+const genbaInfo=!isGenba?"":(item.genbaAtText
+?"<div><span class='taskBtn done' onclick=\"event.stopPropagation();undoTask('"+item.id+"','genba')\">🔍 現場確認済み "+escapeHtml(item.genbaAtText)+"</span></div>"
+:"<div style='margin-top:8px;'><button class='taskBtn genba' onclick=\"event.stopPropagation();markTask('"+item.id+"','genba')\">🔍 現場確認に行ってください！</button></div>");
+const mitsuInfo=!isMitsu?"":(item.mitsuAtText
+?"<div><span class='taskBtn done' onclick=\"event.stopPropagation();undoTask('"+item.id+"','mitsu')\">📝 見積済み "+escapeHtml(item.mitsuAtText)+"</span></div>"
+:"<div style='margin-top:8px;'><button class='taskBtn mitsu' onclick=\"event.stopPropagation();markTask('"+item.id+"','mitsu')\">📝 見積を出してください！</button></div>");
 const doneInfo=(isDone&&item.doneAtText)?"<div class='doneInfo'>✅ "+escapeHtml(item.doneAtText)+" 対応済み</div>":"";
 const pickupInfo=item.pickupDate?"<div class='reqPickup'>🚚 引取 "+escapeHtml(fmtPickup(item.pickupDate))+(item.ampm?" "+escapeHtml(item.ampm):"")+"</div>":"";
 const wantsCall=(item.contents||[]).indexOf("電話欲しい")!==-1;
+const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tora":"")+"'><span>⏰ "+escapeHtml(el.text)+"</span></span>":"";
 const callInfo=!wantsCall?"":(item.calledAtText
 ?"<div><span class='callBtn done' onclick=\"event.stopPropagation();undoCalled('"+item.id+"')\">📞 電話済み "+escapeHtml(item.calledAtText)+"</span></div>"
-:"<div><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button></div>");
-return "<div class='reqCard"+(isDone?" done":urgCls)+"' onclick=\"openDetail('"+item.id+"')\">"+
+:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+"</div>");
+const toraCls=(el&&el.over&&!item.calledAtText)?" toraCard":"";
+return "<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
 "<div class='reqTop'>"+
 "<div class='reqDate'>"+escapeHtml(item.requestDate||"-")+"</div>"+
 "<button class='badge "+(isDone?"done":"pending")+"' onclick=\"event.stopPropagation();toggleStatusFromCard('"+item.id+"','"+(isDone?"未対応":"対応済み")+"')\">"+(isDone?"対応済み":"未対応")+"</button>"+
@@ -660,6 +769,8 @@ urgBadge+
 "<div class='reqContent'>"+escapeHtml(contentPreview(item))+"</div>"+
 pickupInfo+
 callInfo+
+genbaInfo+
+mitsuInfo+
 doneInfo+
 "</div>";
 }
@@ -674,6 +785,21 @@ showAcceptPop((item&&item.client?item.client+" 様":"")+to,
 }).catch(function(){
 alert("更新に失敗しました。通信を確認してください。");
 });
+}
+const TASK_FIELD={genba:"genbaAtText",mitsu:"mitsuAtText"};
+const TASK_NAME={genba:"現場確認",mitsu:"見積"};
+function markTask(id,kind){
+const tm=nowHM();
+const up={};up[TASK_FIELD[kind]]=tm;
+colRef.doc(id).update(up).then(function(){
+const item=requestCache.find(function(r){return r.id===id;});
+showAcceptPop((item&&item.client?item.client+" 様":""),{icon:kind==="genba"?"🔍":"📝",title:TASK_NAME[kind]+"済みにしました("+tm.split(" ")[1]+")"});
+}).catch(function(){alert("更新に失敗しました。通信を確認してください。");});
+}
+function undoTask(id,kind){
+if(!confirm(TASK_NAME[kind]+"済みの記録を取り消しますか？"))return;
+const up={};up[TASK_FIELD[kind]]=firebase.firestore.FieldValue.delete();
+colRef.doc(id).update(up).catch(function(){alert("更新に失敗しました。通信を確認してください。");});
 }
 function undoCalled(id){
 if(!confirm("電話済みの記録を取り消しますか？"))return;
@@ -895,7 +1021,12 @@ if(iconBtn)iconBtn.style.display="none";
 
 document.addEventListener("DOMContentLoaded",function(){
 loadStaff();
+document.getElementById("oniPickRed").innerHTML=oniSvg("red",80);
+document.getElementById("oniPickBlue").innerHTML=oniSvg("blue",80);
+setOni("red");
 loadRequests();
+// 経過時間を1分ごとに更新
+setInterval(function(){if(requestCache.length)renderLists();},60000);
 if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone){
 const btn=document.getElementById("installBtn");
 if(btn)btn.style.display="none";
