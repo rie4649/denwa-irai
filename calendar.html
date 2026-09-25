@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>関根商店カレンダー</title>
+<style id="pageStyle"></style>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; }
+  html, body { height:100%; }
+  body { background:#eef2f6; color:#1f2937; display:flex; flex-direction:column; }
+  button { font-family:inherit; }
+
+  /* ===== ヘッダー ===== */
+  header { background:#0f766e; color:#fff; padding:8px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  header h1 { font-size:19px; white-space:nowrap; }
+  .title { font-size:26px; font-weight:900; margin:0 4px; white-space:nowrap; }
+  .hBtn { border:none; border-radius:10px; padding:9px 14px; font-size:15px; font-weight:bold; cursor:pointer; background:rgba(255,255,255,.18); color:#fff; white-space:nowrap; }
+  .hBtn:active { transform:scale(.95); }
+  .hBtn.add { background:#fbbf24; color:#422006; }
+  .hBtn.back { background:#fff; color:#0f766e; }
+  .spacer { flex:1; }
+  .legend { display:flex; gap:6px; flex-wrap:wrap; font-size:13px; }
+  .legend span { background:#fff; color:#1f2937; border-radius:8px; padding:4px 9px; font-weight:bold; }
+
+  main { flex:1; min-height:0; padding:6px; display:flex; flex-direction:column; }
+
+  /* ===== 1週間表示 ===== */
+  .week { flex:1; min-height:0; display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; }
+  .col { background:#fff; border-radius:12px; display:flex; flex-direction:column; min-height:0; overflow:hidden; border:3px solid transparent; }
+  .col.today { border-color:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.25); }
+  .col.past { opacity:.85; }
+  .colHead { padding:6px 8px; background:#334155; color:#fff; cursor:pointer; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+  .col.sat .colHead { background:#1d4ed8; }
+  .col.sun .colHead, .col.hol .colHead { background:#dc2626; }
+  .col.today .colHead { background:#f59e0b; color:#422006; }
+  .colHead .d { font-size:26px; font-weight:900; line-height:1.1; }
+  .colHead .w { font-size:16px; font-weight:bold; }
+  .colHead .h { font-size:12px; font-weight:bold; }
+  .colHead .cnt { margin-left:auto; font-size:13px; font-weight:bold; background:rgba(255,255,255,.25); border-radius:999px; padding:1px 8px; }
+  .colBody { flex:1; min-height:0; overflow:hidden; padding:4px 5px 6px; cursor:pointer; --fs:18px; }
+  .colBody.scroll { overflow-y:auto; }
+  .sec { font-size:calc(var(--fs) * .62); font-weight:bold; color:#64748b; margin:4px 2px 2px; border-bottom:1px dashed #cbd5e1; }
+  .chip { display:flex; align-items:center; gap:4px; border-radius:6px; padding:2px 6px; margin-bottom:3px; font-size:var(--fs); font-weight:800; line-height:1.3; white-space:nowrap; overflow:hidden; cursor:pointer; }
+  .chip:active { filter:brightness(.92); }
+  .chip .nm { overflow:hidden; text-overflow:ellipsis; flex:1; }
+  .chip .ok { flex-shrink:0; font-size:calc(var(--fs) * .8); }
+  .emptyCol { color:#cbd5e1; text-align:center; margin-top:20px; font-size:14px; }
+
+  /* 種類ごとの色 */
+  .pickup { background:#dbeafe; color:#1e3a8a; border-left:5px solid #2563eb; }
+  .pickup.urgent { background:#fee2e2; color:#991b1b; border-left-color:#dc2626; }
+  .regular { background:#dcfce7; color:#14532d; border-left:5px solid #16a34a; }
+  .other { background:#ffedd5; color:#7c2d12; border-left:5px solid #f97316; }
+  .isDone { background:#f1f5f9 !important; color:#94a3b8 !important; border-left-color:#cbd5e1 !important; }
+  .isDone .nm { text-decoration:line-through; }
+
+  /* ===== 2日の拡大表示 ===== */
+  .days { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .panel { background:#fff; border-radius:14px; display:flex; flex-direction:column; min-height:0; overflow:hidden; border:3px solid transparent; }
+  .panel.today { border-color:#f59e0b; }
+  .pHead { display:flex; align-items:center; gap:8px; padding:10px 12px; background:#334155; color:#fff; flex-wrap:wrap; }
+  .panel.sat .pHead { background:#1d4ed8; }
+  .panel.sun .pHead, .panel.hol .pHead { background:#dc2626; }
+  .panel.today .pHead { background:#f59e0b; color:#422006; }
+  .pHead .pt { font-size:28px; font-weight:900; }
+  .pHead .pc { font-size:15px; font-weight:bold; background:rgba(255,255,255,.25); border-radius:999px; padding:2px 10px; }
+  .pHead .pBtn { border:none; border-radius:10px; padding:9px 12px; font-size:15px; font-weight:bold; cursor:pointer; background:#fff; color:#0f766e; }
+  .pHead .pBtn.add { background:#fbbf24; color:#422006; }
+  .pBody { flex:1; overflow-y:auto; padding:8px 10px 14px; }
+  .pSec { font-size:15px; font-weight:bold; color:#475569; margin:10px 2px 4px; border-bottom:2px solid #e2e8f0; }
+  .row { display:flex; align-items:center; gap:10px; border-radius:10px; padding:8px 12px; margin-bottom:6px; cursor:pointer; }
+  .row:active { filter:brightness(.94); }
+  .row .ic { font-size:24px; }
+  .row .main { flex:1; min-width:0; }
+  .row .nm { font-size:24px; font-weight:900; line-height:1.3; }
+  .row .sub { font-size:14px; font-weight:bold; opacity:.85; margin-top:2px; }
+  .row .ap { font-size:14px; font-weight:bold; background:rgba(255,255,255,.75); border-radius:6px; padding:3px 8px; flex-shrink:0; }
+  .emptyDay { color:#94a3b8; text-align:center; padding:30px 10px; font-size:17px; }
+
+  /* ===== モーダル ===== */
+  .modalBg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:center; justify-content:center; padding:14px; }
+  .modalBg.show { display:flex; }
+  .modal { background:#fff; border-radius:18px; width:100%; max-width:600px; max-height:92vh; overflow-y:auto; padding:18px; }
+  .modal h3 { font-size:20px; margin-bottom:6px; }
+  label.f { display:block; font-size:14px; font-weight:bold; color:#475569; margin:12px 0 5px; }
+  .modal input, .modal select, .modal textarea { width:100%; padding:11px; font-size:17px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; }
+  .seg { display:flex; gap:6px; flex-wrap:wrap; }
+  .seg button { flex:1; min-width:74px; padding:10px 6px; font-size:15px; font-weight:bold; border:2px solid #cbd5e1; border-radius:10px; background:#f8fafc; color:#334155; cursor:pointer; }
+  .seg button.on { border-color:#0f766e; background:#0f766e; color:#fff; }
+  .row2 { display:flex; gap:8px; }
+  .row2 > * { flex:1; min-width:0; }
+  .itemsGrid { display:grid; grid-template-columns:1fr 80px 28px; gap:8px; align-items:center; }
+  .itemsGrid span { font-size:16px; font-weight:bold; }
+  .itemsGrid input { text-align:center; }
+  .doneBox { display:flex; align-items:center; gap:10px; background:#f0fdf4; border:2px solid #86efac; border-radius:12px; padding:12px; margin-top:14px; font-size:17px; font-weight:bold; color:#166534; cursor:pointer; }
+  .doneBox input { width:24px; height:24px; }
+  .btnRow { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .btn { flex:1; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:bold; cursor:pointer; }
+  .btn.main { background:#0f766e; color:#fff; }
+  .btn.sub { background:#e2e8f0; color:#334155; }
+  .btn.del { background:#fee2e2; color:#dc2626; flex:0 0 100%; }
+  .btn.blue { background:#2563eb; color:#fff; }
+  .hint { font-size:12px; color:#64748b; margin-top:4px; line-height:1.6; }
+  .info { font-size:17px; line-height:1.9; }
+  .info b { color:#475569; }
+  .info a { color:#2563eb; font-weight:bold; }
+  #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 22px; border-radius:999px; font-size:15px; opacity:0; pointer-events:none; transition:.25s; z-index:300; white-space:nowrap; }
+  #toast.show { opacity:1; }
+
+  /* ===== 印刷用 ===== */
+  #printArea { display:none; }
+  @media print {
+    body > *:not(#printArea) { display:none !important; }
+    #printArea { display:block !important; }
+    body { background:#fff; display:block; height:auto; }
+    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+  .pr h2 { font-size:18pt; margin-bottom:6pt; }
+  .prWeek { width:100%; border-collapse:collapse; table-layout:fixed; }
+  .prWeek th { background:#334155; color:#fff; font-size:12pt; padding:4pt; border:1px solid #334155; }
+  .prWeek th.sat { background:#1d4ed8; } .prWeek th.sun { background:#dc2626; }
+  .prWeek td { vertical-align:top; border:1px solid #94a3b8; padding:3pt; font-size:10.5pt; font-weight:bold; }
+  .prWeek .c { border-radius:3pt; padding:1pt 3pt; margin-bottom:2pt; }
+  .prWeek .s { font-size:8pt; color:#64748b; margin-top:3pt; }
+  .prDay .r { border:1px solid #cbd5e1; border-left-width:6pt; border-radius:4pt; padding:5pt 8pt; margin-bottom:5pt; }
+  .prDay .r .n { font-size:15pt; font-weight:900; }
+  .prDay .r .x { font-size:10.5pt; margin-top:2pt; }
+  .prDay .ck { display:inline-block; width:13pt; height:13pt; border:1.5pt solid #333; margin-right:6pt; vertical-align:middle; }
+
+  /* ===== スマホ ===== */
+  @media (max-width:760px) {
+    body { height:auto; }
+    .title { font-size:19px; }
+    .legend { display:none; }
+    .week { grid-template-columns:1fr; }
+    .colBody { --fs:16px !important; overflow:visible !important; }
+    .days { grid-template-columns:1fr; }
+    .pBody { overflow:visible; }
+    .row .nm { font-size:19px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📅 関根商店</h1>
+  <button class="hBtn back" id="backBtn" onclick="showWeek()" style="display:none;">← 1週間</button>
+  <button class="hBtn" onclick="move(-1)">◀</button>
+  <div class="title" id="title"></div>
+  <button class="hBtn" onclick="move(1)">▶</button>
+  <button class="hBtn" id="todayBtn" onclick="goToday()">今週</button>
+  <div class="spacer"></div>
+  <div class="legend">
+    <span style="border-left:6px solid #2563eb;">🚚 引取(電話依頼)</span>
+    <span style="border-left:6px solid #16a34a;">🔁 通常回収</span>
+    <span style="border-left:6px solid #f97316;">📝 その他</span>
+  </div>
+  <button class="hBtn add" onclick="openForm(null, viewMode==='days'?focusDay:todayYmd())">＋ 予定を追加</button>
+  <button class="hBtn" id="printWeekBtn" onclick="printWeek()">🖨 週を印刷</button>
+  <button class="hBtn" onclick="location.href='index.html'">← マスタ</button>
+</header>
+
+<main id="main"></main>
+
+<!-- 予定(通常回収・その他)の入力・詳細 -->
+<div class="modalBg" id="formBg" onclick="if(event.target===this)closeForm()">
+  <div class="modal">
+    <h3 id="formTitle">＋ 予定を追加</h3>
+    <div class="hint" id="formSub"></div>
+
+    <label class="f">種類</label>
+    <div class="seg" id="kindSeg">
+      <button type="button" data-v="regular" onclick="setSeg('kindSeg',this)">🔁 通常回収</button>
+      <button type="button" data-v="other" onclick="setSeg('kindSeg',this)">📝 その他</button>
+    </div>
+
+    <label class="f" id="nameLabel">会社名(取引先マスタから選べます)</label>
+    <input type="text" id="fName" list="clientList" placeholder="会社名の一部やよみがなで探せます" lang="ja" autocomplete="off">
+    <datalist id="clientList"></datalist>
+
+    <div class="row2">
+      <div><label class="f">日付(繰り返しは開始日)</label><input type="date" id="fDate"></div>
+      <div><label class="f">時間</label>
+        <div class="seg" id="apSeg">
+          <button type="button" data-v="" onclick="setSeg('apSeg',this)">なし</button>
+          <button type="button" data-v="午前" onclick="setSeg('apSeg',this)">午前</button>
+          <button type="button" data-v="午後" onclick="setSeg('apSeg',this)">午後</button>
+        </div>
+      </div>
+    </div>
+
+    <label class="f">繰り返し</label>
+    <div class="seg" id="repSeg">
+      <button type="button" data-v="none" onclick="setSeg('repSeg',this)">なし</button>
+      <button type="button" data-v="weekly" onclick="setSeg('repSeg',this)">毎週</button>
+      <button type="button" data-v="biweekly" onclick="setSeg('repSeg',this)">隔週</button>
+      <button type="button" data-v="monthlyDate" onclick="setSeg('repSeg',this)">毎月○日</button>
+      <button type="button" data-v="monthlyNth" onclick="setSeg('repSeg',this)">毎月第○○曜</button>
+    </div>
+    <div class="hint" id="repHint"></div>
+    <div id="endWrap"><label class="f">繰り返しの終わり(空欄ならずっと)</label><input type="date" id="fEnd"></div>
+
+    <label class="f">品目</label>
+    <input type="text" id="fHinmoku" placeholder="例:廃プラ・金属くず" lang="ja" autocomplete="off">
+
+    <label class="f">持ち物</label>
+    <div class="itemsGrid">
+      <span>穴ありドラム缶</span><input type="text" id="iHole" value="0" onfocus="this.select()"><span>本</span>
+      <span>穴なしドラム缶</span><input type="text" id="iNoHole" value="0" onfocus="this.select()"><span>本</span>
+      <span>フレコン</span><input type="text" id="iFlex" value="0" onfocus="this.select()"><span>枚</span>
+      <span>箱</span><input type="text" id="iBox" value="0" onfocus="this.select()"><span>個</span>
+    </div>
+    <input type="text" id="iOther" placeholder="持ち物その他(品名・数量など)" lang="ja" autocomplete="off" style="margin-top:8px;">
+
+    <div class="row2">
+      <div><label class="f">先方の担当者</label><input type="text" id="fContact" placeholder="例:山田様" lang="ja" autocomplete="off"></div>
+      <div><label class="f">電話番号</label><input type="text" id="fTel" placeholder="マスタから自動で入ります" autocomplete="off"></div>
+    </div>
+
+    <label class="f">メモ</label>
+    <textarea id="fMemo" rows="2" placeholder="注意点・連絡事項など" lang="ja"></textarea>
+
+    <label class="doneBox" id="doneWrap"><input type="checkbox" id="fDone"> <span id="doneLabel">この日の回収済み</span></label>
+
+    <div class="btnRow">
+      <button class="btn sub" onclick="closeForm()">閉じる</button>
+      <button class="btn main" id="saveBtn" onclick="saveForm()">保存</button>
+      <button class="btn del" id="delBtn" onclick="deleteFromForm()">🗑 この予定を消す</button>
+    </div>
+  </div>
+</div>
+
+<!-- 電話依頼の引取(詳細) -->
+<div class="modalBg" id="phoneBg" onclick="if(event.target===this)closePhone()">
+  <div class="modal">
+    <h3 id="phTitle"></h3>
+    <div class="info" id="phInfo"></div>
+    <label class="f">回収予定日(直すと電話依頼の方も直ります)</label>
+    <div class="row2">
+      <input type="date" id="phDate">
+      <div class="seg" id="phApSeg">
+        <button type="button" data-v="" onclick="setSeg('phApSeg',this)">なし</button>
+        <button type="button" data-v="午前" onclick="setSeg('phApSeg',this)">午前</button>
+        <button type="button" data-v="午後" onclick="setSeg('phApSeg',this)">午後</button>
+      </div>
+    </div>
+    <div class="btnRow">
+      <button class="btn sub" onclick="closePhone()">閉じる</button>
+      <button class="btn main" onclick="savePhone()">日付を保存</button>
+      <button class="btn blue" style="flex:0 0 100%;" onclick="window.open('https://rie4649.github.io/denwa-irai/','_blank')">📞 電話依頼で開く(ほかの内容を直す)</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey:"AIzaSyD99MxOMnGplSQjV7830bS7-gdCBSM9DGY",
+  authDomain:"sekine-store.firebaseapp.com",
+  projectId:"sekine-store",
+  storageBucket:"sekine-store.firebasestorage.app",
+  messagingSenderId:"781856496751",
+  appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const EVENT_COL = "calendarEvents";   // カレンダーで入れる予定(通常回収・その他)
+const PHONE_COL = "phoneRequests";    // 電話依頼(回収予定日があるものを表示)
+const CLIENT_COL = "master_clients";  // 取引先マスタ(会社名・電話の候補)
+
+let viewMode = "week";    // "week" = 1週間 / "days" = 2日の拡大
+let weekStart;            // 表示中の週の月曜(Date)
+let focusDay;             // 拡大表示の1日目(yyyy-mm-dd)
+let events = [], phones = [];
+let clients = null;       // 入力画面を開いたときだけ読む(読み取り節約)
+let editingId = null, editingDate = null, phoneId = null;
+
+/* ===== 日付 ===== */
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (ds, n) => { const d = parseYmd(ds); d.setDate(d.getDate()+n); return ymd(d); };
+const WD = ["日","月","火","水","木","金","土"];
+const todayYmd = () => ymd(new Date());
+function mondayOf(ds){ const d = parseYmd(ds); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d; }
+function mdw(ds){ const d = parseYmd(ds); return (d.getMonth()+1)+"/"+d.getDate()+"("+WD[d.getDay()]+")"; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2200); }
+function shortName(n){ return String(n||"").replace(/株式会社|有限会社|合同会社|㈱|㈲|\(株\)|（株）|\(有\)|（有）/g,"").trim() || n; }
+const gv = id => document.getElementById(id).value;
+function numOf(v){ const n = parseInt(String(v||"").normalize("NFKC").replace(/[^0-9]/g,""),10); return isNaN(n)?0:n; }
+
+/* ===== 祝日(自動計算) ===== */
+const holCache = {};
+function nthWeekday(y,m,wd,n){ const f = new Date(y,m-1,1).getDay(); return 1+((wd-f+7)%7)+(n-1)*7; }
+function holidaysOf(y){
+  if (holCache[y]) return holCache[y];
+  const h = {}; const add = (m,d,n) => { h[y+"-"+pad(m)+"-"+pad(d)] = n; };
+  add(1,1,"元日"); add(2,11,"建国記念の日"); add(2,23,"天皇誕生日"); add(4,29,"昭和の日");
+  add(5,3,"憲法記念日"); add(5,4,"みどりの日"); add(5,5,"こどもの日"); add(8,11,"山の日");
+  add(11,3,"文化の日"); add(11,23,"勤労感謝の日");
+  add(1,nthWeekday(y,1,1,2),"成人の日"); add(7,nthWeekday(y,7,1,3),"海の日");
+  add(9,nthWeekday(y,9,1,3),"敬老の日"); add(10,nthWeekday(y,10,1,2),"スポーツの日");
+  const k = y-1980;
+  add(3,Math.floor(20.8431+0.242194*k-Math.floor(k/4)),"春分の日");
+  add(9,Math.floor(23.2488+0.242194*k-Math.floor(k/4)),"秋分の日");
+  Object.keys(h).forEach(key => { const mid = addDays(key,1), nx = addDays(key,2);
+    if (h[nx] && !h[mid] && parseYmd(mid).getDay() !== 0) h[mid] = "国民の休日"; });
+  Object.keys(h).sort().forEach(key => { if (parseYmd(key).getDay() === 0){ let s = addDays(key,1); while (h[s]) s = addDays(s,1); h[s] = "振替休日"; } });
+  return holCache[y] = h;
+}
+const holidayName = ds => holidaysOf(Number(ds.slice(0,4)))[ds] || "";
+
+/* ===== 繰り返し ===== */
+function occursOn(ev, ds){
+  if (!ev.date || ds < ev.date) return false;
+  if (ev.endDate && ds > ev.endDate) return false;
+  if ((ev.skipDates||[]).includes(ds)) return false;
+  const rep = ev.repeat || "none";
+  if (rep === "none") return ds === ev.date;
+  const d = parseYmd(ds), s = parseYmd(ev.date);
+  if (rep === "weekly") return d.getDay() === s.getDay();
+  if (rep === "biweekly") return d.getDay() === s.getDay() && Math.round((d-s)/(7*86400000)) % 2 === 0;
+  if (rep === "monthlyDate") return d.getDate() === s.getDate();
+  if (rep === "monthlyNth") return d.getDay() === s.getDay() && Math.ceil(d.getDate()/7) === Math.ceil(s.getDate()/7);
+  return false;
+}
+function repeatText(ev){
+  const rep = ev.repeat || "none"; if (rep === "none" || !ev.date) return "";
+  const s = parseYmd(ev.date);
+  return rep==="weekly" ? "毎週"+WD[s.getDay()]+"曜" : rep==="biweekly" ? "隔週"+WD[s.getDay()]+"曜"
+    : rep==="monthlyDate" ? "毎月"+s.getDate()+"日" : rep==="monthlyNth" ? "毎月第"+Math.ceil(s.getDate()/7)+WD[s.getDay()]+"曜" : "";
+}
+function itemsText(it){
+  it = it || {}; const p = [];
+  if (it.holeDrum>0) p.push("穴ありドラム缶"+it.holeDrum+"本");
+  if (it.noHoleDrum>0) p.push("穴なしドラム缶"+it.noHoleDrum+"本");
+  if (it.flexBag>0) p.push("フレコン"+it.flexBag+"枚");
+  if (it.box>0) p.push("箱"+it.box+"個");
+  if (it.other) p.push(it.other);
+  return p.join("・");
+}
+
+/* その日の予定(午前 → 時間なし → 午後、その中は 電話依頼 → 通常回収 → その他) */
+function itemsOn(ds){
+  const list = [];
+  phones.forEach(p => {
+    if (p.pickupDate !== ds) return;
+    const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
+    list.push({ type:"pickup", id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
+      done:p.status==="対応済み", sub:[urg, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
+  });
+  events.forEach(ev => {
+    if (!occursOn(ev, ds)) return;
+    const rt = repeatText(ev);
+    list.push({ type:ev.kind==="other"?"other":"regular", id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
+      done:(ev.doneDates||[]).includes(ds), sub:[ev.hinmoku, itemsText(ev.items), ev.memo, rt].filter(Boolean).join(" / "), src:ev });
+  });
+  const ar = {"午前":0, "":1, "午後":2}, tr = {pickup:0, regular:1, other:2};
+  list.sort((a,b) => (ar[a.ampm]-ar[b.ampm]) || (tr[a.type]-tr[b.type]) || a.name.localeCompare(b.name,"ja"));
+  return list;
+}
+const SEC_LABEL = {"午前":"午前", "":"時間指定なし", "午後":"午後"};
+function iconOf(it){ return it.type==="pickup" ? (it.urgent&&!it.done ? "🚨" : "🚚") : it.type==="regular" ? "🔁" : "📝"; }
+function clsOf(it){ return it.type + (it.urgent&&!it.done?" urgent":"") + (it.done?" isDone":""); }
+function dayClass(ds){
+  const d = parseYmd(ds), c = [];
+  if (d.getDay()===6) c.push("sat"); if (d.getDay()===0) c.push("sun");
+  if (holidayName(ds)) c.push("hol");
+  if (ds === todayYmd()) c.push("today"); else if (ds < todayYmd()) c.push("past");
+  return c.join(" ");
+}
+
+/* ===== 描画 ===== */
+function render(){
+  document.getElementById("backBtn").style.display = viewMode==="days" ? "" : "none";
+  document.getElementById("printWeekBtn").style.display = viewMode==="week" ? "" : "none";
+  document.getElementById("todayBtn").textContent = viewMode==="week" ? "今週" : "今日";
+  if (viewMode === "week") renderWeek(); else renderDays();
+}
+
+function renderWeek(){
+  const s = ymd(weekStart), e = addDays(s, 6);
+  const sd = parseYmd(s), ed = parseYmd(e);
+  document.getElementById("title").textContent = sd.getFullYear()+"年 "+(sd.getMonth()+1)+"/"+sd.getDate()+" 〜 "+(ed.getMonth()+1)+"/"+ed.getDate();
+  let html = '<div class="week">';
+  for (let i = 0; i < 7; i++){
+    const ds = addDays(s, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
+    html += '<div class="col '+dayClass(ds)+'">'+
+      '<div class="colHead" onclick="showDays(\''+ds+'\')"><span class="d">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="w">('+WD[d.getDay()]+')</span>'+
+      (hol?'<span class="h">'+esc(hol)+'</span>':'')+(items.length?'<span class="cnt">'+items.length+'件</span>':'')+'</div>'+
+      '<div class="colBody" onclick="showDays(\''+ds+'\')">'+(items.length ? sectioned(items, chipHtml, "sec") : '<div class="emptyCol">予定なし</div>')+'</div></div>';
+  }
+  document.getElementById("main").innerHTML = html + '</div>';
+  requestAnimationFrame(fitWeek);
+}
+function sectioned(items, fn, secCls){
+  let out = "", last = null;
+  const useSec = items.some(it => it.ampm);
+  items.forEach(it => {
+    if (useSec && it.ampm !== last){ out += '<div class="'+secCls+'">'+SEC_LABEL[it.ampm]+'</div>'; last = it.ampm; }
+    out += fn(it);
+  });
+  return out;
+}
+function chipHtml(it){
+  return '<div class="chip '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+curDs+'\')">'+
+    '<span>'+iconOf(it)+'</span><span class="nm">'+esc(shortName(it.name))+'</span>'+(it.done?'<span class="ok">✅</span>':'')+'</div>';
+}
+let curDs = "";  // chipHtml に日付を渡すため
+const _itemsOn = itemsOn;
+itemsOn = function(ds){ curDs = ds; return _itemsOn(ds); };
+
+/* 1日の件数が多いときは、隠さずに文字を小さくして全部入れる */
+function fitWeek(){
+  document.querySelectorAll(".colBody").forEach(b => {
+    let fs = 18;
+    b.style.setProperty("--fs", fs+"px");
+    while (b.scrollHeight > b.clientHeight + 1 && fs > 12){ fs--; b.style.setProperty("--fs", fs+"px"); }
+    b.classList.toggle("scroll", b.scrollHeight > b.clientHeight + 1);
+  });
+}
+
+function renderDays(){
+  const d2 = addDays(focusDay, 1);
+  document.getElementById("title").textContent = mdw(focusDay)+" ・ "+mdw(d2);
+  document.getElementById("main").innerHTML = '<div class="days">'+panelHtml(focusDay)+panelHtml(d2)+'</div>';
+}
+function panelHtml(ds){
+  const items = itemsOn(ds), hol = holidayName(ds);
+  const rowFn = it => '<div class="row '+clsOf(it)+'" onclick="openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
+    '<span class="ic">'+iconOf(it)+'</span><div class="main"><div class="nm">'+esc(it.name)+(it.done?' ✅':'')+'</div>'+
+    (it.sub?'<div class="sub">'+esc(it.sub)+'</div>':'')+'</div>'+(it.ampm?'<span class="ap">'+esc(it.ampm)+'</span>':'')+'</div>';
+  return '<div class="panel '+dayClass(ds)+'"><div class="pHead"><span class="pt">'+mdw(ds)+'</span>'+
+    (hol?'<span class="pc">'+esc(hol)+'</span>':'')+(ds===todayYmd()?'<span class="pc">今日</span>':'')+
+    '<span class="pc">'+items.length+'件</span><span style="flex:1"></span>'+
+    '<button class="pBtn add" onclick="openForm(null,\''+ds+'\')">＋ 追加</button>'+
+    '<button class="pBtn" onclick="printDay(\''+ds+'\')">🖨 印刷</button></div>'+
+    '<div class="pBody">'+(items.length ? sectioned(items, rowFn, "pSec") : '<div class="emptyDay">予定はありません</div>')+'</div></div>';
+}
+
+/* ===== 画面の切り替え ===== */
+function showWeek(){ viewMode = "week"; weekStart = mondayOf(focusDay || todayYmd()); render(); }
+function showDays(ds){ viewMode = "days"; focusDay = ds; render(); }
+function move(n){
+  if (viewMode === "week"){ weekStart = parseYmd(addDays(ymd(weekStart), 7*n)); }
+  else focusDay = addDays(focusDay, n);
+  render();
+}
+function goToday(){ if (viewMode === "week") weekStart = mondayOf(todayYmd()); else focusDay = todayYmd(); render(); }
+window.addEventListener("resize", () => { clearTimeout(window.__rt); window.__rt = setTimeout(render, 200); });
+
+/* ===== 会社名タップ ===== */
+function openItem(type, id, ds){
+  if (type === "pickup") openPhone(id); else openForm(id, ds);
+}
+
+/* --- 電話依頼の引取 --- */
+function openPhone(id){
+  const p = phones.find(x => x.id === id); if (!p) return;
+  phoneId = id;
+  document.getElementById("phTitle").textContent = "🚚 "+(p.client||"");
+  const lines = [];
+  if (p.urgency && p.urgency !== "通常") lines.push(["緊急度", esc(p.urgency)]);
+  lines.push(["状態", p.status==="対応済み" ? "✅ 対応済み" : "未対応"]);
+  if (p.requestDate) lines.push(["依頼日", esc(p.requestDate)]);
+  if (p.clientDept) lines.push(["部署", esc(p.clientDept)]);
+  if (p.clientContact) lines.push(["担当者", esc(p.clientContact)]);
+  if (p.phone) lines.push(["電話", '<a href="tel:'+esc(p.phone)+'">'+esc(p.phone)+'</a>']);
+  if ((p.contents||[]).length) lines.push(["依頼内容", esc(p.contents.join("、"))]);
+  const it = itemsText(p.items); if (it) lines.push(["持ち物", esc(it)]);
+  if (p.responseText) lines.push(["対応内容", esc(p.responseText)]);
+  if (p.staff && p.staff !== "未選択") lines.push(["電話受付", esc(p.staff)]);
+  document.getElementById("phInfo").innerHTML = lines.map(l => "<div><b>"+l[0]+":</b>"+l[1]+"</div>").join("");
+  document.getElementById("phDate").value = p.pickupDate || "";
+  setSegVal("phApSeg", p.ampm || "");
+  document.getElementById("phoneBg").classList.add("show");
+}
+function closePhone(){ document.getElementById("phoneBg").classList.remove("show"); phoneId = null; }
+async function savePhone(){
+  if (!phoneId) return;
+  try {
+    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: document.getElementById("phDate").value, ampm: segVal("phApSeg") });
+    closePhone(); toast("✅ 回収予定日を直しました(電話依頼にも反映)");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+
+/* --- 通常回収・その他 --- */
+function setSeg(id, btn){
+  document.querySelectorAll("#"+id+" button").forEach(b => b.classList.toggle("on", b === btn));
+  if (id === "kindSeg") document.getElementById("nameLabel").textContent = btn.dataset.v==="other" ? "内容(例:来客・点検・会議)" : "会社名(取引先マスタから選べます)";
+  if (id === "repSeg") document.getElementById("endWrap").style.display = btn.dataset.v==="none" ? "none" : "";
+  updateRepHint();
+}
+function segVal(id){ const b = document.querySelector("#"+id+" button.on"); return b ? b.dataset.v : ""; }
+function setSegVal(id, v){ setSeg(id, document.querySelector("#"+id+" button[data-v='"+v+"']") || document.querySelector("#"+id+" button")); }
+function updateRepHint(){
+  const ds = document.getElementById("fDate").value, rep = segVal("repSeg");
+  document.getElementById("repHint").textContent = (ds && rep && rep !== "none") ? "→ "+repeatText({date:ds, repeat:rep})+" に表示します" : "";
+}
+document.getElementById("fDate").addEventListener("change", updateRepHint);
+document.getElementById("fName").addEventListener("change", () => {
+  const c = (clients||[]).find(x => x.name === document.getElementById("fName").value.trim());
+  const tel = document.getElementById("fTel");
+  if (c && c.tel && !tel.value) tel.value = c.tel;
+});
+
+async function loadClients(){
+  if (clients) return;
+  try {
+    const snap = await db.collection(CLIENT_COL).get();
+    clients = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.name);
+    clients.sort((a,b) => (a.yomi||a.name).localeCompare(b.yomi||b.name, "ja"));
+    document.getElementById("clientList").innerHTML = clients.map(c => '<option value="'+esc(c.name)+'">'+esc(c.yomi||"")+'</option>').join("");
+  } catch(e){ console.error(e); clients = []; }
+}
+
+function openForm(id, ds){
+  loadClients();
+  editingId = id || null; editingDate = ds || todayYmd();
+  const ev = id ? events.find(e => e.id === id) : null;
+  document.getElementById("formTitle").textContent = ev ? (ev.kind==="other"?"📝 ":"🔁 ")+(ev.title||"") : "＋ 予定を追加";
+  document.getElementById("formSub").textContent = ev ? mdw(editingDate)+" の予定"+(repeatText(ev)?"(繰り返し:"+repeatText(ev)+")":"") : "";
+  setSegVal("kindSeg", ev ? (ev.kind||"regular") : "regular");
+  document.getElementById("fName").value = ev ? (ev.title||"") : "";
+  document.getElementById("fDate").value = ev ? ev.date : editingDate;
+  setSegVal("apSeg", ev ? (ev.ampm||"") : "");
+  setSegVal("repSeg", ev ? (ev.repeat||"none") : "none");
+  document.getElementById("fEnd").value = ev ? (ev.endDate||"") : "";
+  document.getElementById("fHinmoku").value = ev ? (ev.hinmoku||"") : "";
+  const it = (ev && ev.items) || {};
+  document.getElementById("iHole").value = it.holeDrum||0;
+  document.getElementById("iNoHole").value = it.noHoleDrum||0;
+  document.getElementById("iFlex").value = it.flexBag||0;
+  document.getElementById("iBox").value = it.box||0;
+  document.getElementById("iOther").value = it.other||"";
+  document.getElementById("fContact").value = ev ? (ev.contact||"") : "";
+  document.getElementById("fTel").value = ev ? (ev.tel||"") : "";
+  document.getElementById("fMemo").value = ev ? (ev.memo||"") : "";
+  document.getElementById("doneWrap").style.display = ev ? "" : "none";
+  document.getElementById("doneLabel").textContent = mdw(editingDate)+" の回収済み";
+  document.getElementById("fDone").checked = ev ? (ev.doneDates||[]).includes(editingDate) : false;
+  document.getElementById("delBtn").style.display = ev ? "" : "none";
+  updateRepHint();
+  document.getElementById("formBg").classList.add("show");
+}
+function closeForm(){ document.getElementById("formBg").classList.remove("show"); editingId = null; }
+
+async function saveForm(){
+  const title = document.getElementById("fName").value.trim();
+  const date = document.getElementById("fDate").value;
+  if (!title){ toast("会社名(内容)を入れてください"); return; }
+  if (!date){ toast("日付を入れてください"); return; }
+  const rep = segVal("repSeg") || "none";
+  const endDate = rep === "none" ? "" : document.getElementById("fEnd").value;
+  if (endDate && endDate < date){ toast("終わりの日が開始日より前です"); return; }
+  const c = (clients||[]).find(x => x.name === title);
+  const data = {
+    kind: segVal("kindSeg") || "regular", title, clientId: c ? c.id : "",
+    date, ampm: segVal("apSeg"), repeat: rep, endDate,
+    hinmoku: document.getElementById("fHinmoku").value.trim(),
+    items: { holeDrum:numOf(gv("iHole")), noHoleDrum:numOf(gv("iNoHole")), flexBag:numOf(gv("iFlex")), box:numOf(gv("iBox")), other:gv("iOther").trim() },
+    contact: document.getElementById("fContact").value.trim(),
+    tel: document.getElementById("fTel").value.normalize("NFKC").trim(),
+    memo: document.getElementById("fMemo").value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  const btn = document.getElementById("saveBtn"); btn.disabled = true;
+  try {
+    if (editingId){
+      const FV = firebase.firestore.FieldValue;
+      data.doneDates = document.getElementById("fDone").checked ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
+      await db.collection(EVENT_COL).doc(editingId).update(data);
+    } else {
+      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    closeForm(); toast("✅ 保存しました");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+  finally { btn.disabled = false; }
+}
+async function deleteFromForm(){
+  const ev = events.find(e => e.id === editingId); if (!ev) return;
+  const ds = editingDate;
+  try {
+    if ((ev.repeat||"none") !== "none"){
+      if (confirm("「"+ev.title+"」\n"+mdw(ds)+" の分だけ消しますか?\n\n[OK] この日だけ消す\n[キャンセル] 繰り返しごと全部消すか選ぶ")){
+        await db.collection(EVENT_COL).doc(ev.id).update({ skipDates: firebase.firestore.FieldValue.arrayUnion(ds) });
+        closeForm(); toast("この日だけ消しました"); return;
+      }
+      if (!confirm("繰り返しの予定「"+ev.title+"」を全部消します。よろしいですか?")) return;
+    } else if (!confirm("「"+ev.title+"」を消しますか?")) return;
+    await db.collection(EVENT_COL).doc(ev.id).delete();
+    closeForm(); toast("消しました");
+  } catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
+}
+
+/* ===== 印刷 ===== */
+function doPrint(html, orient){
+  document.getElementById("pageStyle").textContent = "@page { size: A4 "+orient+"; margin: 8mm; }";
+  document.getElementById("printArea").innerHTML = html;
+  setTimeout(() => window.print(), 50);
+}
+function printWeek(){
+  const s = ymd(weekStart);
+  let head = "", body = "";
+  for (let i = 0; i < 7; i++){
+    const ds = addDays(s, i), d = parseYmd(ds), hol = holidayName(ds);
+    const cls = d.getDay()===6 ? "sat" : (d.getDay()===0 || hol) ? "sun" : "";
+    head += '<th class="'+cls+'">'+mdw(ds)+(hol?'<br><small>'+esc(hol)+'</small>':'')+'</th>';
+    body += '<td>'+sectioned(itemsOn(ds), it => '<div class="c '+clsOf(it)+'">'+iconOf(it)+esc(shortName(it.name))+(it.done?' ✅':'')+'</div>', "s")+'</td>';
+  }
+  doPrint('<div class="pr"><h2>📅 '+esc(document.getElementById("title").textContent)+' の予定</h2><table class="prWeek"><tr>'+head+'</tr><tr style="height:170mm">'+body+'</tr></table></div>', "landscape");
+}
+function printDay(ds){
+  const items = itemsOn(ds);
+  const rows = items.length ? sectioned(items, it => '<div class="r '+clsOf(it)+'"><div class="n"><span class="ck"></span>'+iconOf(it)+' '+esc(it.name)+(it.ampm?'　('+esc(it.ampm)+')':'')+'</div>'+
+    (it.sub?'<div class="x">'+esc(it.sub)+'</div>':'')+
+    ((it.src.tel||it.src.phone)?'<div class="x">☎ '+esc(it.src.tel||it.src.phone)+'</div>':'')+'</div>', "pSec") : '<p>予定はありません</p>';
+  doPrint('<div class="pr prDay"><h2>📅 '+mdw(ds)+' の回収予定('+items.length+'件)</h2>'+rows+'</div>', "portrait");
+}
+
+/* ===== データ購読 ===== */
+db.collection(EVENT_COL).onSnapshot(snap => { events = snap.docs.map(d => ({ id:d.id, ...d.data() })); render(); },
+  err => { console.error(err); toast("⚠️ 予定の読み込みエラー"); });
+db.collection(PHONE_COL).onSnapshot(snap => { phones = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(p => p.pickupDate); render(); },
+  err => { console.error(err); toast("⚠️ 電話依頼の読み込みエラー"); });
+
+/* 日付が変わったら自動で今日に(モニターに出しっぱなし用) */
+let lastDay = todayYmd();
+setInterval(() => { const t = todayYmd(); if (t !== lastDay){ lastDay = t; viewMode = "week"; goToday(); } }, 60000);
+
+weekStart = mondayOf(todayYmd());
+render();
+</script>
+</body>
+</html>
