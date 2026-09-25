@@ -158,11 +158,11 @@ background:repeating-linear-gradient(-45deg,#facc15 0 14px,#111 14px 24px);anima
 .oniPick button.selected{border-color:#1565c0;background:#e3f2fd;color:#1565c0;box-shadow:0 3px 10px rgba(21,101,192,.25);}
 .urgBtnRow.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 .urgBtnRow.three .urgBigBtn{font-size:21px;padding:22px 6px;letter-spacing:1px;}
-.urgBigBtn.u0{border:3px solid #6366f1;background:#fff;color:#4f46e5;}
-.urgBigBtn.u0.selected{background:#6366f1;color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.5);transform:scale(1.03);}
-.reqCard.urgent0{border-left:6px solid #6366f1;}
+.urgBigBtn.u0{border:3px solid #9333ea;background:#fff;color:#7e22ce;}
+.urgBigBtn.u0.selected{background:#9333ea;color:#fff;box-shadow:0 4px 16px rgba(147,51,234,.5);transform:scale(1.03);}
+.reqCard.urgent0{border-left:6px solid #9333ea;}
 .urgBadge{display:flex;align-items:center;justify-content:center;gap:10px;}
-.urgBadge.u0{background:#6366f1;color:#fff;box-shadow:0 3px 10px rgba(99,102,241,.4);}
+.urgBadge.u0{background:#9333ea;color:#fff;box-shadow:0 3px 10px rgba(147,51,234,.4);}
 .urgBadge span{white-space:nowrap;}
 .urgBadge.u2{letter-spacing:1px;}
 .urgBadge .oni{flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
@@ -385,7 +385,7 @@ function elapsedInfo(item){
 const ms=createdMs(item);
 if(ms===null)return null;
 const h=Math.max(0,Math.floor((Date.now()-ms)/3600000));
-const text="電話未対応 "+(h<1?"1時間以内":h<24?h+"時間経過":Math.floor(h/24)+"日"+(h%24?(h%24)+"時間":"")+"経過");
+const text="電話未対応 "+(h<1?"1時間以内":h+"時間経過");
 return {hours:h,text:text,over:h>=24};
 }
 // 全角数字などを半角に(ひらがな入力のまま数字を打っても大丈夫なように)
