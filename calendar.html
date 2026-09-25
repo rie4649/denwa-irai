@@ -54,6 +54,10 @@
   .bx { display:inline-block; font-size:.72em; font-weight:900; border:2px solid #1f2937; border-radius:4px; padding:0 3px; line-height:1.2; color:#1f2937; background:#fff; vertical-align:.08em; }
   .it.isDone .bx { color:#a8a29e; border-color:#a8a29e; }
   .it.isMissed .bx { color:#b45309; border-color:#b45309; }
+  .it.cand { color:#6d28d9; }
+  .it.cand .bx { color:#6d28d9; border-color:#6d28d9; border-style:dashed; }
+  .candTag { flex-shrink:0; font-size:.58em; font-weight:bold; border:1.5px dashed #7c3aed; color:#6d28d9; border-radius:4px; padding:0 4px; }
+  .it .acts .fixBtn { width:auto; padding:0 12px; font-size:15px; color:#6d28d9; border-color:#c4b5fd; }
   .it.urgent .bx { color:#dc2626; border-color:#dc2626; }
   .legendMini { font-size:15px; font-weight:bold; color:#1f2937; white-space:nowrap; }
   .it .acts { margin-left:auto; display:flex; gap:6px; flex-shrink:0; padding-left:8px; }
@@ -425,10 +429,13 @@ function itemsText(it){
 function itemsOn(ds){
   const list = [];
   phones.forEach(p => {
-    if (p.pickupDate !== ds) return;
+    // 決定前は、希望日それぞれに「希望」として出す
+    const cand = !p.pickupDate && (p.pickupCandidates||[]).includes(ds);
+    if (p.pickupDate !== ds && !cand) return;
     const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
-    list.push({ type:"pickup", id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
-      done:p.status==="対応済み"||p.pickupResult==="done", missed:p.pickupResult==="missed"&&p.status!=="対応済み", sub:[urg, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
+    list.push({ type:"pickup", cand, id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
+      done:!cand&&(p.status==="対応済み"||p.pickupResult==="done"), missed:!cand&&p.pickupResult==="missed"&&p.status!=="対応済み",
+      sub:[cand?"希望日(まだ決定していません)":"", urg, p.pickupNote, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
   });
   events.forEach(ev => {
     if (!occursOn(ev, ds)) return;
@@ -450,7 +457,7 @@ let monthY, monthM;        // 1か月表示の年・月
 const SEC_LABEL = {"午前":"午前", "":"時間指定なし", "午後":"午後"};
 function iconOf(it){ return '<span class="bx">'+(it.type==="pickup" ? "電" : it.type==="regular" ? "定" : "機")+'</span>'; }
 function iconTxt(it){ return it.type==="pickup" ? "[電]" : it.type==="regular" ? "[定]" : "[機]"; }
-function clsOf(it){ return (it.urgent&&!it.done&&!it.missed?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
+function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.done&&!it.missed&&!it.cand?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
 function dayClass(ds){
   const d = parseYmd(ds), c = [];
   if (d.getDay()===6) c.push("sat"); if (d.getDay()===0) c.push("sun");
@@ -469,8 +476,9 @@ function sectioned(items, fn){
 }
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
-    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+
-    (withSub ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
+    '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
+    (withSub && it.cand ? '<span class="acts"><button class="fixBtn" onclick="event.stopPropagation();fixPhoneDate(\''+it.id+'\',\''+ds+'\')">この日に決定</button></span>' : '')+
+    (withSub && !it.cand ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
       '<button class="ng'+(it.missed?' on':'')+'" title="行けなかった" onclick="event.stopPropagation();openMiss(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✕</button></span>' : '')+'</div>'+
     (withSub && it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : '');
 }
@@ -575,6 +583,11 @@ function openPhone(id){
   if (p.responseText) lines.push(["対応内容", esc(p.responseText)]);
   if (p.staff && p.staff !== "未選択") lines.push(["電話受付", esc(p.staff)]);
   document.getElementById("phInfo").innerHTML = lines.map(l => "<div><b>"+l[0]+":</b>"+l[1]+"</div>").join("");
+  const cands = (p.pickupCandidates||[]).slice().sort();
+  if (cands.length) lines.push(["希望日", cands.map(d => mdw(d)+(d===p.pickupDate?"(決定)":"")).join("・")]);
+  if (p.pickupNote) lines.push(["回収メモ", esc(p.pickupNote)]);
+  document.getElementById("phInfo").innerHTML = lines.map(l => "<div><b>"+l[0]+":</b>"+l[1]+"</div>").join("")+
+    (!p.pickupDate && cands.length ? '<div style="margin-top:8px;">'+cands.map(d => '<button class="btn main" style="margin:3px;padding:10px 14px;flex:none;" onclick="fixPhoneDate(\''+p.id+'\',\''+d+'\')">'+mdw(d)+' に決定</button>').join("")+'</div>' : "");
   document.getElementById("phDate").value = p.pickupDate || "";
   setSegVal("phApSeg", p.ampm || "");
   setSegVal("phStSeg", p.pickupResult || "");
@@ -775,6 +788,14 @@ async function deleteFromForm(){
   } catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
 }
 
+/* 希望日のうち1日を決定(電話依頼の回収予定日にも入る) */
+async function fixPhoneDate(id, ds){
+  const p = phones.find(x => x.id === id); if (!p) return;
+  if (!confirm((p.client||"")+"\n"+mdw(ds)+" に決定しますか?")) return;
+  try { await db.collection(PHONE_COL).doc(id).update({ pickupDate: ds, pickupResult:"" }); toast("✅ "+mdw(ds)+" に決定しました"); closePhone(); }
+  catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+
 /* ===== 行けた・行けなかった(3日表示のボタン) ===== */
 let missTarget = null;
 const FVx = () => firebase.firestore.FieldValue;
@@ -880,7 +901,7 @@ function printDay(ds){
 /* ===== データ購読 ===== */
 db.collection(EVENT_COL).onSnapshot(snap => { events = snap.docs.map(d => ({ id:d.id, ...d.data() })); render(); },
   err => { console.error(err); toast("⚠️ 予定の読み込みエラー"); });
-db.collection(PHONE_COL).onSnapshot(snap => { phones = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(p => p.pickupDate); render(); },
+db.collection(PHONE_COL).onSnapshot(snap => { phones = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(p => p.pickupDate || (p.pickupCandidates||[]).length); render(); },
   err => { console.error(err); toast("⚠️ 電話依頼の読み込みエラー"); });
 
 /* 日付が変わったら自動で今日に(モニターに出しっぱなし用) */
