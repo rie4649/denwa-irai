@@ -137,6 +137,9 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 #acceptPop .popTitle{font-size:20px;font-weight:bold;color:#1b7d34;margin-bottom:6px;}
 #acceptPop .popSub{font-size:14px;color:#555;line-height:1.5;}
 .printOnly{display:none;}
+.calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
+.calLink span{font-size:13px;font-weight:normal;opacity:.9;}
+.calLink:active{transform:scale(.97);}
 /* 経過時間(24時間を超えたら黄黒のトラ柄) */
 .callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
 .callRow .callBtn{margin:0;}
@@ -181,6 +184,7 @@ body{background:white;padding-bottom:0;}
 <button class="gear" onclick="openSettings()">⚙️</button>
 </header>
 <div class="wrap">
+<a class="calLink" href="calendar.html">📅 引取カレンダーを見る<span>回収予定日が入った依頼が自動で並びます</span></a>
 <div id="reportArea"></div>
 
 <div class="sectionLabel pending">🔴 未対応</div>
