@@ -140,11 +140,32 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
 .calLink span{font-size:13px;font-weight:normal;opacity:.9;}
 .calLink:active{transform:scale(.97);}
+.candList{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.cand{display:flex;align-items:center;gap:8px;background:#f0f4f8;border:2px solid #ccc;border-radius:12px;padding:8px 10px;font-size:18px;font-weight:bold;}
+.cand.fixed{background:#e7f1ff;border-color:#1565c0;color:#0b3d91;}
+.cand .d{flex:1;}
+.cand button{border:none;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:bold;cursor:pointer;}
+.cand .fix{background:#fff;color:#1565c0;border:2px solid #1565c0;}
+.cand.fixed .fix{background:#1565c0;color:#fff;}
+.cand .rm{background:#fee2e2;color:#dc2626;}
 .anger{display:inline-flex;flex-direction:column;gap:3px;padding:7px 12px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;font-size:15px;font-weight:900;color:#374151;min-width:170px;}
 .anger .bar{height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden;}
 .anger .bar i{display:block;height:100%;border-radius:99px;}
 .anger.a1 .bar i{background:#22c55e;} .anger.a2 .bar i{background:#eab308;} .anger.a3 .bar i{background:#f97316;} .anger.a4 .bar i{background:#dc2626;}
-.anger.a3{border-color:#fdba74;color:#c2410c;} .anger.a4{border-color:#dc2626;color:#dc2626;animation:urgBlink 1.2s infinite;}
+.anger.a3{border-color:#fdba74;color:#c2410c;}
+.anger.max{background:#fee2e2;}
+.bombBtn{width:62px;height:62px;border-radius:50%;border:3px solid #111;background:radial-gradient(circle at 35% 35%,#666,#111);font-size:32px;cursor:pointer;animation:bombShake .5s infinite;box-shadow:0 0 0 4px rgba(220,38,38,.35);}
+@keyframes bombShake{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg) scale(1.06);}}
+#bombPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;}
+#bombPop.show{display:flex;}
+#bombPop .bx{background:#fff;border-radius:24px;padding:26px 22px;text-align:center;max-width:340px;width:88%;}
+#bombPop .boom{font-size:110px;line-height:1;animation:boom .6s ease-out;}
+@keyframes boom{0%{transform:scale(.2);opacity:0;}60%{transform:scale(1.4);opacity:1;}100%{transform:scale(1);}}
+#bombPop .t1{font-size:28px;font-weight:900;color:#dc2626;margin-top:6px;}
+#bombPop .t2{font-size:16px;color:#333;margin-top:6px;line-height:1.6;}
+#bombPop a,#bombPop button{display:block;width:100%;margin-top:12px;padding:14px;border-radius:12px;font-size:17px;font-weight:bold;border:none;text-decoration:none;}
+#bombPop a{background:#dc2626;color:#fff;}
+#bombPop button{background:#eee;color:#333;} .anger.a4{border-color:#dc2626;color:#dc2626;animation:urgBlink 1.2s infinite;}
 /* カード:急ぎは左の枠、右に情報 */
 .reqCard{display:flex;padding:0;overflow:hidden;}
 .reqCard .cardMain{flex:1;min-width:0;padding:16px 18px;}
@@ -178,11 +199,7 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
 .callRow .callBtn{margin:0;}
 .elapsed{display:inline-flex;align-items:center;gap:4px;font-size:16px;font-weight:900;padding:10px 14px;border-radius:12px;background:#f1f5f9;color:#334155;border:2px solid #cbd5e1;}
-.elapsed.tora{color:#111;border:3px solid #111;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;
-background:repeating-linear-gradient(-45deg,#facc15 0 14px,#111 14px 24px);animation:toraMove 1.2s linear infinite;background-size:200% 200%;}
-@keyframes toraMove{from{background-position:0 0;}to{background-position:34px 0;}}
-.elapsed.tora span{background:#facc15;padding:2px 8px;border-radius:8px;}
-.reqCard.toraCard{border-top:10px solid transparent;border-image:repeating-linear-gradient(-45deg,#facc15 0 12px,#111 12px 22px) 10;}
+.elapsed.tora{color:#dc2626;border-color:#dc2626;background:#fff5f5;}
 /* 現場確認希望・見積依頼(電話対応ボタンと同じ形。点滅はしない) */
 .taskBtn{display:inline-block;border:none;font-size:17px;font-weight:bold;padding:12px 18px;border-radius:12px;cursor:pointer;}
 .taskBtn:active{transform:scale(.95);}
@@ -227,6 +244,17 @@ body{background:white;padding-bottom:0;}
 <div id="doneList"></div>
 </div>
 <button class="fab" onclick="openSettings()">＋</button>
+
+<!-- 爆弾 -->
+<div id="bombPop" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="bx">
+<div class="boom">💥</div>
+<div class="t1">ドカーン！！</div>
+<div class="t2" id="bombMsg"></div>
+<a id="bombCall" href="#">☎ 今すぐ電話する</a>
+<button onclick="document.getElementById('bombPop').classList.remove('show')">閉じる</button>
+</div>
+</div>
 
 <!-- 受付完了ポップ -->
 <div id="acceptPop" onclick="this.classList.remove('show')">
@@ -323,8 +351,14 @@ body{background:white;padding-bottom:0;}
 </div>
 
 <div class="field">
-<label>回収予定日</label>
-<input type="date" id="pickupDate">
+<label>回収予定日 <span style="font-weight:normal;font-size:14px;color:#666;">(希望日をいくつでも追加 → 決まったら「この日に決定」)</span></label>
+<div style="display:flex;gap:8px;">
+<input type="date" id="pickupAddDate" style="flex:1;">
+<button type="button" onclick="addPickupCand()" style="flex-shrink:0;border:none;background:#1565c0;color:#fff;font-size:17px;font-weight:bold;border-radius:12px;padding:0 18px;">＋ 追加</button>
+</div>
+<div id="pickupCandList" class="candList"></div>
+<input type="hidden" id="pickupDate">
+<input type="text" id="pickupNote" placeholder="自由に書けます(例:来週中ならいつでも・月末希望)" lang="ja" autocomplete="off" style="margin-top:10px;">
 </div>
 
 <div class="field">
@@ -431,10 +465,19 @@ return isNaN(d)?null:d;
 function angerHtml(item,el){
 if(!el)return "";
 const mul=item.urgency==="大至急"?2:item.urgency==="至急"?1.5:item.urgency==="早急対応"?1.2:1;
-const pct=Math.min(100,Math.round(el.hours/48*100*mul));
+const pct=Math.min(180,Math.round(el.hours/48*100*mul));
 const lv=pct<25?1:pct<50?2:pct<80?3:4;
 const face=["","😊","😐","😠","😡"][lv];
-return "<span class='anger a"+lv+"'><span>"+face+" 事務所の怒り度 "+pct+"%</span><span class='bar'><i style='width:"+Math.max(pct,3)+"%'></i></span></span>";
+return "<span class='anger a"+lv+(pct>=100?" max":"")+"'><span>"+face+" 事務所の怒り度 "+pct+"%</span><span class='bar'><i style='width:"+Math.max(pct/1.8,2)+"%'></i></span></span>"+
+(pct>=100?"<button class='bombBtn' title='押してみて' onclick=\"event.stopPropagation();bomb('"+item.id+"',"+pct+")\">💣</button>":"");
+}
+function bomb(id,pct){
+const item=requestCache.find(function(r){return r.id===id;})||{};
+document.getElementById("bombMsg").innerHTML="<b>"+escapeHtml(item.client||"")+" 様</b><br>事務所の怒り度 <b style='color:#dc2626'>"+pct+"%</b>！<br>もう待てません。今すぐ電話してください！";
+const a=document.getElementById("bombCall");
+if(item.phone){a.style.display="";a.href="tel:"+item.phone;a.textContent="☎ 今すぐ電話する("+item.phone+")";}else{a.style.display="none";}
+const pop=document.getElementById("bombPop");
+pop.classList.remove("show");void pop.offsetWidth;pop.classList.add("show");
 }
 function elapsedInfo(item){
 const ms=createdMs(item);
@@ -501,7 +544,11 @@ contents:contents,
 contentsFree:document.getElementById("contentsFree").value.trim(),
 cardFields:getCardFieldChecks(),
 responseText:document.getElementById("responseText").value.trim(),
-pickupDate:document.getElementById("pickupDate").value,
+pickupDate:(function(){const pa=document.getElementById("pickupAddDate").value;const pd=document.getElementById("pickupDate").value;
+// 候補に追加し忘れた日付が1つだけ入っていたら、それを決定日として扱う
+if(!pd&&!pickupCands.length&&pa){pickupCands.push(pa);return pa;}return pd;})(),
+pickupCandidates:pickupCands.slice().sort(),
+pickupNote:document.getElementById("pickupNote").value.trim(),
 ampm:ampmEl?ampmEl.value:"",
 items:{
 holeDrum:numVal("itemHoleDrum"),
@@ -546,7 +593,8 @@ lines.push("電話受付者："+data.staff);
 if(data.contents && data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
 if(data.contentsFree)lines.push("依頼メモ："+data.contentsFree);
 if(data.responseText)lines.push("対応内容："+data.responseText);
-if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
+if(pickupText(data))lines.push("回収予定日："+pickupText(data));
+if(data.pickupNote)lines.push("回収メモ："+data.pickupNote);
 if(data.calledAtText)lines.push("📞電話済み："+data.calledAtText);
 if(data.genbaAtText)lines.push("🔍現場確認済み："+data.genbaAtText);
 if(data.mitsuAtText)lines.push("📝見積済み："+data.mitsuAtText);
@@ -561,6 +609,51 @@ if(data.contents && data.contents.length)return data.contents.join("、");
 if(data.contentsFree)return data.contentsFree;
 if(data.responseText)return data.responseText;
 return "（内容なし）";
+}
+
+// ==== 回収予定日(希望日の候補と決定) ====
+let pickupCands=[];
+function renderPickupCands(){
+const fixed=document.getElementById("pickupDate").value;
+pickupCands.sort();
+document.getElementById("pickupCandList").innerHTML=pickupCands.map(function(d){
+const on=d===fixed;
+return "<div class='cand"+(on?" fixed":"")+"'><span class='d'>"+(on?"✅ ":"")+escapeHtml(fmtPickup(d))+(on?" 決定":" 希望")+"</span>"+
+"<button type='button' class='fix' onclick=\"fixPickup('"+d+"')\">"+(on?"決定を外す":"この日に決定")+"</button>"+
+"<button type='button' class='rm' onclick=\"removePickupCand('"+d+"')\">✕</button></div>";
+}).join("");
+}
+function addPickupCand(){
+const d=document.getElementById("pickupAddDate").value;
+if(!d){alert("日付を選んでください");return;}
+if(pickupCands.indexOf(d)===-1)pickupCands.push(d);
+document.getElementById("pickupAddDate").value="";
+renderPickupCands();
+}
+function removePickupCand(d){
+pickupCands=pickupCands.filter(function(x){return x!==d;});
+const pd=document.getElementById("pickupDate");
+if(pd.value===d)pd.value="";
+renderPickupCands();
+}
+function fixPickup(d){
+const el=document.getElementById("pickupDate");
+el.value=(el.value===d)?"":d;
+renderPickupCands();
+}
+function setPickupForm(item){
+pickupCands=(item&&Array.isArray(item.pickupCandidates))?item.pickupCandidates.slice():[];
+const fixed=(item&&item.pickupDate)||"";
+if(fixed&&pickupCands.indexOf(fixed)===-1)pickupCands.push(fixed);
+document.getElementById("pickupDate").value=fixed;
+document.getElementById("pickupNote").value=(item&&item.pickupNote)||"";
+document.getElementById("pickupAddDate").value="";
+renderPickupCands();
+}
+function pickupText(item){
+if(item.pickupDate)return fmtPickup(item.pickupDate)+(item.ampm?" "+item.ampm:"")+" 決定";
+const c=(item.pickupCandidates||[]).slice().sort();
+return c.length?"希望 "+c.map(fmtPickup).join("・")+(item.ampm?"("+item.ampm+")":""):"";
 }
 
 // ==== 保存 ====
@@ -633,7 +726,7 @@ colRef.add(record).then(function(){
 finish();
 clearForm();
 closeSettings();
-showAcceptPop((data.client?data.client+" 様　":"")+(data.pickupDate?"引取希望: "+data.pickupDate:""));
+showAcceptPop((data.client?data.client+" 様　":"")+(pickupText(data)?"引取: "+pickupText(data):""));
 }).catch(function(){
 finish();
 alert("保存に失敗しました。通信を確認してください。");
@@ -661,7 +754,7 @@ cb.closest("label").classList.toggle("checked",on);
 document.getElementById("responseText").value=item.responseText||"";
 document.getElementById("contentsFree").value=item.contentsFree||"";
 setCardFieldChecks(Array.isArray(item.cardFields)?item.cardFields:CARD_DEFAULT);
-document.getElementById("pickupDate").value=item.pickupDate||"";
+setPickupForm(item);
 document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
 const on=r.value===(item.ampm||"");
 r.checked=on;
@@ -707,7 +800,7 @@ cb.closest("label").classList.remove("checked");
 document.getElementById("responseText").value="";
 document.getElementById("contentsFree").value="";
 setCardFieldChecks(CARD_DEFAULT);
-document.getElementById("pickupDate").value="";
+setPickupForm(null);
 document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
 r.checked=false;
 r.closest("label").classList.remove("checked");
@@ -825,7 +918,7 @@ const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tor
 const callInfo=!wantsCall?"":(item.calledAtText
 ?"<div><span class='callBtn done' onclick=\"event.stopPropagation();undoCalled('"+item.id+"')\">📞 電話済み "+escapeHtml(item.calledAtText)+"</span></div>"
 :"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+((el&&!item.calledAtText)?angerHtml(item,el):"")+"</div>");
-const toraCls=(el&&el.over&&!item.calledAtText)?" toraCard":"";
+const toraCls="";
 return "<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
 urgSide+
 "<div class='cardMain'>"+
@@ -877,7 +970,7 @@ if(on("phone")&&item.phone)rows.push(["電話","<a href='tel:"+escapeHtml(item.p
 const cts=(item.contents||[]).join("・");
 const showC=on("contents")&&cts, showF=on("free")&&item.contentsFree;
 if(showC||showF)rows.push(["依頼",(showC?escapeHtml(cts):"")+(showF?"<span class='free'>"+escapeHtml(item.contentsFree)+"</span>":"")]);
-if(on("pickup")&&item.pickupDate)rows.push(["引取","<b style='color:#0b5ed7;font-size:18px;'>🚚 "+escapeHtml(fmtPickup(item.pickupDate))+(item.ampm?" "+escapeHtml(item.ampm):"")+"</b>"]);
+if(on("pickup")&&(pickupText(item)||item.pickupNote))rows.push(["引取",(pickupText(item)?"<b style='color:"+(item.pickupDate?"#0b5ed7":"#7c3aed")+";font-size:18px;'>🚚 "+escapeHtml(pickupText(item))+"</b>":"")+(item.pickupNote?"<span class='free'>"+escapeHtml(item.pickupNote)+"</span>":"")]);
 if(on("items")){const it=itemsSummaryText(item.items||{});if(it!=="なし")rows.push(["持ち物",escapeHtml(it)]);}
 if(on("staff")&&item.staff&&item.staff!=="未選択")rows.push(["受付",escapeHtml(item.staff)]);
 if(on("response")&&item.responseText)rows.push(["対応",escapeHtml(item.responseText)]);
@@ -1132,6 +1225,7 @@ if(iconBtn)iconBtn.style.display="none";
 document.addEventListener("DOMContentLoaded",function(){
 loadStaff();
 buildCardFieldGroup();
+setPickupForm(null);
 document.getElementById("oniPickRed").innerHTML=oniSvg("red",80);
 document.getElementById("oniPickBlue").innerHTML=oniSvg("blue",80);
 setOni("red");
