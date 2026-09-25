@@ -318,6 +318,7 @@
         <button type="button" data-v="" onclick="setSeg('phApSeg',this)">なし</button>
         <button type="button" data-v="午前" onclick="setSeg('phApSeg',this)">午前</button>
         <button type="button" data-v="午後" onclick="setSeg('phApSeg',this)">午後</button>
+        <button type="button" data-v="どちらでも" onclick="setSeg('phApSeg',this)">どちらでも</button>
       </div>
     </div>
     <label class="f">引取の結果</label>
@@ -433,7 +434,7 @@ function itemsOn(ds){
     const cand = !p.pickupDate && (p.pickupCandidates||[]).includes(ds);
     if (p.pickupDate !== ds && !cand) return;
     const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
-    list.push({ type:"pickup", cand, id:p.id, name:p.client||"(会社名なし)", ampm:p.ampm||"", urgent:!!urg, urgency:urg,
+    list.push({ type:"pickup", cand, id:p.id, name:p.client||"(会社名なし)", ampm:(p.ampm==="午前"||p.ampm==="午後")?p.ampm:"", urgent:!!urg, urgency:urg,
       done:!cand&&(p.status==="対応済み"||p.pickupResult==="done"), missed:!cand&&p.pickupResult==="missed"&&p.status!=="対応済み",
       sub:[cand?"希望日(まだ決定していません)":"", urg, p.pickupNote, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
   });
@@ -454,7 +455,7 @@ let viewMode = "three";   // "three" = 3日 / "month" = 1か月
 let focusDay = todayYmd(); // 3日表示の真ん中の日
 let monthY, monthM;        // 1か月表示の年・月
 
-const SEC_LABEL = {"午前":"午前", "":"時間指定なし", "午後":"午後"};
+const SEC_LABEL = {"午前":"午前", "":"時間指定なし・どちらでも", "午後":"午後"};
 function iconOf(it){ return '<span class="bx">'+(it.type==="pickup" ? "電" : it.type==="regular" ? "定" : "機")+'</span>'; }
 function iconTxt(it){ return it.type==="pickup" ? "[電]" : it.type==="regular" ? "[定]" : "[機]"; }
 function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.done&&!it.missed&&!it.cand?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
