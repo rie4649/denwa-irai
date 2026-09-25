@@ -140,6 +140,34 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
 .calLink span{font-size:13px;font-weight:normal;opacity:.9;}
 .calLink:active{transform:scale(.97);}
+/* カード:急ぎは左の枠、右に情報 */
+.reqCard{display:flex;padding:0;overflow:hidden;}
+.reqCard .cardMain{flex:1;min-width:0;padding:16px 18px;}
+.urgSide{width:104px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 4px;color:#fff;font-weight:900;text-align:center;}
+.urgSide .ut{font-size:19px;letter-spacing:1px;line-height:1.2;}
+.urgSide.u2{background:#dc2626;}
+.urgSide.u2 .ut{animation:urgBlink 1s infinite;}
+.urgSide.u1{background:#f59e0b;}
+.urgSide.u0{background:#9333ea;}
+.reqCard.urgent0,.reqCard.urgent1,.reqCard.urgent2{border-left:none;}
+.reqCard.urgent2{background:#fff;}
+.infoRows{margin:6px 0 4px;border-top:1px solid #e5e7eb;}
+.infoRow{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:16px;line-height:1.5;}
+.infoRow .k{flex-shrink:0;width:64px;color:#64748b;font-size:14px;font-weight:bold;padding-top:1px;}
+.infoRow .v{flex:1;min-width:0;color:#1f2937;word-break:break-all;}
+.infoRow .v.big{font-weight:bold;}
+.infoRow .v a{color:#1d4ed8;font-weight:bold;text-decoration:none;}
+.infoRow .v .free{display:block;background:#fffbeb;border-left:4px solid #f59e0b;padding:4px 8px;margin-top:4px;border-radius:4px;white-space:pre-wrap;}
+@media(max-width:480px){.urgSide{width:76px;}.urgSide svg{width:52px;height:52px;}.urgSide .ut{font-size:15px;}.reqCard .cardMain{padding:12px;}.infoRow .k{width:52px;}}
+.cardSetBtn{display:block;width:100%;border:none;background:#fff;color:#475569;border-radius:12px;padding:10px;font-size:15px;font-weight:bold;margin:0 0 6px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;}
+#cardSetPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2100;align-items:center;justify-content:center;padding:16px;}
+#cardSetPop.show{display:flex;}
+#cardSetPop .box2{background:#fff;border-radius:18px;padding:20px;max-width:420px;width:100%;}
+#cardSetPop h3{font-size:18px;margin:0 0 4px;}
+#cardSetPop .sub{font-size:13px;color:#64748b;margin-bottom:12px;}
+#cardSetPop label{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:bold;padding:10px 12px;border:2px solid #e5e7eb;border-radius:12px;margin-bottom:8px;cursor:pointer;}
+#cardSetPop label input{transform:scale(1.4);}
+#cardSetPop .ok{width:100%;padding:14px;border:none;border-radius:12px;background:#1565c0;color:#fff;font-size:16px;font-weight:bold;margin-top:6px;}
 /* 経過時間(24時間を超えたら黄黒のトラ柄) */
 .callRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
 .callRow .callBtn{margin:0;}
@@ -185,6 +213,7 @@ body{background:white;padding-bottom:0;}
 </header>
 <div class="wrap">
 <a class="calLink" href="calendar.html">📅 引取カレンダーを見る<span>回収予定日が入った依頼が自動で並びます</span></a>
+<button class="cardSetBtn" onclick="openCardSet()">🧩 カードに出す項目を選ぶ</button>
 <div id="reportArea"></div>
 
 <div class="sectionLabel pending">🔴 未対応</div>
@@ -193,6 +222,16 @@ body{background:white;padding-bottom:0;}
 <div id="doneList"></div>
 </div>
 <button class="fab" onclick="openSettings()">＋</button>
+
+<!-- カードに出す項目 -->
+<div id="cardSetPop" onclick="if(event.target===this)closeCardSet()">
+<div class="box2">
+<h3>🧩 カードに出す項目</h3>
+<div class="sub">チェックした項目だけ、一覧のカードに表示します(全員の画面で共通)</div>
+<div id="cardSetList"></div>
+<button class="ok" onclick="saveCardSet()">これで表示する</button>
+</div>
+</div>
 
 <!-- 受付完了ポップ -->
 <div id="acceptPop" onclick="this.classList.remove('show')">
@@ -265,6 +304,7 @@ body{background:white;padding-bottom:0;}
 <label><input type="checkbox" value="見積依頼">📝 見積依頼</label>
 <label><input type="checkbox" value="その他">その他</label>
 </div>
+<textarea id="contentsFree" rows="2" placeholder="依頼内容を自由に書けます(例:ドラム缶3本、午前中希望)" lang="ja" style="margin-top:10px;"></textarea>
 </div>
 
 <div class="field">
@@ -447,6 +487,7 @@ clientContact:document.getElementById("clientContact").value.trim(),
 staff:staff,
 phone:toHalfNum(document.getElementById("phone").value),
 contents:contents,
+contentsFree:document.getElementById("contentsFree").value.trim(),
 responseText:document.getElementById("responseText").value.trim(),
 pickupDate:document.getElementById("pickupDate").value,
 ampm:ampmEl?ampmEl.value:"",
@@ -491,6 +532,7 @@ if(data.clientContact)lines.push("担当者名："+data.clientContact);
 if(data.phone)lines.push("電話番号："+data.phone);
 lines.push("電話受付者："+data.staff);
 if(data.contents && data.contents.length)lines.push("依頼内容："+data.contents.join("、"));
+if(data.contentsFree)lines.push("依頼メモ："+data.contentsFree);
 if(data.responseText)lines.push("対応内容："+data.responseText);
 if(data.pickupDate)lines.push("回収予定日："+data.pickupDate+(data.ampm?"（"+data.ampm+"）":""));
 if(data.calledAtText)lines.push("📞電話済み："+data.calledAtText);
@@ -504,6 +546,7 @@ return lines;
 
 function contentPreview(data){
 if(data.contents && data.contents.length)return data.contents.join("、");
+if(data.contentsFree)return data.contentsFree;
 if(data.responseText)return data.responseText;
 return "（内容なし）";
 }
@@ -604,6 +647,7 @@ cb.checked=on;
 cb.closest("label").classList.toggle("checked",on);
 });
 document.getElementById("responseText").value=item.responseText||"";
+document.getElementById("contentsFree").value=item.contentsFree||"";
 document.getElementById("pickupDate").value=item.pickupDate||"";
 document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
 const on=r.value===(item.ampm||"");
@@ -648,6 +692,7 @@ cb.checked=false;
 cb.closest("label").classList.remove("checked");
 });
 document.getElementById("responseText").value="";
+document.getElementById("contentsFree").value="";
 document.getElementById("pickupDate").value="";
 document.querySelectorAll("#ampmGroup input[type=radio]").forEach(function(r){
 r.checked=false;
@@ -741,10 +786,10 @@ return (d.getMonth()+1)+"/"+d.getDate()+"("+w+")";
 function renderCard(item){
 const isDone=item.status==="対応済み";
 const urgCls=item.urgency==="大至急"?" urgent2":item.urgency==="至急"?" urgent1":item.urgency==="早急対応"?" urgent0":"";
-const oniImg=oniSvg(item.oni==="blue"?"blue":"red",72);
-const urgBadge=item.urgency==="大至急"?"<div class='urgBadge u2'>"+oniImg+"<span>🚨 大至急 🚨</span>"+oniImg+"</div>"
-:item.urgency==="至急"?"<div class='urgBadge u1'>"+oniImg+"<span>🔥 至急</span></div>"
-:item.urgency==="早急対応"?"<div class='urgBadge u0'>"+oniImg+"<span>早急対応</span></div>":"";
+const oniImg=oniSvg(item.oni==="blue"?"blue":"red",70);
+const urgSide=isDone?"":item.urgency==="大至急"?"<div class='urgSide u2'>"+oniImg+"<div class='ut'>🚨<br>大至急</div></div>"
+:item.urgency==="至急"?"<div class='urgSide u1'>"+oniImg+"<div class='ut'>🔥<br>至急</div></div>"
+:item.urgency==="早急対応"?"<div class='urgSide u0'>"+oniImg+"<div class='ut'>早急<br>対応</div></div>":"";
 const cts=item.contents||[];
 const isGenba=cts.indexOf("現場確認希望")!==-1, isMitsu=cts.indexOf("見積依頼")!==-1;
 const wantsCall0=cts.indexOf("電話欲しい")!==-1;
@@ -756,7 +801,7 @@ const mitsuInfo=!isMitsu?"":(item.mitsuAtText
 ?"<div><span class='taskBtn done' onclick=\"event.stopPropagation();undoTask('"+item.id+"','mitsu')\">📝 見積済み "+escapeHtml(item.mitsuAtText)+"</span></div>"
 :"<div style='margin-top:8px;'><button class='taskBtn mitsu' onclick=\"event.stopPropagation();markTask('"+item.id+"','mitsu')\">📝 見積を出してください！</button></div>");
 const doneInfo=(isDone&&item.doneAtText)?"<div class='doneInfo'>✅ "+escapeHtml(item.doneAtText)+" 対応済み</div>":"";
-const pickupInfo=item.pickupDate?"<div class='reqPickup'>🚚 引取 "+escapeHtml(fmtPickup(item.pickupDate))+(item.ampm?" "+escapeHtml(item.ampm):"")+"</div>":"";
+
 const wantsCall=(item.contents||[]).indexOf("電話欲しい")!==-1;
 const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tora":"")+"'><span>⏰ "+escapeHtml(el.text)+"</span></span>":"";
 const callInfo=!wantsCall?"":(item.calledAtText
@@ -764,19 +809,66 @@ const callInfo=!wantsCall?"":(item.calledAtText
 :"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+"</div>");
 const toraCls=(el&&el.over&&!item.calledAtText)?" toraCard":"";
 return "<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
+urgSide+
+"<div class='cardMain'>"+
 "<div class='reqTop'>"+
 "<div class='reqDate'>"+escapeHtml(item.requestDate||"-")+"</div>"+
 "<button class='badge "+(isDone?"done":"pending")+"' onclick=\"event.stopPropagation();toggleStatusFromCard('"+item.id+"','"+(isDone?"未対応":"対応済み")+"')\">"+(isDone?"対応済み":"未対応")+"</button>"+
 "</div>"+
-urgBadge+
 "<div class='reqClient'>"+escapeHtml(item.client||"-")+"</div>"+
-"<div class='reqContent'>"+escapeHtml(contentPreview(item))+"</div>"+
-pickupInfo+
+infoRowsHtml(item)+
 callInfo+
 genbaInfo+
 mitsuInfo+
 doneInfo+
-"</div>";
+"</div></div>";
+}
+
+// ==== カードに出す項目(全員共通。Firestoreの appSettings/denwaCard に保存) ====
+const CARD_FIELDS=[
+{k:"contact",label:"👤 先方の担当者・部署"},
+{k:"phone",label:"☎ 電話番号(押すと電話)"},
+{k:"contents",label:"📋 依頼内容"},
+{k:"free",label:"✏️ 依頼の自由記入"},
+{k:"pickup",label:"🚚 引取予定日"},
+{k:"items",label:"🛢 持ち物"},
+{k:"staff",label:"🙋 電話受付者"},
+{k:"response",label:"💬 対応内容"}
+];
+const CARD_DEFAULT=["contact","phone","contents","free","pickup","items","staff"];
+let cardFields=CARD_DEFAULT.slice();
+const cardSetRef=db.collection("appSettings").doc("denwaCard");
+cardSetRef.onSnapshot(function(doc){
+const d=doc.exists?doc.data():null;
+cardFields=(d&&Array.isArray(d.fields))?d.fields:CARD_DEFAULT.slice();
+if(requestCache.length)renderLists();
+},function(){});
+function openCardSet(){
+document.getElementById("cardSetList").innerHTML=CARD_FIELDS.map(function(f){
+return "<label><input type='checkbox' value='"+f.k+"'"+(cardFields.indexOf(f.k)!==-1?" checked":"")+">"+f.label+"</label>";
+}).join("");
+document.getElementById("cardSetPop").classList.add("show");
+}
+function closeCardSet(){document.getElementById("cardSetPop").classList.remove("show");}
+function saveCardSet(){
+const sel=Array.from(document.querySelectorAll("#cardSetList input:checked")).map(function(cb){return cb.value;});
+cardFields=sel;renderLists();closeCardSet();
+cardSetRef.set({fields:sel}).catch(function(){alert("保存に失敗しました。通信を確認してください。");});
+}
+function infoRowsHtml(item){
+const rows=[];
+const on=function(k){return cardFields.indexOf(k)!==-1;};
+if(on("contact")&&(item.clientContact||item.clientDept))rows.push(["担当者",escapeHtml([item.clientDept,item.clientContact].filter(Boolean).join("　")),true]);
+if(on("phone")&&item.phone)rows.push(["電話","<a href='tel:"+escapeHtml(item.phone)+"' onclick='event.stopPropagation()'>☎ "+escapeHtml(item.phone)+"</a>"]);
+const cts=(item.contents||[]).join("・");
+const showC=on("contents")&&cts, showF=on("free")&&item.contentsFree;
+if(showC||showF)rows.push(["依頼",(showC?escapeHtml(cts):"")+(showF?"<span class='free'>"+escapeHtml(item.contentsFree)+"</span>":"")]);
+if(on("pickup")&&item.pickupDate)rows.push(["引取","<b style='color:#0b5ed7;font-size:18px;'>🚚 "+escapeHtml(fmtPickup(item.pickupDate))+(item.ampm?" "+escapeHtml(item.ampm):"")+"</b>"]);
+if(on("items")){const it=itemsSummaryText(item.items||{});if(it!=="なし")rows.push(["持ち物",escapeHtml(it)]);}
+if(on("staff")&&item.staff&&item.staff!=="未選択")rows.push(["受付",escapeHtml(item.staff)]);
+if(on("response")&&item.responseText)rows.push(["対応",escapeHtml(item.responseText)]);
+if(!rows.length)return "";
+return "<div class='infoRows'>"+rows.map(function(r){return "<div class='infoRow'><div class='k'>"+r[0]+"</div><div class='v"+(r[2]?" big":"")+"'>"+r[1]+"</div></div>";}).join("")+"</div>";
 }
 
 function markCalled(id){
