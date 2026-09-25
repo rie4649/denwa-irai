@@ -140,11 +140,17 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .calLink{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f766e;color:#fff;text-decoration:none;font-size:20px;font-weight:bold;padding:14px;border-radius:14px;margin:4px 0 6px;box-shadow:0 3px 10px rgba(15,118,110,.3);}
 .calLink span{font-size:13px;font-weight:normal;opacity:.9;}
 .calLink:active{transform:scale(.97);}
+.anger{display:inline-flex;flex-direction:column;gap:3px;padding:7px 12px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;font-size:15px;font-weight:900;color:#374151;min-width:170px;}
+.anger .bar{height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden;}
+.anger .bar i{display:block;height:100%;border-radius:99px;}
+.anger.a1 .bar i{background:#22c55e;} .anger.a2 .bar i{background:#eab308;} .anger.a3 .bar i{background:#f97316;} .anger.a4 .bar i{background:#dc2626;}
+.anger.a3{border-color:#fdba74;color:#c2410c;} .anger.a4{border-color:#dc2626;color:#dc2626;animation:urgBlink 1.2s infinite;}
 /* カード:急ぎは左の枠、右に情報 */
 .reqCard{display:flex;padding:0;overflow:hidden;}
 .reqCard .cardMain{flex:1;min-width:0;padding:16px 18px;}
 .urgSide{width:104px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 4px;color:#fff;font-weight:900;text-align:center;}
 .urgSide .ut{font-size:19px;letter-spacing:1px;line-height:1.2;}
+.urgSide.noOni .ut{font-size:24px;}
 .urgSide.u2{background:#dc2626;}
 .urgSide.u2 .ut{animation:urgBlink 1s infinite;}
 .urgSide.u1{background:#f59e0b;}
@@ -307,6 +313,7 @@ body{background:white;padding-bottom:0;}
 <div class="oniPick">
 <button type="button" id="oniBtnRed" onclick="setOni('red')"><span id="oniPickRed"></span>赤鬼</button>
 <button type="button" id="oniBtnBlue" onclick="setOni('blue')"><span id="oniPickBlue"></span>青鬼</button>
+<button type="button" id="oniBtnNone" onclick="setOni('none')"><span style="font-size:40px;line-height:80px;">🚫</span>鬼なし</button>
 </div>
 <div class="urgBtnRow three">
 <button type="button" class="urgBigBtn u0" id="urgBtn0" onclick="setUrgency('早急対応')">早急対応</button>
@@ -409,6 +416,7 @@ function setOni(k){
 currentOni=k;
 document.getElementById("oniBtnRed").classList.toggle("selected",k==="red");
 document.getElementById("oniBtnBlue").classList.toggle("selected",k==="blue");
+document.getElementById("oniBtnNone").classList.toggle("selected",k==="none");
 }
 
 // ==== 経過時間 ====
@@ -418,6 +426,15 @@ const t=Date.parse(item.createdAtText||"");
 if(!isNaN(t))return t;
 const d=Date.parse((item.requestDate||"")+"T09:00:00");
 return isNaN(d)?null:d;
+}
+// 事務所の怒り度:48時間で100%。急ぎほど早く上がる(大至急×2・至急×1.5・早急×1.2)
+function angerHtml(item,el){
+if(!el)return "";
+const mul=item.urgency==="大至急"?2:item.urgency==="至急"?1.5:item.urgency==="早急対応"?1.2:1;
+const pct=Math.min(100,Math.round(el.hours/48*100*mul));
+const lv=pct<25?1:pct<50?2:pct<80?3:4;
+const face=["","😊","😐","😠","😡"][lv];
+return "<span class='anger a"+lv+"'><span>"+face+" 事務所の怒り度 "+pct+"%</span><span class='bar'><i style='width:"+Math.max(pct,3)+"%'></i></span></span>";
 }
 function elapsedInfo(item){
 const ms=createdMs(item);
@@ -652,7 +669,7 @@ r.closest("label").classList.toggle("checked",on);
 });
 currentUrgency=(item.urgency && item.urgency!=="通常")?item.urgency:"";
 syncUrgBtns();
-setOni(item.oni==="blue"?"blue":"red");
+setOni(item.oni==="blue"||item.oni==="none"?item.oni:"red");
 const it=item.items||{};
 document.getElementById("itemHoleDrum").value=it.holeDrum||0;
 document.getElementById("itemNoHoleDrum").value=it.noHoleDrum||0;
@@ -748,12 +765,16 @@ function renderLists(){
 renderReports();
 const pendingBox=document.getElementById("pendingList");
 const doneBox=document.getElementById("doneList");
-const urgRank=function(r){return r.urgency==="大至急"?0:r.urgency==="至急"?1:r.urgency==="早急対応"?2:3;};
+const callPending=function(r){return (r.contents||[]).indexOf("電話欲しい")!==-1 && !r.calledAtText;};
+const urgRank=function(r){return r.urgency==="大至急"?0:r.urgency==="至急"?1:r.urgency==="早急対応"?2:callPending(r)?3:4;};
 const todayPrefix=(new Date().getMonth()+1)+"/"+new Date().getDate()+" ";
 const doneToday=function(r){return r.status==="対応済み" && (r.doneAtText||"").indexOf(todayPrefix)===0;};
 const pendingOnly=requestCache.filter(function(r){return r.status!=="対応済み";})
 .sort(function(a,b){
 if(urgRank(a)!==urgRank(b))return urgRank(a)-urgRank(b);
+// 同じ段の中では、電話がまだのものを上に。電話待ちどうしは待たせている時間が長い順
+if(callPending(a)!==callPending(b))return callPending(a)?-1:1;
+if(callPending(a))return (createdMs(a)||0)-(createdMs(b)||0);
 return (b.requestDate||"").localeCompare(a.requestDate||"");
 });
 // 今日対応済みにしたものは、当日中はメインの一覧の下に残す
@@ -783,10 +804,10 @@ return (d.getMonth()+1)+"/"+d.getDate()+"("+w+")";
 function renderCard(item){
 const isDone=item.status==="対応済み";
 const urgCls=item.urgency==="大至急"?" urgent2":item.urgency==="至急"?" urgent1":item.urgency==="早急対応"?" urgent0":"";
-const oniImg=oniSvg(item.oni==="blue"?"blue":"red",70);
-const urgSide=isDone?"":item.urgency==="大至急"?"<div class='urgSide u2'>"+oniImg+"<div class='ut'>🚨<br>大至急</div></div>"
-:item.urgency==="至急"?"<div class='urgSide u1'>"+oniImg+"<div class='ut'>🔥<br>至急</div></div>"
-:item.urgency==="早急対応"?"<div class='urgSide u0'>"+oniImg+"<div class='ut'>早急<br>対応</div></div>":"";
+const oniImg=item.oni==="none"?"":oniSvg(item.oni==="blue"?"blue":"red",70);
+const urgSide=isDone?"":item.urgency==="大至急"?"<div class='urgSide u2"+(oniImg?"":" noOni")+"'>"+oniImg+"<div class='ut'>🚨<br>大至急</div></div>"
+:item.urgency==="至急"?"<div class='urgSide u1"+(oniImg?"":" noOni")+"'>"+oniImg+"<div class='ut'>🔥<br>至急</div></div>"
+:item.urgency==="早急対応"?"<div class='urgSide u0"+(oniImg?"":" noOni")+"'>"+oniImg+"<div class='ut'>早急<br>対応</div></div>":"";
 const cts=item.contents||[];
 const isGenba=cts.indexOf("現場確認希望")!==-1, isMitsu=cts.indexOf("見積依頼")!==-1;
 const wantsCall0=cts.indexOf("電話欲しい")!==-1;
@@ -803,7 +824,7 @@ const wantsCall=(item.contents||[]).indexOf("電話欲しい")!==-1;
 const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tora":"")+"'><span>⏰ "+escapeHtml(el.text)+"</span></span>":"";
 const callInfo=!wantsCall?"":(item.calledAtText
 ?"<div><span class='callBtn done' onclick=\"event.stopPropagation();undoCalled('"+item.id+"')\">📞 電話済み "+escapeHtml(item.calledAtText)+"</span></div>"
-:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+"</div>");
+:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+((el&&!item.calledAtText)?angerHtml(item,el):"")+"</div>");
 const toraCls=(el&&el.over&&!item.calledAtText)?" toraCard":"";
 return "<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
 urgSide+
