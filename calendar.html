@@ -532,7 +532,7 @@ function sectioned(items, fn){
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
     '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+
-    (it.goers||[]).map(g => withSub ? '<span class="gb">'+esc(g)+'</span>' : '<span class="gb one">'+esc(String(g).charAt(0))+'</span>').join("")+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
+    (it.goers||[]).map(g => withSub ? '<span class="gb">'+esc(surname(g))+'</span>' : '<span class="gb one">'+esc(String(g).charAt(0))+'</span>').join("")+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
     (withSub && it.cand ? '<span class="acts"><button class="fixBtn" onclick="event.stopPropagation();fixPhoneDate(\''+it.id+'\',\''+ds+'\')">この日に決定</button></span>' : '')+
     (withSub && !it.cand ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
       '<button class="ng'+(it.missed?' on':'')+'" title="行けなかった" onclick="event.stopPropagation();openMiss(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✕</button></span>' : '')+'</div>'+
@@ -866,6 +866,13 @@ db.collection("employees").get().then(snap => {
   staffNames = snap.docs.map(d => d.data()).filter(e => e.name)
     .sort((a,b) => (a.order ?? 999) - (b.order ?? 999)).map(e => e.name);
 }).catch(e => console.error(e));
+/* 名字だけ(「石原 太郎」→「石原」。空白がなく4文字以上なら頭の2文字) */
+function surname(n){
+  const t = String(n||"").trim();
+  const p = t.split(/[\s　]+/);
+  if (p.length > 1) return p[0];
+  return t.length >= 4 ? t.slice(0,2) : t;
+}
 function renderGoers(boxId, selected){
   const box = document.getElementById(boxId);
   const names = staffNames.slice(); (selected||[]).forEach(n => { if (!names.includes(n)) names.push(n); });
