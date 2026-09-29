@@ -907,21 +907,19 @@ function renderGoers(boxId, selected){
   box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
     : '<span class="hint">従業員マスタが読めませんでした</span>';
 }
-/* トラックの候補:配車ボードのトラック一覧(pickupSettings/truckList)。空なら車両マスタの呼び名・車番 */
-let truckNames = [], vehicleNames = [];
-db.collection("pickupSettings").doc("truckList").onSnapshot(doc => {
-  truckNames = (doc.exists && doc.data().names) ? doc.data().names.filter(Boolean) : [];
+/* トラックの候補:マスタ管理の車両(master_vehicles)。愛称があれば愛称、なければ車番(配車ボードと同じ) */
+let truckNames = [];
+db.collection("master_vehicles").onSnapshot(snap => {
+  const a = [];
+  snap.docs.forEach(d => { const v = d.data(); const n = String(v.nickname || v.number || "").trim(); if (n && !a.includes(n)) a.push(n); });
+  truckNames = a.sort((x,y) => x.localeCompare(y, "ja", {numeric:true}));
 }, e => console.error(e));
-db.collection("master_vehicles").get().then(snap => {
-  vehicleNames = snap.docs.map(d => d.data()).map(v => String(v.nickname || v.number || "").trim()).filter(Boolean)
-    .sort((a,b) => a.localeCompare(b, "ja"));
-}).catch(e => console.error(e));
 function renderTrucks(boxId, selected){
   const box = document.getElementById(boxId);
-  const names = (truckNames.length ? truckNames : vehicleNames).slice();
+  const names = truckNames.slice();
   (selected||[]).forEach(n => { if (!names.includes(n)) names.push(n); });
   box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
-    : '<span class="hint">トラックの一覧が読めませんでした(配車ボードの設定で登録できます)</span>';
+    : '<span class="hint">車両マスタが読めませんでした(マスタ管理の車両で登録できます)</span>';
 }
 function pickedGoers(boxId){ return Array.from(document.querySelectorAll("#"+boxId+" button.on")).map(b => b.textContent); }
 
