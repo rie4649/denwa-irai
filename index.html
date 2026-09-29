@@ -170,9 +170,10 @@ font-size:17px;font-weight:bold;color:#333;cursor:pointer;
 .anger.a3{border-color:#d1d5db;color:#374151;}
 .anger.max{background:#fff;}
 .cardWrap{position:relative;}
-.angrySide{position:absolute;right:calc(100% + 10px);top:6px;width:160px;height:auto;background:transparent;filter:drop-shadow(0 4px 4px rgba(0,0,0,.18));animation:angryJump 1s infinite;z-index:5;}
+.angrySide{position:absolute;left:calc(100% + 10px);top:6px;width:160px;height:auto;background:transparent;filter:drop-shadow(0 4px 4px rgba(0,0,0,.18));animation:angryJump 1s infinite;z-index:5;}
 @keyframes angryJump{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-6px) rotate(2deg);}}
-@media(max-width:980px){.cardWrap.hasAngry{margin-top:46px;}.angrySide{right:auto;left:0;top:-58px;width:66px;}}
+.angryInline{display:none;width:84px;height:auto;filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));animation:angryJump 1s infinite;}
+@media(max-width:980px){.angrySide{display:none;}.angryInline{display:inline-block;}}
 .rcTime{font-size:14px;color:#475569;font-weight:bold;margin-left:8px;vertical-align:middle;}
 .staffImg{height:52px;width:auto;vertical-align:middle;margin-right:8px;}
 .komatta{height:78px;width:auto;border-radius:12px;border:2px solid #e5e7eb;box-shadow:0 2px 6px rgba(0,0,0,.15);animation:komattaShake 1.4s infinite;vertical-align:middle;}
@@ -975,13 +976,15 @@ const doneInfo=(isDone&&item.doneAtText)?"<div class='doneInfo'>✅ "+escapeHtml
 
 const wantsCall=(item.contents||[]).indexOf("電話欲しい")!==-1;
 const elapsedHtml=(el&&!item.calledAtText)?"<span class='elapsed"+(el.over?" tora":"")+"'><span>⏰ "+escapeHtml(el.text)+"</span></span>":"";
+const angryPct=(el&&!item.calledAtText)?angerPct(item,el):0;
+const angrySrc=(angryPct>=40&&ANGRY_IMG[item.staff])?ANGRY_IMG[item.staff]:"";
+const angryImg=angrySrc?"<img class='angrySide' src='"+angrySrc+"' alt='"+escapeHtml(item.staff)+"が怒っています'>":"";
+const angryInline=angrySrc?"<img class='angryInline' src='"+angrySrc+"' alt='"+escapeHtml(item.staff)+"が怒っています'>":"";
 const callInfo=!wantsCall?"":(item.calledAtText
 ?"<div><span class='callBtn done' onclick=\"event.stopPropagation();undoCalled('"+item.id+"')\">📞 電話済み "+escapeHtml(item.calledAtText)+"</span></div>"
-:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+((el&&!item.calledAtText)?angerHtml(item,el):"")+"</div>");
+:"<div class='callRow'><button class='callBtn' onclick=\"event.stopPropagation();markCalled('"+item.id+"')\">📞 電話対応してください！</button>"+elapsedHtml+((el&&!item.calledAtText)?angerHtml(item,el):"")+angryInline+"</div>");
 const toraCls="";
-const angryPct=(el&&!item.calledAtText)?angerPct(item,el):0;
-const angryImg=(angryPct>=40&&ANGRY_IMG[item.staff])?"<img class='angrySide' src='"+ANGRY_IMG[item.staff]+"' alt='"+escapeHtml(item.staff)+"が怒っています'>":"";
-return "<div class='cardWrap"+(angryImg?" hasAngry":"")+"'>"+angryImg+"<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
+return "<div class='cardWrap'>"+angryImg+"<div class='reqCard"+(isDone?" done":urgCls)+toraCls+"' onclick=\"openDetail('"+item.id+"')\">"+
 urgSide+
 "<div class='cardMain'>"+
 "<div class='reqTop'>"+
