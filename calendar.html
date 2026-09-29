@@ -54,6 +54,14 @@
   .bx { display:inline-block; font-size:.72em; font-weight:900; border:2px solid #1f2937; border-radius:4px; padding:0 3px; line-height:1.2; color:#1f2937; background:#fff; vertical-align:.08em; }
   .bx.bxT { color:#dc2626; border-color:#dc2626; font-family:Arial,sans-serif; padding:0 4px; }
   .bx.bxM { color:#1d4ed8; border-color:#1d4ed8; }
+  .bx.bxJ { color:#0f766e; border-color:#0f766e; }
+  /* トラック(薄ピンクの〇バッチ) */
+  .trucks button.on { background:#fbcfe8; border-color:#db2777; color:#831843; box-shadow:0 2px 6px rgba(219,39,119,.3); }
+  .gb.tb { background:#fbcfe8; border-color:#db2777; color:#831843; }
+  /* 常務・機械移動の区切り線 */
+  .grp { border-top:3px solid #57534e; margin:10px 0 3px; padding-top:2px; font-size:calc(var(--fs)*.55); font-weight:900; color:#44403c; white-space:nowrap; }
+  .grp.first { margin-top:0; }
+  .mb .grp { border-top-width:2px; margin:4px 0 1px; padding-top:0; font-size:10px; }
   .it.isDone .bx { color:#a8a29e; border-color:#a8a29e; }
   .it.isMissed .bx { color:#b45309; border-color:#b45309; }
   .wdays { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
@@ -103,6 +111,7 @@
   .dBody { flex:1; min-height:0; overflow:hidden; padding:8px 12px; --fs:24px; font-size:var(--fs); }
   .dBody.scroll { overflow-y:auto; }
   .dBody .sec { font-size:calc(var(--fs)*.55); margin:6px 0 2px; border-bottom:1px dashed #d6d3d1; }
+  .dBody .grp + .sec { margin-top:0; }
   .dBody .sub { font-size:calc(var(--fs)*.55); color:#57534e; font-weight:normal; margin:-2px 0 4px 1.4em; white-space:normal; }
   .none { color:#d6d3d1; font-size:18px; text-align:center; margin-top:24px; }
 
@@ -206,7 +215,7 @@
     <button id="swM" onclick="setMode('month')">1か月</button>
   </div>
   <div class="spacer"></div>
-  <span class="legendMini"><span class="bx bxT">T</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx bxM">機</span>機械移動</span>
+  <span class="legendMini"><span class="bx bxT">T</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx bxJ">常</span>常務　<span class="bx bxM">機</span>機械移動</span>
   <button class="addBtn" onclick="openForm(null, focusDay)">＋ 予定を追加</button>
   <div class="menuWrap">
     <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
@@ -227,6 +236,7 @@
     <label class="f">種類</label>
     <div class="seg" id="kindSeg">
       <button type="button" data-v="regular" onclick="setSeg('kindSeg',this)">🔁 通常回収</button>
+      <button type="button" data-v="jomu" onclick="setSeg('kindSeg',this)">🏢 常務</button>
       <button type="button" data-v="machine" onclick="setSeg('kindSeg',this)">🏗 機械移動</button>
     </div>
 
@@ -293,6 +303,9 @@
     <label class="f" id="goerLabel">行った人(何人でも選べます)</label>
     <div class="goers" id="goerPick"></div>
 
+    <label class="f" id="truckLabel">🚚 トラック(何台でも選べます)</label>
+    <div class="goers trucks" id="truckPick"></div>
+
     <div id="doneWrap">
       <label class="f" id="doneLabel">この日の結果</label>
       <div class="seg stSeg" id="stSeg">
@@ -346,6 +359,8 @@
     </div>
     <label class="f">行った人(何人でも選べます)</label>
     <div class="goers" id="phGoerPick"></div>
+    <label class="f">🚚 トラック(何台でも選べます)</label>
+    <div class="goers trucks" id="phTruckPick"></div>
     <label class="f">引取の結果</label>
     <div class="seg stSeg" id="phStSeg">
       <button type="button" data-v="" onclick="setSeg('phStSeg',this)">予定</button>
@@ -487,21 +502,21 @@ function itemsOn(ds){
     if (p.pickupDate !== ds && !cand) return;
     const urg = p.urgency && p.urgency !== "通常" ? p.urgency : "";
     list.push({ type:"pickup", cand, id:p.id, name:p.client||"(会社名なし)", ampm:(p.ampm==="午前"||p.ampm==="午後")?p.ampm:"", urgent:!!urg, urgency:urg,
-      goers:cand?[]:(p.pickupGoers||[]),
+      goers:cand?[]:(p.pickupGoers||[]), trucks:cand?[]:(p.pickupTrucks||[]),
       done:!cand&&(p.status==="対応済み"||p.pickupResult==="done"), missed:!cand&&p.pickupResult==="missed"&&p.status!=="対応済み",
       sub:[cand?"希望日(まだ決定していません)":"", urg, p.pickupNote, (p.contents||[]).join("、"), itemsText(p.items)].filter(Boolean).join(" / "), src:p });
   });
   events.forEach(ev => {
     if (!occursOn(ev, ds)) return;
     const rt = repeatText(ev);
-    const isM = ev.kind==="machine" || ev.kind==="other";
-    list.push({ type:isM?"machine":"regular", id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
-      goers:(ev.goersByDate||{})[ds]||[],
+    const k = kindOf(ev), isM = k === "machine";
+    list.push({ type:k, id:ev.id, name:ev.title||"", ampm:ev.ampm||"",
+      goers:(ev.goersByDate||{})[ds]||[], trucks:(ev.trucksByDate||{})[ds]||[],
       done:(ev.doneDates||[]).includes(ds), missed:(ev.missedDates||[]).includes(ds),
       sub:(isM ? [ev.work, ev.memo, rt] : [ev.hinmoku, itemsText(ev.items), ev.memo, rt]).filter(Boolean).join(" / "), src:ev });
   });
-  const ar = {"午前":0, "":1, "午後":2}, tr = {pickup:0, regular:1, machine:2};
-  list.sort((a,b) => (ar[a.ampm]-ar[b.ampm]) || yomiOf(a).localeCompare(yomiOf(b),"ja"));
+  const ar = {"午前":0, "":1, "午後":2};
+  list.sort((a,b) => (grpOf(a)-grpOf(b)) || (ar[a.ampm]-ar[b.ampm]) || yomiOf(a).localeCompare(yomiOf(b),"ja"));
   return list;
 }
 /* ===== 表示の状態 ===== */
@@ -510,8 +525,11 @@ let focusDay = todayYmd(); // 3日表示の真ん中の日
 let monthY, monthM;        // 1か月表示の年・月
 
 const SEC_LABEL = {"午前":"午前", "":"時間指定なし・どちらでも", "午後":"午後"};
-function iconOf(it){ return it.type==="pickup" ? '<span class="bx bxT">T</span>' : it.type==="regular" ? '<span class="bx">定</span>' : '<span class="bx bxM">機</span>'; }
-function iconTxt(it){ return it.type==="pickup" ? "[T]" : it.type==="regular" ? "[定]" : "[機]"; }
+function iconOf(it){ return it.type==="pickup" ? '<span class="bx bxT">T</span>' : it.type==="regular" ? '<span class="bx">定</span>' : it.type==="jomu" ? '<span class="bx bxJ">常</span>' : '<span class="bx bxM">機</span>'; }
+function iconTxt(it){ return it.type==="pickup" ? "[T]" : it.type==="regular" ? "[定]" : it.type==="jomu" ? "[常]" : "[機]"; }
+/* 区分:0=通常(電話依頼・通常回収) 1=常務 2=機械移動 */
+function grpOf(it){ return it.type==="jomu" ? 1 : it.type==="machine" ? 2 : 0; }
+const GRP_LABEL = ["", "🏢 常務", "🏗 機械移動"];
 function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.done&&!it.missed&&!it.cand?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
 function dayClass(ds){
   const d = parseYmd(ds), c = [];
@@ -521,18 +539,21 @@ function dayClass(ds){
   return c.join(" ");
 }
 function sectioned(items, fn){
-  let out = "", last = null;
+  let out = "", last = null, lastG = 0, first = true;
   const useSec = items.some(it => it.ampm);
   items.forEach(it => {
+    const g = grpOf(it);
+    if (g !== lastG){ out += '<div class="grp'+(first?' first':'')+'">'+GRP_LABEL[g]+'</div>'; lastG = g; last = null; }
     if (useSec && it.ampm !== last){ out += '<div class="sec">'+SEC_LABEL[it.ampm]+'</div>'; last = it.ampm; }
-    out += fn(it);
+    out += fn(it); first = false;
   });
   return out;
 }
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
     '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+
-    (it.goers||[]).map(g => withSub ? '<span class="gb">'+esc(surname(g))+'</span>' : '<span class="gb one">'+esc(String(g).charAt(0))+'</span>').join("")+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
+    (it.goers||[]).map(g => withSub ? '<span class="gb">'+esc(surname(g))+'</span>' : '<span class="gb one">'+esc(String(g).charAt(0))+'</span>').join("")+
+    (it.trucks||[]).map(t => withSub ? '<span class="gb tb">'+esc(t)+'</span>' : '<span class="gb tb one">'+esc(String(t).charAt(0))+'</span>').join("")+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
     (withSub && it.cand ? '<span class="acts"><button class="fixBtn" onclick="event.stopPropagation();fixPhoneDate(\''+it.id+'\',\''+ds+'\')">この日に決定</button></span>' : '')+
     (withSub && !it.cand ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
       '<button class="ng'+(it.missed?' on':'')+'" title="行けなかった" onclick="event.stopPropagation();openMiss(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✕</button></span>' : '')+'</div>'+
@@ -579,7 +600,7 @@ function renderMonth(){
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
       (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+
-      '<div class="mb'+(items.length>10?' two':'')+'">'+items.map(it => itHtml(it, ds, false)).join("")+'</div></div>';
+      '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div></div>';
   }
   document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
     '<div class="mGrid" style="grid-auto-rows:minmax(max(110px, calc((100vh - 110px) / '+weeks+')), auto)">'+cells+'</div></div>';
@@ -648,6 +669,7 @@ function openPhone(id){
   setSegVal("phApSeg", p.ampm || "");
   setSegVal("phStSeg", p.pickupResult || "");
   renderGoers("phGoerPick", p.pickupGoers || []);
+  renderTrucks("phTruckPick", p.pickupTrucks || []);
   document.getElementById("phoneBg").classList.add("show");
 }
 function closePhone(){ document.getElementById("phoneBg").classList.remove("show"); phoneId = null; }
@@ -658,7 +680,7 @@ async function savePhone(){
     const newDate = document.getElementById("phDate").value;
     let result = segVal("phStSeg");
     if (result === "missed" && newDate && newDate !== p.pickupDate) result = "";  // 別の日に入れ直したら「予定」に戻す
-    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: newDate, ampm: segVal("phApSeg"), pickupResult: result, pickupGoers: pickedGoers("phGoerPick") });
+    await db.collection(PHONE_COL).doc(phoneId).update({ pickupDate: newDate, ampm: segVal("phApSeg"), pickupResult: result, pickupGoers: pickedGoers("phGoerPick"), pickupTrucks: pickedGoers("phTruckPick") });
     closePhone(); toast("✅ 保存しました(電話依頼にも反映)");
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
 }
@@ -667,7 +689,7 @@ async function savePhone(){
 function setSeg(id, btn){
   document.querySelectorAll("#"+id+" button").forEach(b => b.classList.toggle("on", b === btn));
   if (id === "kindSeg"){
-    const m = btn.dataset.v === "machine";
+    const m = btn.dataset.v === "machine";   // 常務は通常回収と同じ入力欄
     document.getElementById("workWrap").style.display = m ? "" : "none";
     document.getElementById("collectWrap").style.display = m ? "none" : "";
   }
@@ -735,7 +757,7 @@ function showClientInfo(c){
 }
 buildKana();
 
-function kindOf(ev){ return (ev.kind==="machine"||ev.kind==="other") ? "machine" : "regular"; }
+function kindOf(ev){ return (ev.kind==="machine"||ev.kind==="other") ? "machine" : ev.kind==="jomu" ? "jomu" : "regular"; }
 async function loadClients(){
   if (clients) return;
   try {
@@ -753,7 +775,7 @@ function openForm(id, ds){
   loadClients();
   editingId = id || null; editingDate = ds || todayYmd();
   const ev = id ? events.find(e => e.id === id) : null;
-  document.getElementById("formTitle").textContent = ev ? (kindOf(ev)==="machine"?"🏗 ":"🔁 ")+(ev.title||"") : "＋ 予定を追加";
+  document.getElementById("formTitle").textContent = ev ? ({machine:"🏗 ", jomu:"🏢 ", regular:"🔁 "}[kindOf(ev)])+(ev.title||"") : "＋ 予定を追加";
   document.getElementById("formSub").textContent = ev ? mdw(editingDate)+" の予定"+(repeatText(ev)?"(繰り返し:"+repeatText(ev)+")":"") : "";
   setSegVal("kindSeg", ev ? kindOf(ev) : "regular");
   document.getElementById("fName").value = ev ? (ev.title||"") : "";
@@ -769,6 +791,8 @@ function openForm(id, ds){
   setSegVal("repSeg", ev ? ((ev.repeat==="weekly"||ev.repeat==="biweekly") ? ev.repeat : (ev.repeat && ev.repeat!=="none" ? "weekly" : "none")) : "none");
   document.getElementById("goerLabel").textContent = mdw(editingDate)+" に行った人(何人でも選べます)";
   renderGoers("goerPick", ev ? ((ev.goersByDate||{})[editingDate]||[]) : []);
+  document.getElementById("truckLabel").textContent = "🚚 "+mdw(editingDate)+" のトラック(何台でも選べます)";
+  renderTrucks("truckPick", ev ? ((ev.trucksByDate||{})[editingDate]||[]) : []);
   document.getElementById("fEnd").value = ev ? (ev.endDate||"") : "";
   document.getElementById("fHinmoku").value = ev ? (ev.hinmoku||"") : "";
   const it = (ev && ev.items) || {};
@@ -798,7 +822,7 @@ async function saveForm(){
   const endDate = rep === "none" ? "" : document.getElementById("fEnd").value;
   if (endDate && endDate < date){ toast("終わりの日が開始日より前です"); return; }
   if (rep !== "none" && !wdSel.length){ toast("曜日を選んでください"); return; }
-  const goers = pickedGoers("goerPick");
+  const goers = pickedGoers("goerPick"), trucks = pickedGoers("truckPick");
   const c = (clients||[]).find(x => x.name === title);
   const data = {
     kind: segVal("kindSeg") || "regular", title, clientId: c ? c.id : "",
@@ -819,10 +843,14 @@ async function saveForm(){
       const st = segVal("stSeg");
       data.doneDates = st === "done" ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
       data.missedDates = st === "missed" ? FV.arrayUnion(editingDate) : FV.arrayRemove(editingDate);
-      data["goersByDate."+editingDate] = goers;
+      // 1回だけの予定で日付を直したときは、行く人・トラックも新しい日に付け替える
+      const key = rep === "none" ? date : editingDate;
+      if (key !== editingDate){ data["goersByDate."+editingDate] = FV.delete(); data["trucksByDate."+editingDate] = FV.delete(); }
+      data["goersByDate."+key] = goers;
+      data["trucksByDate."+key] = trucks;
       await db.collection(EVENT_COL).doc(editingId).update(data);
     } else {
-      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], missedDates:[], goersByDate: goers.length ? { [date]: goers } : {}, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection(EVENT_COL).add({ ...data, skipDates:[], doneDates:[], missedDates:[], goersByDate: goers.length ? { [date]: goers } : {}, trucksByDate: trucks.length ? { [date]: trucks } : {}, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeForm(); toast("✅ 保存しました");
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
@@ -878,6 +906,22 @@ function renderGoers(boxId, selected){
   const names = staffNames.slice(); (selected||[]).forEach(n => { if (!names.includes(n)) names.push(n); });
   box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
     : '<span class="hint">従業員マスタが読めませんでした</span>';
+}
+/* トラックの候補:配車ボードのトラック一覧(pickupSettings/truckList)。空なら車両マスタの呼び名・車番 */
+let truckNames = [], vehicleNames = [];
+db.collection("pickupSettings").doc("truckList").onSnapshot(doc => {
+  truckNames = (doc.exists && doc.data().names) ? doc.data().names.filter(Boolean) : [];
+}, e => console.error(e));
+db.collection("master_vehicles").get().then(snap => {
+  vehicleNames = snap.docs.map(d => d.data()).map(v => String(v.nickname || v.number || "").trim()).filter(Boolean)
+    .sort((a,b) => a.localeCompare(b, "ja"));
+}).catch(e => console.error(e));
+function renderTrucks(boxId, selected){
+  const box = document.getElementById(boxId);
+  const names = (truckNames.length ? truckNames : vehicleNames).slice();
+  (selected||[]).forEach(n => { if (!names.includes(n)) names.push(n); });
+  box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
+    : '<span class="hint">トラックの一覧が読めませんでした(配車ボードの設定で登録できます)</span>';
 }
 function pickedGoers(boxId){ return Array.from(document.querySelectorAll("#"+boxId+" button.on")).map(b => b.textContent); }
 
@@ -944,7 +988,9 @@ async function missMove(n){
       const ev = events.find(e => e.id === t.id); if (!ev) return;
       if ((ev.repeat||"none") === "none"){
         // 1回だけの予定:日付ごと移す
-        await db.collection(EVENT_COL).doc(t.id).update({ date: nd, missedDates: [], doneDates: [] });
+        const g = (ev.goersByDate||{})[t.ds], tr = (ev.trucksByDate||{})[t.ds];
+        await db.collection(EVENT_COL).doc(t.id).update({ date: nd, missedDates: [], doneDates: [],
+          goersByDate: g && g.length ? { [nd]: g } : {}, trucksByDate: tr && tr.length ? { [nd]: tr } : {} });
       } else {
         // 繰り返しの予定:この日は「行けなかった」にして、移した日に1回分を作る(繰り返しはそのまま続く)
         await db.collection(EVENT_COL).doc(t.id).update({ missedDates: FVx().arrayUnion(t.ds), doneDates: FVx().arrayRemove(t.ds) });
@@ -967,7 +1013,8 @@ function doPrint(html, size){
 }
 function prItem(it, withSub){
   const c = (it.done||it.missed) ? "g" : (it.urgent ? "u" : "");
-  return '<div><span class="ck"></span><span class="'+c+'">'+iconTxt(it)+esc(withSub?it.name:shortName(it.name))+(it.ampm&&withSub?'('+esc(it.ampm)+')':'')+'</span></div>'+
+  const who = withSub ? [(it.goers||[]).map(surname).join("・"), (it.trucks||[]).length ? "🚚"+it.trucks.join("・") : ""].filter(Boolean).join(" ") : "";
+  return '<div><span class="ck"></span><span class="'+c+'">'+iconTxt(it)+esc(withSub?it.name:shortName(it.name))+(it.ampm&&withSub?'('+esc(it.ampm)+')':'')+'</span>'+(who?' <span style="font-weight:normal">'+esc(who)+'</span>':'')+'</div>'+
     (withSub&&it.sub?'<div class="x">'+esc(it.sub)+'</div>':'');
 }
 function printView(){
