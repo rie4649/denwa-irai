@@ -277,6 +277,7 @@
     </div>
     <div class="hint" id="repHint"></div>
     <div id="endWrap"><label class="f">繰り返しの終わり(空欄ならずっと)</label><input type="date" id="fEnd"></div>
+    <button type="button" class="btn del" id="delAllBtn" style="width:100%;margin-top:10px;display:none;" onclick="deleteAllRepeat()">🗑 この繰り返しの予定を全部消す(まちがえたとき)</button>
 
     <div id="collectWrap">
     <label class="f">品目</label>
@@ -320,6 +321,19 @@
       <button class="btn sub" onclick="closeForm()">閉じる</button>
       <button class="btn main" id="saveBtn" onclick="saveForm()">保存</button>
       <button class="btn del" id="delBtn" onclick="deleteFromForm()">🗑 この予定を消す</button>
+    </div>
+  </div>
+</div>
+
+<!-- 予定を消す(この日だけ／全部) -->
+<div class="modalBg" id="delBg" onclick="if(event.target===this)closeDel()">
+  <div class="modal" style="max-width:460px;">
+    <h3 id="delTitle">🗑 予定を消す</h3>
+    <div class="hint" id="delSub" style="font-size:15px;"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+      <button class="btn sub" id="delOneBtn" onclick="doDelete('one')">この日だけ消す</button>
+      <button class="btn" style="background:#dc2626;color:#fff;" onclick="doDelete('all')">🗑 繰り返しごと全部消す</button>
+      <button class="btn sub" onclick="closeDel()">やめる</button>
     </div>
   </div>
 </div>
@@ -808,6 +822,7 @@ function openForm(id, ds){
   document.getElementById("doneLabel").textContent = mdw(editingDate)+" の結果";
   setSegVal("stSeg", ev ? ((ev.doneDates||[]).includes(editingDate) ? "done" : (ev.missedDates||[]).includes(editingDate) ? "missed" : "") : "");
   document.getElementById("delBtn").style.display = ev ? "" : "none";
+  document.getElementById("delAllBtn").style.display = (ev && (ev.repeat||"none") !== "none") ? "" : "none";
   updateRepHint();
   document.getElementById("formBg").classList.add("show");
 }
@@ -870,21 +885,40 @@ async function redoOther(){
   setSegVal("repSeg", "none");
   document.getElementById("doneWrap").style.display = "none";
   document.getElementById("delBtn").style.display = "none";
+  document.getElementById("delAllBtn").style.display = "none";
   document.getElementById("fDate").focus();
 }
 async function deleteFromForm(){
   const ev = events.find(e => e.id === editingId); if (!ev) return;
-  const ds = editingDate;
+  if ((ev.repeat||"none") !== "none"){ openDel(ev, true); return; }
+  if (!confirm("「"+ev.title+"」を消しますか?")) return;
+  try { await db.collection(EVENT_COL).doc(ev.id).delete(); closeForm(); toast("消しました"); }
+  catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
+}
+/* 繰り返しの予定:この日だけ/全部 を選ぶ画面 */
+let delTarget = null;
+function openDel(ev, withOne){
+  delTarget = { id: ev.id, ds: editingDate };
+  document.getElementById("delTitle").textContent = "🗑 "+(ev.title||"")+" を消す";
+  document.getElementById("delSub").innerHTML = "繰り返し:<b>"+esc(repeatText(ev))+"</b>(開始 "+esc(mdw(ev.date))+")"+
+    (withOne ? "<br>押した日:"+esc(mdw(editingDate)) : "");
+  document.getElementById("delOneBtn").style.display = withOne ? "" : "none";
+  document.getElementById("delOneBtn").textContent = mdw(editingDate)+" の分だけ消す";
+  document.getElementById("delBg").classList.add("show");
+}
+function closeDel(){ document.getElementById("delBg").classList.remove("show"); delTarget = null; }
+function deleteAllRepeat(){ const ev = events.find(e => e.id === editingId); if (ev) openDel(ev, false); }
+async function doDelete(mode){
+  const t = delTarget; if (!t) return;
   try {
-    if ((ev.repeat||"none") !== "none"){
-      if (confirm("「"+ev.title+"」\n"+mdw(ds)+" の分だけ消しますか?\n\n[OK] この日だけ消す\n[キャンセル] 繰り返しごと全部消すか選ぶ")){
-        await db.collection(EVENT_COL).doc(ev.id).update({ skipDates: firebase.firestore.FieldValue.arrayUnion(ds) });
-        closeForm(); toast("この日だけ消しました"); return;
-      }
-      if (!confirm("繰り返しの予定「"+ev.title+"」を全部消します。よろしいですか?")) return;
-    } else if (!confirm("「"+ev.title+"」を消しますか?")) return;
-    await db.collection(EVENT_COL).doc(ev.id).delete();
-    closeForm(); toast("消しました");
+    if (mode === "one"){
+      await db.collection(EVENT_COL).doc(t.id).update({ skipDates: firebase.firestore.FieldValue.arrayUnion(t.ds) });
+      toast("この日だけ消しました");
+    } else {
+      await db.collection(EVENT_COL).doc(t.id).delete();
+      toast("繰り返しの予定を全部消しました");
+    }
+    closeDel(); closeForm();
   } catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
 }
 
