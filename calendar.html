@@ -541,9 +541,9 @@ let monthY, monthM;        // 1か月表示の年・月
 const SEC_LABEL = {"午前":"午前", "":"時間指定なし・どちらでも", "午後":"午後"};
 function iconOf(it){ return it.type==="pickup" ? '<span class="bx bxT">T</span>' : it.type==="regular" ? '<span class="bx">定</span>' : it.type==="jomu" ? '<span class="bx bxJ">常</span>' : '<span class="bx bxM">機</span>'; }
 function iconTxt(it){ return it.type==="pickup" ? "[T]" : it.type==="regular" ? "[定]" : it.type==="jomu" ? "[常]" : "[機]"; }
-/* 区分:0=通常(電話依頼・通常回収) 1=常務 2=機械移動 */
-function grpOf(it){ return it.type==="jomu" ? 1 : it.type==="machine" ? 2 : 0; }
-const GRP_LABEL = ["", "🏢 常務", "🏗 機械移動"];
+/* 区分(上からこの順):0=機械移動 1=通常(電話依頼・通常回収) 2=常務 */
+function grpOf(it){ return it.type==="machine" ? 0 : it.type==="jomu" ? 2 : 1; }
+const GRP_LABEL = ["🏗 機械移動", "🔁 通常", "🏢 常務"];
 function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.done&&!it.missed&&!it.cand?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
 function dayClass(ds){
   const d = parseYmd(ds), c = [];
@@ -553,7 +553,7 @@ function dayClass(ds){
   return c.join(" ");
 }
 function sectioned(items, fn){
-  let out = "", last = null, lastG = 0, first = true;
+  let out = "", last = null, lastG = 1, first = true;   // 通常だけの日は線を出さない
   const useSec = items.some(it => it.ampm);
   items.forEach(it => {
     const g = grpOf(it);
