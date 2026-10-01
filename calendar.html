@@ -198,6 +198,7 @@
   .catTabs button[data-c="1"] { border-color:#a8a29e; color:#1f2937; } .catTabs button[data-c="1"].on { background:#1f2937; border-color:#1f2937; color:#fff; }
   .catTabs button[data-c="2"] { border-color:#5eead4; color:#0f766e; } .catTabs button[data-c="2"].on { background:#0f766e; border-color:#0f766e; color:#fff; }
   .catTabs small { display:block; font-size:12px; font-weight:bold; opacity:.85; }
+  #histKana { margin-top:10px; }
   .sumTools { display:flex; gap:8px; align-items:center; margin-top:10px; }
   .sumTools input { flex:1; min-width:0; }
   .xlBtn { border:none; background:#16a34a; color:#fff; border-radius:10px; padding:11px 14px; font-size:15px; font-weight:bold; cursor:pointer; white-space:nowrap; }
@@ -490,8 +491,9 @@
       <button data-c="1" onclick="setHistCat('1')">🔁 通常<small id="cc_1"></small></button>
       <button data-c="2" onclick="setHistCat('2')">🏢 常務<small id="cc_2"></small></button>
     </div>
+    <div class="kana" id="histKana"></div>
     <div class="sumTools">
-      <input type="text" id="sumQ" placeholder="🔍 会社名でしぼる" lang="ja" autocomplete="off" oninput="renderSummary()">
+      <input type="text" id="sumQ" placeholder="🔍 会社名でしぼる" lang="ja" autocomplete="off" oninput="histKana='';renderSummary()">
       <button class="xlBtn" onclick="exportHist()">📥 Excelに写す</button>
     </div>
     <div class="sumInfo" id="sumInfo"></div>
@@ -1279,13 +1281,20 @@ async function setOff(i, t){
 }
 
 /* ===== 過去履歴(今日までにカレンダーに入っている予定を、会社ごとに) ===== */
-let sumY, sumM, sumOpen = null, sumLast = [], histMode = "day", histCat = "all";
+let sumY, sumM, sumOpen = null, sumLast = [], histMode = "day", histCat = "all", histKana = "";
+function histKanaOf(c){ const h = yomiOf(c.it).charAt(0); const r = KANA_ROWS.find(r => r[1].includes(h)); return r ? r[0] : "他"; }
+function pickHistKana(k){ histKana = (histKana === k) ? "" : k; document.getElementById("sumQ").value = ""; sumOpen = null; renderSummary(); }
+function renderHistKana(){
+  document.getElementById("histKana").innerHTML = KANA_ROWS.map(r => r[0]).concat(["他"]).map(k =>
+    '<button type="button" class="'+(histKana===k?'on':'')+'" onclick="pickHistKana(\''+k+'\')">'+k+'</button>').join("")+
+    (histKana ? '<button type="button" style="min-width:64px;" onclick="pickHistKana(\''+histKana+'\')">✕ 全部</button>' : '');
+}
 const GRP_NAME = ["🏗 機械移動", "🔁 通常", "🏢 常務"];
 function openSummary(){
   document.getElementById("menu").classList.remove("show");
   const base = viewMode === "month" ? new Date(monthY, monthM, 1) : parseYmd(focusDay);
   sumY = base.getFullYear(); sumM = base.getMonth(); sumOpen = null;
-  document.getElementById("sumQ").value = "";
+  document.getElementById("sumQ").value = ""; histKana = "";
   renderSummary();
   document.getElementById("sumBg").classList.add("show");
 }
@@ -1317,6 +1326,7 @@ function histFiltered(){
   else list = histData(sumY+"-"+pad(sumM+1)+"-01", ymd(new Date(sumY, sumM+1, 0)));
   const q = toHira(document.getElementById("sumQ").value.trim()).toLowerCase();
   if (q) list = list.filter(c => toHira(c.name).toLowerCase().includes(q) || toHira(shortName(c.name)).toLowerCase().includes(q) || yomiOf(c.it).includes(q));
+  if (histKana) list = list.filter(c => histKanaOf(c) === histKana);
   // 区分ボタンの件数
   const cnt = g => list.filter(c => g === "all" || String(c.g) === g).reduce((n,c) => n + c.days.length, 0);
   ["all","0","1","2"].forEach(g => document.getElementById("cc_"+g).textContent = cnt(g)+"回");
@@ -1327,6 +1337,7 @@ function renderSummary(){
   document.getElementById("hmDay").classList.toggle("on", histMode === "day");
   document.getElementById("hmYear").classList.toggle("on", histMode === "year");
   document.querySelectorAll("#catTabs button").forEach(b => b.classList.toggle("on", b.dataset.c === histCat));
+  renderHistKana();
   document.getElementById("sumYm").textContent = histMode === "year" ? sumY+"年" : sumY+"年"+(sumM+1)+"月";
   const list = histFiltered(); sumLast = list;
   const total = list.reduce((n,c) => n + c.days.length, 0);
@@ -1367,7 +1378,7 @@ function renderSummary(){
 }
 function histGoMonth(ci, m){
   const c = sumLast[ci]; if (!c) return;
-  histMode = "day"; sumM = m; sumOpen = null;
+  histMode = "day"; sumM = m; sumOpen = null; histKana = "";
   document.getElementById("sumQ").value = c.name;
   renderSummary();
 }
