@@ -519,7 +519,7 @@
   <div class="modal">
     <h3 id="shkTitle">📦 出荷</h3>
     <div class="hint" id="shkSub"></div>
-    <label class="f">出荷先</label>
+    <label class="f">出荷先(一覧にない名前は、書いて保存すると次から下のボタンに出ます)</label>
     <input type="text" id="shkTo" placeholder="例:〇〇金属" lang="ja" autocomplete="off">
     <div class="chipRow" id="shkToChips"></div>
     <label class="f">品目</label>
@@ -1377,6 +1377,16 @@ async function saveShk(){
     if (shkEdit) await db.collection(SHK_COL).doc(shkEdit).update(data);
     else await db.collection(SHK_COL).add({ ...data, fastFlag:false, pinned:false, templateId:null, status:"pending",
       createdAtMs: Date.now(), createdAt: FVx().serverTimestamp() });
+    // 一覧にない出荷先・品目は、次から押すだけで入るように一覧へ足す(配車ボードの一覧と同じ)
+    const AU = firebase.firestore.FieldValue.arrayUnion;
+    if (data.companyName && !shkDests.includes(data.companyName)){
+      shkDests.push(data.companyName);
+      db.collection("pickupSettings").doc("shukkaDestinations").set({ names: AU(data.companyName) }, { merge:true }).catch(e => console.error(e));
+    }
+    if (data.shippedItem && !shkItems.includes(data.shippedItem)){
+      shkItems.push(data.shippedItem);
+      db.collection("pickupSettings").doc("shukkaItems").set({ names: AU(data.shippedItem) }, { merge:true }).catch(e => console.error(e));
+    }
     closeShk(); toast("✅ 出荷を保存しました");
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
   finally { btn.disabled = false; }
