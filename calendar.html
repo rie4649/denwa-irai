@@ -165,6 +165,74 @@
   .info { font-size:17px; line-height:1.9; }
   .info b { color:#475569; }
   .info a { color:#2563eb; font-weight:bold; }
+  /* ===== 休み(オレンジの〇バッチ) ===== */
+  .ob { flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; background:#fed7aa; border:1.5px solid #ea580c; color:#7c2d12; border-radius:999px; font-weight:900; font-size:14px; padding:1px 9px; line-height:1.4; white-space:nowrap; }
+  .ob small { font-size:.72em; margin-left:2px; }
+  .ob.one { font-size:11px; padding:0 6px; }
+  .ob.one small { font-size:.85em; }
+  .offRow { display:flex; flex-wrap:wrap; align-items:center; gap:4px; padding:4px 12px; background:#fff7ed; border-bottom:1px solid #fdba74; cursor:pointer; font-size:13px; font-weight:bold; color:#9a3412; }
+  .mOff { display:flex; flex-wrap:wrap; gap:2px; margin:1px 0 2px; }
+  .gb.offWarn { background:#fff; border:2px dashed #ea580c; color:#c2410c; }
+  .goers button .offTag { display:block; font-size:11px; color:#c2410c; font-weight:900; }
+  .goers button.isOff { border-color:#fdba74; background:#fff7ed; }
+  .goers button.isOff.on { background:#facc15; border-color:#ea580c; }
+  .offBtn { background:#fff7ed !important; border-color:#fdba74 !important; color:#c2410c; font-weight:bold; }
+  .offList .row { display:flex; align-items:center; gap:8px; padding:8px 2px; border-bottom:1px solid #f5f5f4; flex-wrap:wrap; }
+  .offList .nm { flex:1; min-width:90px; font-size:17px; font-weight:900; }
+  .offList .opts { display:flex; gap:4px; }
+  .offList .opts button { border:2px solid #e7e5e4; background:#fff; border-radius:10px; padding:8px 10px; font-size:14px; font-weight:bold; cursor:pointer; color:#57534e; }
+  .offList .opts button.on { background:#ea580c; border-color:#ea580c; color:#fff; }
+  .offList .opts button.on[data-v="none"] { background:#e7e5e4; border-color:#a8a29e; color:#1f2937; }
+  /* ===== 過去履歴 ===== */
+  .histBtn { border:none; background:#7c3aed; color:#fff; border-radius:12px; padding:10px 18px; font-size:18px; font-weight:900; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(124,58,237,.35); }
+  .modal.histModal { max-width:1100px; width:100%; min-height:80vh; }
+  .sumHead { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .sumHead .ym { font-size:24px; font-weight:900; min-width:140px; text-align:center; }
+  .histMode { display:flex; border:2px solid #7c3aed; border-radius:12px; overflow:hidden; margin-top:10px; }
+  .histMode button { flex:1; border:none; background:#fff; color:#7c3aed; font-size:17px; font-weight:900; padding:10px; cursor:pointer; }
+  .histMode button.on { background:#7c3aed; color:#fff; }
+  .catTabs { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
+  .catTabs button { padding:12px 4px; font-size:17px; font-weight:900; border-radius:12px; border:3px solid #cbd5e1; background:#fff; color:#334155; cursor:pointer; }
+  .catTabs button[data-c="all"].on { background:#44403c; border-color:#44403c; color:#fff; }
+  .catTabs button[data-c="0"] { border-color:#93c5fd; color:#1d4ed8; } .catTabs button[data-c="0"].on { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+  .catTabs button[data-c="1"] { border-color:#a8a29e; color:#1f2937; } .catTabs button[data-c="1"].on { background:#1f2937; border-color:#1f2937; color:#fff; }
+  .catTabs button[data-c="2"] { border-color:#5eead4; color:#0f766e; } .catTabs button[data-c="2"].on { background:#0f766e; border-color:#0f766e; color:#fff; }
+  .catTabs small { display:block; font-size:12px; font-weight:bold; opacity:.85; }
+  .sumTools { display:flex; gap:8px; align-items:center; margin-top:10px; }
+  .sumTools input { flex:1; min-width:0; }
+  .xlBtn { border:none; background:#16a34a; color:#fff; border-radius:10px; padding:11px 14px; font-size:15px; font-weight:bold; cursor:pointer; white-space:nowrap; }
+  .sumInfo { font-size:13px; color:#64748b; margin:8px 0 4px; }
+  .sumSec { margin:14px 0 2px; padding:6px 10px; border-radius:8px; font-size:16px; font-weight:900; color:#fff; }
+  .sumSec.g0 { background:#1d4ed8; } .sumSec.g1 { background:#44403c; } .sumSec.g2 { background:#0f766e; }
+  .sumRow { border-bottom:1px solid #e7e5e4; padding:10px 2px; }
+  .sumName { display:flex; align-items:baseline; gap:6px; font-size:18px; font-weight:900; }
+  .sumName .cnt { margin-left:auto; font-size:15px; color:#7c3aed; white-space:nowrap; }
+  .sumDays { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .sumDays button { border:2px solid #7c3aed; background:#f5f3ff; color:#5b21b6; border-radius:10px; padding:6px 10px; font-size:15px; font-weight:bold; cursor:pointer; }
+  .sumDays button.sa { color:#1d4ed8; } .sumDays button.su { color:#dc2626; }
+  .sumDays button.on { background:#7c3aed; color:#fff; }
+  .sumDetail { margin-top:8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:10px 12px; font-size:16px; line-height:1.8; }
+  .sumDetail .gb { font-size:14px; padding:2px 10px; }
+  .yearWrap { overflow-x:auto; margin-top:6px; }
+  .yearT { border-collapse:collapse; width:100%; min-width:760px; font-size:15px; }
+  .yearT th, .yearT td { border:1px solid #d6d3d1; padding:6px 4px; text-align:center; }
+  .yearT th { background:#f5f5f4; font-weight:900; }
+  .yearT td.nm { text-align:left; font-weight:900; white-space:nowrap; position:sticky; left:0; background:#fff; }
+  .yearT th.nm { position:sticky; left:0; }
+  .yearT td.n { cursor:pointer; font-weight:bold; color:#5b21b6; }
+  .yearT td.n:hover { background:#f5f3ff; }
+  .yearT td.z { color:#d6d3d1; }
+  .yearT td.tot { font-weight:900; background:#faf5ff; }
+  .yearT tr.sec td { text-align:left; color:#fff; font-weight:900; }
+  .yearT tr.sec.g0 td { background:#1d4ed8; } .yearT tr.sec.g1 td { background:#44403c; } .yearT tr.sec.g2 td { background:#0f766e; }
+  /* 予定の種類ボタン(大きく・色分け) */
+  #kindSeg button { font-size:18px; padding:14px 6px; border-width:3px; }
+  #kindSeg button[data-v="regular"] { color:#1f2937; border-color:#a8a29e; }
+  #kindSeg button[data-v="jomu"] { color:#0f766e; border-color:#5eead4; }
+  #kindSeg button[data-v="machine"] { color:#1d4ed8; border-color:#93c5fd; }
+  #kindSeg button[data-v="regular"].on { background:#1f2937; border-color:#1f2937; color:#fff; }
+  #kindSeg button[data-v="jomu"].on { background:#0f766e; border-color:#0f766e; color:#fff; }
+  #kindSeg button[data-v="machine"].on { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
   #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 22px; border-radius:999px; font-size:15px; opacity:0; pointer-events:none; transition:.25s; z-index:300; white-space:nowrap; }
   #toast.show { opacity:1; }
 
@@ -199,6 +267,11 @@
     .mb { --fs:10px !important; overflow:visible; }
     .mb.two { column-count:1; }
     .mn { font-size:15px; } .mhol, .mcnt { display:none; }
+    .catTabs { grid-template-columns:repeat(2,1fr); }
+    .histBtn { font-size:16px; padding:9px 12px; }
+    .sumHead h3 { width:100%; }
+    .sumHead .spacer { display:none; }
+    .sumHead .ym { flex:1; }
   }
 </style>
 </head>
@@ -216,6 +289,7 @@
   </div>
   <div class="spacer"></div>
   <span class="legendMini"><span class="bx bxT">T</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx bxJ">常</span>常務　<span class="bx bxM">機</span>機械移動</span>
+  <button class="histBtn" onclick="openSummary()">📊 過去履歴</button>
   <button class="addBtn" onclick="openForm(null, focusDay)">＋ 予定を追加</button>
   <div class="menuWrap">
     <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
@@ -233,18 +307,24 @@
     <h3 id="formTitle">＋ 予定を追加</h3>
     <div class="hint" id="formSub"></div>
 
-    <label class="f">種類</label>
+    <label class="f">種類(押して選んでください)</label>
     <div class="seg" id="kindSeg">
+      <button type="button" data-v="machine" onclick="setSeg('kindSeg',this)">🏗 機械移動</button>
       <button type="button" data-v="regular" onclick="setSeg('kindSeg',this)">🔁 通常回収</button>
       <button type="button" data-v="jomu" onclick="setSeg('kindSeg',this)">🏢 常務</button>
-      <button type="button" data-v="machine" onclick="setSeg('kindSeg',this)">🏗 機械移動</button>
     </div>
 
     <label class="f">会社名(取引先マスタから、あいうえお・よみがなで探せます)</label>
-    <input type="text" id="fName" placeholder="会社名かよみがなを入れる(マスタにない会社も書けます)" lang="ja" autocomplete="off" oninput="kanaSel='';renderPicker()" onfocus="renderPicker()">
+    <input type="text" id="fName" placeholder="会社名かよみがなを入れる(マスタにない会社も書けます)" lang="ja" autocomplete="off" oninput="kanaSel='';renderPicker();updateRegBtn()" onfocus="renderPicker()">
     <div class="kana" id="kanaRow"></div>
     <div class="pickList" id="pickList"></div>
     <div class="cInfo" id="cInfo"></div>
+    <div class="row2" style="align-items:flex-end;">
+      <div><label class="f">よみがな(マスタにない会社は入れてください。あいうえお順・検索に使います)</label>
+        <input type="text" id="fYomi" placeholder="例:あすてもうえだ" lang="ja" autocomplete="off"></div>
+    </div>
+    <button type="button" class="btn blue" id="regMasterBtn" style="width:100%;margin-top:8px;display:none;" onclick="registerMaster()">📋 この会社を取引先マスタに登録</button>
+    <div class="hint" id="regMasterHint" style="display:none;">この会社は取引先マスタにまだありません。登録すると、ほかのアプリでも使えるようになります。</div>
 
     <div id="workWrap"><label class="f">仕事内容</label>
     <textarea id="fWork" rows="3" placeholder="例:ユンボを〇〇現場へ移動・回収" lang="ja"></textarea></div>
@@ -307,7 +387,7 @@
     <label class="f" id="truckLabel">🚚 トラック(何台でも選べます)</label>
     <div class="goers trucks" id="truckPick"></div>
 
-    <div id="doneWrap">
+    <div id="doneWrap" style="display:none;">
       <label class="f" id="doneLabel">この日の結果</label>
       <div class="seg stSeg" id="stSeg">
         <button type="button" data-v="" onclick="setSeg('stSeg',this)">予定</button>
@@ -375,18 +455,64 @@
     <div class="goers" id="phGoerPick"></div>
     <label class="f">🚚 トラック(何台でも選べます)</label>
     <div class="goers trucks" id="phTruckPick"></div>
-    <label class="f">引取の結果</label>
+    <div style="display:none;">
     <div class="seg stSeg" id="phStSeg">
       <button type="button" data-v="" onclick="setSeg('phStSeg',this)">予定</button>
       <button type="button" data-v="done" onclick="setSeg('phStSeg',this)">✅ 行けた</button>
       <button type="button" data-v="missed" onclick="setSeg('phStSeg',this)">✖ 行けなかった</button>
     </div>
-    <div class="hint">行けなかったときは、回収予定日を別の日に直して保存すれば入れ直せます</div>
+    </div>
     <div class="btnRow">
       <button class="btn sub" onclick="closePhone()">閉じる</button>
       <button class="btn main" onclick="savePhone()">保存</button>
       <button class="btn blue" style="flex:0 0 100%;" onclick="window.open('https://rie4649.github.io/denwa-irai/','_blank')">📞 電話依頼で開く(ほかの内容を直す)</button>
     </div>
+  </div>
+</div>
+
+<!-- 過去履歴(会社ごと) -->
+<div class="modalBg" id="sumBg" onclick="if(event.target===this)closeSummary()">
+  <div class="modal histModal">
+    <div class="sumHead">
+      <h3 style="margin:0;font-size:22px;">📊 過去履歴</h3>
+      <div class="spacer"></div>
+      <button class="nav" onclick="sumMove(-1)">◀</button>
+      <span class="ym" id="sumYm"></span>
+      <button class="nav" onclick="sumMove(1)">▶</button>
+    </div>
+    <div class="histMode">
+      <button id="hmDay" onclick="setHistMode('day')">📅 日付で見る(1か月)</button>
+      <button id="hmYear" onclick="setHistMode('year')">📈 月ごとの回数(1年)</button>
+    </div>
+    <div class="catTabs" id="catTabs">
+      <button data-c="all" onclick="setHistCat('all')">全部<small id="cc_all"></small></button>
+      <button data-c="0" onclick="setHistCat('0')">🏗 機械移動<small id="cc_0"></small></button>
+      <button data-c="1" onclick="setHistCat('1')">🔁 通常<small id="cc_1"></small></button>
+      <button data-c="2" onclick="setHistCat('2')">🏢 常務<small id="cc_2"></small></button>
+    </div>
+    <div class="sumTools">
+      <input type="text" id="sumQ" placeholder="🔍 会社名でしぼる" lang="ja" autocomplete="off" oninput="renderSummary()">
+      <button class="xlBtn" onclick="exportHist()">📥 Excelに写す</button>
+    </div>
+    <div class="sumInfo" id="sumInfo"></div>
+    <div id="sumList"></div>
+    <div class="btnRow"><button class="btn sub" onclick="closeSummary()">閉じる</button></div>
+  </div>
+</div>
+
+<!-- 休み(配車ボードの出勤者と同じデータ) -->
+<div class="modalBg" id="offBg" onclick="if(event.target===this)closeOff()">
+  <div class="modal" style="max-width:640px;">
+    <div class="sumHead">
+      <h3 style="margin:0;">🏖 休みの人</h3>
+      <div class="spacer"></div>
+      <button class="nav" onclick="offMove(-1)">◀</button>
+      <span class="ym" id="offTitle" style="font-size:20px;"></span>
+      <button class="nav" onclick="offMove(1)">▶</button>
+    </div>
+    <div class="hint">押すとすぐ保存されます(配車ボードの「出勤者」にも同じ休みが入ります)</div>
+    <div class="offList" id="offList"></div>
+    <div class="btnRow"><button class="btn sub" onclick="closeOff()">閉じる</button></div>
   </div>
 </div>
 
@@ -504,7 +630,7 @@ db.collection("master_company_yomi").get().then(snap => {
 function yomiOf(it){
   const src = it.src || {};
   const c = (clients||[]).find(x => (src.clientId && x.id === src.clientId) || x.name === it.name);
-  const y = (c && c.yomi) || companyYomi[nkey(it.name)] || companyYomi[nkey(shortName(it.name))] || shortName(it.name);
+  const y = (c && c.yomi) || src.yomi || companyYomi[nkey(it.name)] || companyYomi[nkey(shortName(it.name))] || shortName(it.name);
   return String(y).normalize("NFKC").replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0)-0x60));
 }
 /* その日の予定(午前 → 時間なし → 午後、その中は 電話依頼 → 通常回収 → その他) */
@@ -544,7 +670,7 @@ function iconTxt(it){ return it.type==="pickup" ? "[T]" : it.type==="regular" ? 
 /* 区分(上からこの順):0=機械移動 1=通常(電話依頼・通常回収) 2=常務 */
 function grpOf(it){ return it.type==="machine" ? 0 : it.type==="jomu" ? 2 : 1; }
 const GRP_LABEL = ["🏗 機械移動", "🔁 通常", "🏢 常務"];
-function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.done&&!it.missed&&!it.cand?"urgent ":"")+(it.done?"isDone":"")+(it.missed?" isMissed":""); }
+function clsOf(it){ return (it.cand?"cand ":"")+(it.urgent&&!it.cand?"urgent ":""); }
 function dayClass(ds){
   const d = parseYmd(ds), c = [];
   if (d.getDay()===6) c.push("sat"); if (d.getDay()===0) c.push("sun");
@@ -566,16 +692,17 @@ function sectioned(items, fn){
 function itHtml(it, ds, withSub){
   return '<div class="it '+clsOf(it)+'" onclick="event.stopPropagation();openItem(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">'+
     '<span class="mk">'+iconOf(it)+'</span><span class="nm">'+esc(withSub?it.name:shortName(it.name))+'</span>'+
-    (it.goers||[]).map(g => withSub ? '<span class="gb">'+esc(surname(g))+'</span>' : '<span class="gb one">'+esc(String(g).charAt(0))+'</span>').join("")+
-    (it.trucks||[]).map(t => withSub ? '<span class="gb tb">'+esc(t)+'</span>' : '<span class="gb tb one">'+esc(String(t).charAt(0))+'</span>').join("")+(it.done&&!withSub?'<span class="mk">✅</span>':'')+(it.missed?'<span class="miss">行けず</span>':'')+(it.cand?'<span class="candTag">希望</span>':'')+
+    (it.goers||[]).map(g => { const w = offClash(g, ds, it.ampm) ? ' offWarn' : '';
+      return withSub ? '<span class="gb'+w+'"'+(w?' title="休みの日です"':'')+'>'+esc(surname(g))+(w?'<small>休</small>':'')+'</span>' : '<span class="gb one'+w+'">'+esc(String(g).charAt(0))+'</span>'; }).join("")+
+    (it.trucks||[]).map(t => withSub ? '<span class="gb tb">'+esc(t)+'</span>' : '<span class="gb tb one">'+esc(String(t).charAt(0))+'</span>').join("")+(it.cand?'<span class="candTag">希望</span>':'')+
     (withSub && it.cand ? '<span class="acts"><button class="fixBtn" onclick="event.stopPropagation();fixPhoneDate(\''+it.id+'\',\''+ds+'\')">この日に決定</button></span>' : '')+
-    (withSub && !it.cand ? '<span class="acts"><button class="ok'+(it.done?' on':'')+'" title="行けた" onclick="event.stopPropagation();quickDone(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✓</button>'+
-      '<button class="ng'+(it.missed?' on':'')+'" title="行けなかった" onclick="event.stopPropagation();openMiss(\''+it.type+'\',\''+it.id+'\',\''+ds+'\')">✕</button></span>' : '')+'</div>'+
+    '</div>'+
     (withSub && it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : '');
 }
 
 /* ===== 描画 ===== */
 function render(){
+  watchOff();
   document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
@@ -594,8 +721,9 @@ function renderThree(){
         (hol?'<span class="dh">'+esc(hol)+'</span>':'')+(ds===todayYmd()?'<span class="todayMark">今日</span>':'')+
         '<span class="cnt">'+(items.length?items.length+'件':'')+'</span>'+
         '<button class="mini" onclick="event.stopPropagation();openForm(null,\''+ds+'\')">＋</button>'+
+        '<button class="mini offBtn" onclick="event.stopPropagation();openOff(\''+ds+'\')">🏖 休み</button>'+
         '<button class="mini" onclick="event.stopPropagation();printDay(\''+ds+'\')">🖨</button>'+
-      '</div>'+
+      '</div>'+offRowHtml(ds)+
       '<div class="dBody">'+(items.length ? sectioned(items, it => itHtml(it, ds, true)) : '<div class="none">予定なし</div>')+'</div></div>';
   }).join("")+'</div>';
   requestAnimationFrame(() => fitBoxes(".dBody", 24, 13, false));
@@ -613,7 +741,7 @@ function renderMonth(){
     const ds = addDays(start, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
-      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+
+      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+offMiniHtml(ds)+
       '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div></div>';
   }
   document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
@@ -682,7 +810,7 @@ function openPhone(id){
   document.getElementById("phDate").value = p.pickupDate || "";
   setSegVal("phApSeg", p.ampm || "");
   setSegVal("phStSeg", p.pickupResult || "");
-  renderGoers("phGoerPick", p.pickupGoers || []);
+  renderGoers("phGoerPick", p.pickupGoers || [], p.pickupDate || "", p.ampm || "");
   renderTrucks("phTruckPick", p.pickupTrucks || []);
   document.getElementById("phoneBg").classList.add("show");
 }
@@ -740,25 +868,64 @@ function buildKana(){
     '<button type="button" data-k="他" onclick="pickKana(\'他\')">他</button>';
 }
 function pickKana(k){ kanaSel = (kanaSel === k) ? "" : k; document.getElementById("fName").value = ""; renderPicker(); }
+function masterOf(name){ const k = nkey(name); return (clients||[]).find(c => nkey(c.name) === k) || null; }
+/* 候補:取引先マスタ + マスタにないけどカレンダーに書いてある会社 */
+function pickerSource(){
+  if (!clients) return null;
+  const list = clients.slice(), seen = new Set(clients.map(c => nkey(c.name)));
+  events.forEach(ev => {
+    const k = nkey(ev.title); if (!ev.title || seen.has(k)) return; seen.add(k);
+    list.push({ id:"cal:"+ev.id, name:ev.title, yomi:ev.yomi||"", tel:ev.tel||"", local:true });
+  });
+  return list.sort((a,b) => toHira(a.yomi||a.name).localeCompare(toHira(b.yomi||b.name), "ja"));
+}
+function updateRegBtn(){
+  const name = document.getElementById("fName").value.trim();
+  const show = !!name && !!clients && !masterOf(name);
+  document.getElementById("regMasterBtn").style.display = show ? "" : "none";
+  document.getElementById("regMasterHint").style.display = show ? "" : "none";
+}
+async function registerMaster(){
+  const name = document.getElementById("fName").value.trim(); if (!name) return;
+  if (masterOf(name)){ toast("もうマスタに入っています"); updateRegBtn(); return; }
+  const yomi = toHira(document.getElementById("fYomi").value.trim());
+  if (!yomi && !confirm("よみがなが空です。このまま登録しますか?\n(あとからマスタ管理で入れることもできます)")) return;
+  const tel = document.getElementById("fTel").value.normalize("NFKC").trim();
+  if (!confirm("「"+name+"」"+(yomi?"(" + yomi + ")":"")+"\nを取引先マスタに登録します。よろしいですか?")) return;
+  try {
+    const ref = await db.collection(CLIENT_COL).add({ name, yomi, address:"", tel, note:"関根カレンダーから登録",
+      createdAt: FVx().serverTimestamp(), updatedAt: FVx().serverTimestamp() });
+    clients.push({ id:ref.id, name, yomi, address:"", tel });
+    clients.sort((a,b) => toHira(a.yomi||a.name).localeCompare(toHira(b.yomi||b.name), "ja"));
+    // 同じ会社名の予定をぜんぶマスタとつなぐ
+    const k = nkey(name);
+    await Promise.all(events.filter(ev => nkey(ev.title) === k && ev.clientId !== ref.id)
+      .map(ev => db.collection(EVENT_COL).doc(ev.id).update({ clientId: ref.id, yomi: yomi || ev.yomi || "" })));
+    toast("✅ 取引先マスタに登録しました"); updateRegBtn(); render();
+  } catch(e){ console.error(e); toast("⚠️ 登録できませんでした"); }
+}
 function renderPicker(){
   document.querySelectorAll("#kanaRow button").forEach(b => b.classList.toggle("on", b.dataset.k === kanaSel));
   const box = document.getElementById("pickList");
-  if (!clients){ box.innerHTML = '<div class="none2">取引先を読み込み中…</div>'; return; }
+  const src = pickerSource();
+  if (!src){ box.innerHTML = '<div class="none2">取引先を読み込み中…</div>'; return; }
   const q = document.getElementById("fName").value.trim();
   let list;
-  if (kanaSel) list = clients.filter(c => rowOf(c) === kanaSel);
-  else if (q) { const hq = toHira(q).toLowerCase(); list = clients.filter(c => toHira(c.name).toLowerCase().includes(hq) || toHira(c.yomi||"").includes(hq)); }
+  if (kanaSel) list = src.filter(c => rowOf(c) === kanaSel);
+  else if (q) { const hq = toHira(q).toLowerCase(); list = src.filter(c => toHira(c.name).toLowerCase().includes(hq) || toHira(c.yomi||"").includes(hq)); }
   else { box.innerHTML = '<div class="none2">上の「あかさたな」を押すか、名前を入れると候補が出ます</div>'; return; }
-  box.innerHTML = list.length ? list.slice(0,80).map(c => '<div onclick="chooseClient(\''+c.id+'\')">'+esc(c.name)+(c.yomi?'<small>'+esc(c.yomi)+'</small>':'')+'</div>').join("")
+  box.innerHTML = list.length ? list.slice(0,80).map(c => '<div onclick="chooseClient(\''+c.id+'\')">'+esc(c.name)+(c.local?' <small style="display:inline;color:#b45309;">(マスタ未登録)</small>':'')+(c.yomi?'<small>'+esc(c.yomi)+'</small>':'')+'</div>').join("")
     : '<div class="none2">マスタに見つかりません(このまま名前を書いて保存もできます)</div>';
 }
 function chooseClient(id){
-  const c = clients.find(x => x.id === id); if (!c) return;
+  const c = (pickerSource()||[]).find(x => x.id === id); if (!c) return;
   document.getElementById("fName").value = c.name;
+  if (c.yomi) document.getElementById("fYomi").value = c.yomi;
   kanaSel = ""; document.getElementById("pickList").innerHTML = "";
   document.querySelectorAll("#kanaRow button").forEach(b => b.classList.remove("on"));
   const tel = document.getElementById("fTel"); if (c.tel && !tel.value) tel.value = c.tel;
-  showClientInfo(c);
+  showClientInfo(c.local ? null : c);
+  updateRegBtn();
 }
 function showClientInfo(c){
   const box = document.getElementById("cInfo");
@@ -779,7 +946,7 @@ async function loadClients(){
     clients = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.name);
     clients.sort((a,b) => toHira(a.yomi||a.name).localeCompare(toHira(b.yomi||b.name), "ja"));
     if (document.getElementById("formBg").classList.contains("show")){
-      renderPicker();
+      renderPicker(); updateRegBtn();
       const c = clients.find(x => x.name === document.getElementById("fName").value.trim()); if (c) showClientInfo(c);
     }
   } catch(e){ console.error(e); clients = []; }
@@ -793,6 +960,8 @@ function openForm(id, ds){
   document.getElementById("formSub").textContent = ev ? mdw(editingDate)+" の予定"+(repeatText(ev)?"(繰り返し:"+repeatText(ev)+")":"") : "";
   setSegVal("kindSeg", ev ? kindOf(ev) : "regular");
   document.getElementById("fName").value = ev ? (ev.title||"") : "";
+  { const mc = ev && clients ? (clients.find(x => x.id === ev.clientId) || masterOf(ev.title)) : null;
+    document.getElementById("fYomi").value = ev ? ((mc && mc.yomi) || ev.yomi || "") : ""; }
   document.getElementById("fWork").value = ev ? (ev.work||"") : "";
   kanaSel = ""; document.getElementById("pickList").innerHTML = "";
   document.querySelectorAll("#kanaRow button").forEach(b => b.classList.remove("on"));
@@ -804,7 +973,7 @@ function openForm(id, ds){
   renderWdays();
   setSegVal("repSeg", ev ? ((ev.repeat==="weekly"||ev.repeat==="biweekly") ? ev.repeat : (ev.repeat && ev.repeat!=="none" ? "weekly" : "none")) : "none");
   document.getElementById("goerLabel").textContent = mdw(editingDate)+" に行った人(何人でも選べます)";
-  renderGoers("goerPick", ev ? ((ev.goersByDate||{})[editingDate]||[]) : []);
+  renderGoers("goerPick", ev ? ((ev.goersByDate||{})[editingDate]||[]) : [], editingDate, ev ? (ev.ampm||"") : "");
   document.getElementById("truckLabel").textContent = "🚚 "+mdw(editingDate)+" のトラック(何台でも選べます)";
   renderTrucks("truckPick", ev ? ((ev.trucksByDate||{})[editingDate]||[]) : []);
   document.getElementById("fEnd").value = ev ? (ev.endDate||"") : "";
@@ -818,12 +987,12 @@ function openForm(id, ds){
   document.getElementById("fContact").value = ev ? (ev.contact||"") : "";
   document.getElementById("fTel").value = ev ? (ev.tel||"") : "";
   document.getElementById("fMemo").value = ev ? (ev.memo||"") : "";
-  document.getElementById("doneWrap").style.display = ev ? "" : "none";
+  document.getElementById("doneWrap").style.display = "none";   // 行けた・行けなかったは使わない
   document.getElementById("doneLabel").textContent = mdw(editingDate)+" の結果";
   setSegVal("stSeg", ev ? ((ev.doneDates||[]).includes(editingDate) ? "done" : (ev.missedDates||[]).includes(editingDate) ? "missed" : "") : "");
   document.getElementById("delBtn").style.display = ev ? "" : "none";
   document.getElementById("delAllBtn").style.display = (ev && (ev.repeat||"none") !== "none") ? "" : "none";
-  updateRepHint();
+  updateRepHint(); updateRegBtn();
   document.getElementById("formBg").classList.add("show");
 }
 function closeForm(){ document.getElementById("formBg").classList.remove("show"); editingId = null; }
@@ -838,9 +1007,10 @@ async function saveForm(){
   if (endDate && endDate < date){ toast("終わりの日が開始日より前です"); return; }
   if (rep !== "none" && !wdSel.length){ toast("曜日を選んでください"); return; }
   const goers = pickedGoers("goerPick"), trucks = pickedGoers("truckPick");
-  const c = (clients||[]).find(x => x.name === title);
+  const c = masterOf(title);
   const data = {
     kind: segVal("kindSeg") || "regular", title, clientId: c ? c.id : "",
+    yomi: toHira(document.getElementById("fYomi").value.trim()) || (c && c.yomi) || "",
     work: document.getElementById("fWork").value.trim(),
     date, ampm: segVal("apSeg"), repeat: rep, endDate,
     wdays: rep === "none" ? [] : wdSel.slice().sort(),
@@ -927,6 +1097,7 @@ let staffNames = [];
 db.collection("employees").get().then(snap => {
   staffNames = snap.docs.map(d => d.data()).filter(e => e.name)
     .sort((a,b) => (a.order ?? 999) - (b.order ?? 999)).map(e => e.name);
+  render();
 }).catch(e => console.error(e));
 /* 名字だけ(「石原 太郎」→「石原」。空白がなく4文字以上なら頭の2文字) */
 function surname(n){
@@ -935,10 +1106,13 @@ function surname(n){
   if (p.length > 1) return p[0];
   return t.length >= 4 ? t.slice(0,2) : t;
 }
-function renderGoers(boxId, selected){
+function renderGoers(boxId, selected, ds, ampm){
   const box = document.getElementById(boxId);
   const names = staffNames.slice(); (selected||[]).forEach(n => { if (!names.includes(n)) names.push(n); });
-  box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
+  box.innerHTML = names.length ? names.map(n => {
+    const o = ds ? offOf(n, ds) : "";
+    return '<button type="button" class="'+((selected||[]).includes(n)?'on ':'')+(o?'isOff':'')+'" data-n="'+esc(n)+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+
+      (o?'<span class="offTag">🏖'+OFF_LABEL[o]+'</span>':'')+'</button>'; }).join("")
     : '<span class="hint">従業員マスタが読めませんでした</span>';
 }
 /* トラックの候補:マスタ管理の車両(master_vehicles)。愛称があれば愛称、なければ車番(配車ボードと同じ) */
@@ -955,7 +1129,7 @@ function renderTrucks(boxId, selected){
   box.innerHTML = names.length ? names.map(n => '<button type="button" class="'+((selected||[]).includes(n)?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+esc(n)+'</button>').join("")
     : '<span class="hint">車両マスタが読めませんでした(マスタ管理の車両で登録できます)</span>';
 }
-function pickedGoers(boxId){ return Array.from(document.querySelectorAll("#"+boxId+" button.on")).map(b => b.textContent); }
+function pickedGoers(boxId){ return Array.from(document.querySelectorAll("#"+boxId+" button.on")).map(b => b.dataset.n || b.textContent); }
 
 let wdSel = [];
 function renderWdays(){
@@ -1034,6 +1208,208 @@ async function missMove(n){
     }
     closeMiss(); toast("📅 "+mdw(nd)+" に移しました");
   } catch(e){ console.error(e); toast("⚠️ 移せませんでした"); }
+}
+
+/* ===== 休み(bentoDaily/日付 の entries[名前].offType。配車ボードの出勤者と同じ) ===== */
+const OFF_COL = "bentoDaily";
+const OFF_LABEL = { am_off:"午前休", pm_off:"午後休", full_off:"1日休" };
+let offByDate = {}, offUnsub = null, offRange = "", offDay = null;
+function watchOff(){
+  let from, to;
+  if (viewMode === "three"){ from = addDays(focusDay,-1); to = addDays(focusDay,1); }
+  else { const f = new Date(monthY, monthM, 1); from = ymd(new Date(monthY, monthM, 1-((f.getDay()+6)%7))); to = addDays(from, 41); }
+  if (offDay && offDay < from) from = offDay;
+  if (offDay && offDay > to) to = offDay;
+  const key = from+"_"+to; if (key === offRange) return;
+  offRange = key;
+  if (offUnsub) offUnsub();
+  const DID = firebase.firestore.FieldPath.documentId();
+  offUnsub = db.collection(OFF_COL).where(DID, ">=", from).where(DID, "<=", to).onSnapshot(snap => {
+    const m = {};
+    snap.docs.forEach(d => { const e = (d.data()||{}).entries || {}; const o = {};
+      Object.keys(e).forEach(n => { const t = (e[n]||{}).offType; if (t && t !== "none") o[n] = t; }); m[d.id] = o; });
+    offByDate = m; render(); if (offDay) renderOff();
+  }, err => console.error("休みの読み込みエラー", err));
+}
+function offOf(name, ds){ return ((offByDate[ds]||{})[name]) || ""; }
+/* その時間に休みか(時間なしの予定は、半日休みでも注意を出す) */
+function offClash(name, ds, ampm){
+  const o = offOf(name, ds); if (!o) return false;
+  if (o === "full_off" || !ampm || ampm === "どちらでも") return true;
+  return (o === "am_off" && ampm === "午前") || (o === "pm_off" && ampm === "午後");
+}
+function offList(ds){
+  const m = offByDate[ds] || {}, order = { full_off:0, am_off:1, pm_off:2 };
+  const names = staffNames.filter(n => m[n]).concat(Object.keys(m).filter(n => !staffNames.includes(n)));
+  return names.map(n => ({ n, t:m[n] })).sort((a,b) => order[a.t]-order[b.t]);
+}
+function offRowHtml(ds){
+  const l = offList(ds); if (!l.length) return "";
+  return '<div class="offRow" onclick="openOff(\''+ds+'\')">🏖 休み '+l.map(x => '<span class="ob">'+esc(surname(x.n))+
+    (x.t!=="full_off"?'<small>'+(x.t==="am_off"?"午前":"午後")+'</small>':'')+'</span>').join("")+'</div>';
+}
+function offMiniHtml(ds){
+  const l = offList(ds); if (!l.length) return "";
+  return '<div class="mOff">'+l.map(x => '<span class="ob one" title="'+esc(x.n+" "+OFF_LABEL[x.t])+'">'+esc(surname(x.n))+
+    '<small>'+(x.t==="am_off"?"午前休":x.t==="pm_off"?"午後休":"休")+'</small></span>').join("")+'</div>';
+}
+function openOff(ds){ offDay = ds; watchOff(); renderOff(); document.getElementById("offBg").classList.add("show"); }
+function closeOff(){ document.getElementById("offBg").classList.remove("show"); offDay = null; }
+function offMove(n){ offDay = addDays(offDay, n); watchOff(); renderOff(); }
+function renderOff(){
+  const ds = offDay; if (!ds) return;
+  document.getElementById("offTitle").textContent = mdw(ds);
+  const m = offByDate[ds] || {};
+  const names = staffNames.concat(Object.keys(m).filter(n => !staffNames.includes(n)));
+  const opts = [["none","出勤"],["am_off","午前休"],["pm_off","午後休"],["full_off","1日休"]];
+  document.getElementById("offList").innerHTML = names.length ? names.map((n, i) => {
+    const cur = m[n] || "none";
+    return '<div class="row"><span class="nm">'+(cur!=="none"?'🏖 ':'')+esc(n)+'</span><span class="opts">'+
+      opts.map(o => '<button type="button" data-v="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'" onclick="setOff('+i+',\''+o[0]+'\')">'+o[1]+'</button>').join("")+'</span></div>';
+  }).join("") : '<div class="none">従業員マスタが読めませんでした</div>';
+  document.getElementById("offList").dataset.names = JSON.stringify(names);
+}
+async function setOff(i, t){
+  const ds = offDay, names = JSON.parse(document.getElementById("offList").dataset.names || "[]"), n = names[i];
+  if (!ds || !n) return;
+  try {
+    await db.collection(OFF_COL).doc(ds).set({ entries: { [n]: { offType: t } } }, { merge: true });
+    toast(t === "none" ? "✅ "+surname(n)+" さんを出勤にしました" : "🏖 "+surname(n)+" さん "+OFF_LABEL[t]);
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+
+/* ===== 過去履歴(今日までにカレンダーに入っている予定を、会社ごとに) ===== */
+let sumY, sumM, sumOpen = null, sumLast = [], histMode = "day", histCat = "all";
+const GRP_NAME = ["🏗 機械移動", "🔁 通常", "🏢 常務"];
+function openSummary(){
+  document.getElementById("menu").classList.remove("show");
+  const base = viewMode === "month" ? new Date(monthY, monthM, 1) : parseYmd(focusDay);
+  sumY = base.getFullYear(); sumM = base.getMonth(); sumOpen = null;
+  document.getElementById("sumQ").value = "";
+  renderSummary();
+  document.getElementById("sumBg").classList.add("show");
+}
+function closeSummary(){ document.getElementById("sumBg").classList.remove("show"); }
+function setHistMode(m){ histMode = m; sumOpen = null; renderSummary(); }
+function setHistCat(c){ histCat = c; sumOpen = null; renderSummary(); }
+function sumMove(n){
+  if (histMode === "year") sumY += n;
+  else { sumM += n; if (sumM < 0){ sumM = 11; sumY--; } if (sumM > 11){ sumM = 0; sumY++; } }
+  sumOpen = null; renderSummary();
+}
+/* from〜to(今日まで)の予定を、区分+会社ごとにまとめる */
+function histData(from, to){
+  const today = todayYmd(), map = {};
+  if (to > today) to = today;
+  for (let ds = from; ds <= to; ds = addDays(ds, 1)){
+    itemsOn(ds).forEach(it => {
+      if (it.cand) return;
+      const g = grpOf(it), key = g+"|"+nkey(shortName(it.name));
+      const c = map[key] || (map[key] = { key, g, name:it.name, it, days:[] });
+      c.days.push({ ds, it });
+    });
+  }
+  return Object.values(map).sort((a,b) => (a.g-b.g) || yomiOf(a.it).localeCompare(yomiOf(b.it), "ja"));
+}
+function histFiltered(){
+  let list;
+  if (histMode === "year") list = histData(sumY+"-01-01", sumY+"-12-31");
+  else list = histData(sumY+"-"+pad(sumM+1)+"-01", ymd(new Date(sumY, sumM+1, 0)));
+  const q = toHira(document.getElementById("sumQ").value.trim()).toLowerCase();
+  if (q) list = list.filter(c => toHira(c.name).toLowerCase().includes(q) || toHira(shortName(c.name)).toLowerCase().includes(q) || yomiOf(c.it).includes(q));
+  // 区分ボタンの件数
+  const cnt = g => list.filter(c => g === "all" || String(c.g) === g).reduce((n,c) => n + c.days.length, 0);
+  ["all","0","1","2"].forEach(g => document.getElementById("cc_"+g).textContent = cnt(g)+"回");
+  if (histCat !== "all") list = list.filter(c => String(c.g) === histCat);
+  return list;
+}
+function renderSummary(){
+  document.getElementById("hmDay").classList.toggle("on", histMode === "day");
+  document.getElementById("hmYear").classList.toggle("on", histMode === "year");
+  document.querySelectorAll("#catTabs button").forEach(b => b.classList.toggle("on", b.dataset.c === histCat));
+  document.getElementById("sumYm").textContent = histMode === "year" ? sumY+"年" : sumY+"年"+(sumM+1)+"月";
+  const list = histFiltered(); sumLast = list;
+  const total = list.reduce((n,c) => n + c.days.length, 0);
+  const box = document.getElementById("sumList");
+  if (!list.length){
+    document.getElementById("sumInfo").textContent = "";
+    box.innerHTML = '<div class="none">この'+(histMode==="year"?"年":"月")+'の記録はありません</div>'; return;
+  }
+  const secHead = (g, prev) => (histCat === "all" && g !== prev);
+  if (histMode === "year"){
+    document.getElementById("sumInfo").textContent = list.length+"社・合計"+total+"回(今日まで。数字を押すと、その月の日付が見られます)";
+    let prev = null, rows = "";
+    list.forEach((c, ci) => {
+      if (secHead(c.g, prev)) rows += '<tr class="sec g'+c.g+'"><td colspan="14">'+GRP_NAME[c.g]+'</td></tr>';
+      prev = c.g;
+      const m = Array(12).fill(0); c.days.forEach(x => m[Number(x.ds.slice(5,7))-1]++);
+      rows += '<tr><td class="nm">'+iconOf(c.it)+' '+esc(c.name)+'</td>'+
+        m.map((n,i) => n ? '<td class="n" onclick="histGoMonth('+ci+','+i+')">'+n+'</td>' : '<td class="z">-</td>').join("")+
+        '<td class="tot">'+c.days.length+'</td></tr>';
+    });
+    box.innerHTML = '<div class="yearWrap"><table class="yearT"><tr><th class="nm">会社名</th>'+
+      [1,2,3,4,5,6,7,8,9,10,11,12].map(i => '<th>'+i+'月</th>').join("")+'<th>計</th></tr>'+rows+'</table></div>';
+    return;
+  }
+  document.getElementById("sumInfo").textContent = list.length+"社・合計"+total+"回(今日までにカレンダーに入っている予定。日付を押すと、誰がどの車で行ったかが出ます)";
+  let prev = null;
+  box.innerHTML = list.map((c, ci) => {
+    const head = secHead(c.g, prev) ? '<div class="sumSec g'+c.g+'">'+GRP_NAME[c.g]+'</div>' : ''; prev = c.g;
+    const open = sumOpen && sumOpen.startsWith(c.key+"#") ? sumOpen.split("#")[1] : "";
+    const od = open ? c.days.find(x => x.ds === open) : null;
+    return head+'<div class="sumRow"><div class="sumName"><span class="mk">'+iconOf(c.it)+'</span><span>'+esc(c.name)+'</span>'+
+      '<span class="cnt">'+c.days.length+'回</span></div>'+
+      '<div class="sumDays">'+c.days.map(x => {
+        const w = parseYmd(x.ds).getDay(), hol = holidayName(x.ds);
+        return '<button class="'+(w===6?'sa ':(w===0||hol)?'su ':'')+(x.ds===open?'on':'')+'" onclick="sumToggle('+ci+',\''+x.ds+'\')">'+esc(mdw(x.ds))+'</button>';
+      }).join("")+'</div>'+(od ? sumDetailHtml(od) : '')+'</div>';
+  }).join("");
+}
+function histGoMonth(ci, m){
+  const c = sumLast[ci]; if (!c) return;
+  histMode = "day"; sumM = m; sumOpen = null;
+  document.getElementById("sumQ").value = c.name;
+  renderSummary();
+}
+function sumToggle(ci, ds){ const key = (sumLast[ci]||{}).key; if (!key) return; sumOpen = (sumOpen === key+"#"+ds) ? null : key+"#"+ds; renderSummary(); }
+function sumDetailHtml(x){
+  const it = x.it;
+  const g = (it.goers||[]).length ? it.goers.map(n => '<span class="gb">'+esc(n)+'</span>').join(" ") : '<span style="color:#a8a29e;">(入っていません)</span>';
+  const t = (it.trucks||[]).length ? it.trucks.map(n => '<span class="gb tb">'+esc(n)+'</span>').join(" ") : '<span style="color:#a8a29e;">(入っていません)</span>';
+  return '<div class="sumDetail"><b>'+esc(mdw(x.ds))+(it.ampm?' '+esc(it.ampm):'')+'</b>　'+iconOf(it)+' '+esc(it.name)+
+    '<div>👷 行った人:'+g+'</div><div>🚚 トラック:'+t+'</div>'+(it.sub?'<div style="font-size:14px;color:#57534e;">📝 '+esc(it.sub)+'</div>':'')+'</div>';
+}
+/* Excelに写す(Excelで開けるCSVファイルを保存) */
+function exportHist(){
+  const list = histFiltered();
+  if (!list.length){ toast("写す記録がありません"); return; }
+  const q = v => '"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const kindName = g => ["機械移動","通常","常務"][g];
+  let rows = [], fname;
+  if (histMode === "year"){
+    rows.push(["区分","会社名"].concat([1,2,3,4,5,6,7,8,9,10,11,12].map(i => i+"月")).concat(["合計"]));
+    list.forEach(c => {
+      const m = Array(12).fill(0); c.days.forEach(x => m[Number(x.ds.slice(5,7))-1]++);
+      rows.push([kindName(c.g), c.name].concat(m).concat([c.days.length]));
+    });
+    fname = "過去履歴_"+sumY+"年";
+  } else {
+    rows.push(["日付","曜日","区分","会社名","時間","行った人","トラック","内容"]);
+    const all = [];
+    list.forEach(c => c.days.forEach(x => all.push({ c, x })));
+    all.sort((a,b) => a.x.ds.localeCompare(b.x.ds) || (a.c.g-b.c.g) || yomiOf(a.c.it).localeCompare(yomiOf(b.c.it), "ja"));
+    all.forEach(({c, x}) => rows.push([x.ds.replace(/-/g,"/"), WD[parseYmd(x.ds).getDay()], kindName(c.g), x.it.name, x.it.ampm||"",
+      (x.it.goers||[]).join("・"), (x.it.trucks||[]).join("・"), x.it.sub||""]));
+    fname = "過去履歴_"+sumY+"年"+(sumM+1)+"月";
+  }
+  if (histCat !== "all") fname += "_"+kindName(Number(histCat));
+  const csv = "﻿" + rows.map(r => r.map(q).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
+  a.download = fname+".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("📥 "+fname+".csv を保存しました(Excelで開けます)");
 }
 
 /* ===== 印刷 ===== */
