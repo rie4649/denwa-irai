@@ -56,7 +56,7 @@
   .bx.bxM { color:#1d4ed8; border-color:#1d4ed8; }
   .bx.bxJ { color:#0f766e; border-color:#0f766e; }
   /* トラック(薄ピンクの〇バッチ) */
-  .trucks button.on { background:#fbcfe8; border-color:#db2777; color:#831843; box-shadow:0 2px 6px rgba(219,39,119,.3); }
+  .goers.trucks button.on { background:#fbcfe8; border-color:#db2777; color:#831843; box-shadow:0 2px 6px rgba(219,39,119,.3); }
   .gb.tb { background:#fbcfe8; border-color:#db2777; color:#831843; }
   /* 常務・機械移動の区切り線 */
   .grp { border-top:3px solid #57534e; margin:10px 0 3px; padding-top:2px; font-size:calc(var(--fs)*.55); font-weight:900; color:#44403c; white-space:nowrap; }
@@ -183,6 +183,18 @@
   .offList .opts button { border:2px solid #e7e5e4; background:#fff; border-radius:10px; padding:8px 10px; font-size:14px; font-weight:bold; cursor:pointer; color:#57534e; }
   .offList .opts button.on { background:#ea580c; border-color:#ea580c; color:#fff; }
   .offList .opts button.on[data-v="none"] { background:#e7e5e4; border-color:#a8a29e; color:#1f2937; }
+  /* ===== 出荷 ===== */
+  .shkRow { padding:4px 12px; background:#ecfeff; border-bottom:1px solid #67e8f9; font-size:14px; }
+  .shkRow .hd { display:flex; align-items:center; gap:6px; font-weight:900; color:#0e7490; }
+  .shkRow .hd button { margin-left:auto; border:1px solid #67e8f9; background:#fff; color:#0e7490; border-radius:8px; padding:2px 10px; font-size:13px; font-weight:bold; cursor:pointer; }
+  .shk { display:flex; flex-wrap:wrap; align-items:center; gap:4px; padding:3px 4px; border-radius:6px; cursor:pointer; font-weight:bold; }
+  .shk:hover { background:#cffafe; }
+  .shk .to { font-size:15px; font-weight:900; color:#164e63; }
+  .shk .itm { color:#155e75; }
+  .shk .gb { font-size:12px; }
+  .mShk { font-size:10px; font-weight:bold; color:#0e7490; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chipRow { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .chipRow button { border:1px solid #67e8f9; background:#ecfeff; color:#0e7490; border-radius:999px; padding:6px 12px; font-size:14px; font-weight:bold; cursor:pointer; }
   /* ===== 過去履歴 ===== */
   .histBtn { border:none; background:#7c3aed; color:#fff; border-radius:12px; padding:10px 18px; font-size:18px; font-weight:900; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(124,58,237,.35); }
   .modal.histModal { max-width:1100px; width:100%; min-height:80vh; }
@@ -502,6 +514,29 @@
   </div>
 </div>
 
+<!-- 出荷(配車ボードの「出荷」と同じデータ) -->
+<div class="modalBg" id="shkBg" onclick="if(event.target===this)closeShk()">
+  <div class="modal">
+    <h3 id="shkTitle">📦 出荷</h3>
+    <div class="hint" id="shkSub"></div>
+    <label class="f">出荷先</label>
+    <input type="text" id="shkTo" placeholder="例:〇〇金属" lang="ja" autocomplete="off">
+    <div class="chipRow" id="shkToChips"></div>
+    <label class="f">品目</label>
+    <input type="text" id="shkItem" placeholder="例:鉄くず・ダライ粉" lang="ja" autocomplete="off">
+    <div class="chipRow" id="shkItemChips"></div>
+    <label class="f">行く人(何人でも選べます)</label>
+    <div class="goers" id="shkGoerPick"></div>
+    <label class="f">🚚 車(何台でも選べます)</label>
+    <div class="goers trucks" id="shkTruckPick"></div>
+    <div class="btnRow">
+      <button class="btn sub" onclick="closeShk()">閉じる</button>
+      <button class="btn main" id="shkSaveBtn" onclick="saveShk()">保存</button>
+      <button class="btn del" id="shkDelBtn" onclick="deleteShk()">🗑 この出荷を消す</button>
+    </div>
+  </div>
+</div>
+
 <!-- 休み(配車ボードの出勤者と同じデータ) -->
 <div class="modalBg" id="offBg" onclick="if(event.target===this)closeOff()">
   <div class="modal" style="max-width:640px;">
@@ -704,7 +739,7 @@ function itHtml(it, ds, withSub){
 
 /* ===== 描画 ===== */
 function render(){
-  watchOff();
+  watchOff(); watchShk();
   document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
@@ -725,7 +760,7 @@ function renderThree(){
         '<button class="mini" onclick="event.stopPropagation();openForm(null,\''+ds+'\')">＋</button>'+
         '<button class="mini offBtn" onclick="event.stopPropagation();openOff(\''+ds+'\')">🏖 休み</button>'+
         '<button class="mini" onclick="event.stopPropagation();printDay(\''+ds+'\')">🖨</button>'+
-      '</div>'+offRowHtml(ds)+
+      '</div>'+offRowHtml(ds)+shkRowHtml(ds)+
       '<div class="dBody">'+(items.length ? sectioned(items, it => itHtml(it, ds, true)) : '<div class="none">予定なし</div>')+'</div></div>';
   }).join("")+'</div>';
   requestAnimationFrame(() => fitBoxes(".dBody", 24, 13, false));
@@ -743,7 +778,7 @@ function renderMonth(){
     const ds = addDays(start, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
-      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+offMiniHtml(ds)+
+      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+offMiniHtml(ds)+shkMiniHtml(ds)+
       '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div></div>';
   }
   document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
@@ -1278,6 +1313,78 @@ async function setOff(i, t){
     await db.collection(OFF_COL).doc(ds).set({ entries: { [n]: { offType: t } } }, { merge: true });
     toast(t === "none" ? "✅ "+surname(n)+" さんを出勤にしました" : "🏖 "+surname(n)+" さん "+OFF_LABEL[t]);
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+
+/* ===== 出荷(shukkaBoard:配車ボードの「出荷」と同じ) ===== */
+const SHK_COL = "shukkaBoard";
+let shkByDate = {}, shkUnsub = null, shkRange = "", shkEdit = null, shkDate = null;
+let shkDests = [], shkItems = [];
+db.collection("pickupSettings").doc("shukkaDestinations").get().then(d => { shkDests = (d.exists && d.data().names) || []; }).catch(e => console.error(e));
+db.collection("pickupSettings").doc("shukkaItems").get().then(d => { shkItems = (d.exists && d.data().names) || []; }).catch(e => console.error(e));
+function watchShk(){
+  let from, to;
+  if (viewMode === "three"){ from = addDays(focusDay,-1); to = addDays(focusDay,1); }
+  else { const f = new Date(monthY, monthM, 1); from = ymd(new Date(monthY, monthM, 1-((f.getDay()+6)%7))); to = addDays(from, 41); }
+  const key = from+"_"+to; if (key === shkRange) return;
+  shkRange = key;
+  if (shkUnsub) shkUnsub();
+  shkUnsub = db.collection(SHK_COL).where("date", ">=", from).where("date", "<=", to).onSnapshot(snap => {
+    const m = {};
+    snap.docs.forEach(d => { const x = { id:d.id, ...d.data() }; (m[x.date] = m[x.date] || []).push(x); });
+    Object.values(m).forEach(a => a.sort((a,b) => (a.createdAtMs||0) - (b.createdAtMs||0)));
+    shkByDate = m; render();
+  }, err => console.error("出荷の読み込みエラー", err));
+}
+function shkTrucks(x){ return String(x.truck||"").split("・").map(t => t.trim()).filter(Boolean); }
+function shkRowHtml(ds){
+  const l = shkByDate[ds] || [];
+  return '<div class="shkRow"><div class="hd">📦 出荷'+(l.length?' '+l.length+'件':'')+
+    '<button onclick="event.stopPropagation();openShk(null,\''+ds+'\')">＋ 出荷を追加</button></div>'+
+    l.map(x => '<div class="shk" onclick="openShk(\''+x.id+'\',\''+ds+'\')"><span class="to">'+esc(x.companyName||"(出荷先なし)")+'</span>'+
+      (x.shippedItem?'<span class="itm">/ '+esc(x.shippedItem)+'</span>':'')+
+      (x.workers||[]).map(g => '<span class="gb'+(offClash(g, ds, "")?' offWarn':'')+'">'+esc(surname(g))+'</span>').join("")+
+      shkTrucks(x).map(t => '<span class="gb tb">'+esc(t)+'</span>').join("")+'</div>').join("")+'</div>';
+}
+function shkMiniHtml(ds){
+  const l = shkByDate[ds] || []; if (!l.length) return "";
+  return '<div class="mShk" title="'+esc(l.map(x => x.companyName).join("、"))+'">📦 '+esc(l.map(x => shortName(x.companyName||"")).join("・"))+'</div>';
+}
+function chipsHtml(list, inputId){
+  return list.slice(0, 30).map(n => '<button type="button" onclick="document.getElementById(\''+inputId+'\').value=this.textContent">'+esc(n)+'</button>').join("");
+}
+function openShk(id, ds){
+  const x = id ? (shkByDate[ds]||[]).find(s => s.id === id) : null;
+  shkEdit = x ? x.id : null; shkDate = ds;
+  document.getElementById("shkTitle").textContent = x ? "📦 出荷:"+(x.companyName||"") : "📦 出荷を追加";
+  document.getElementById("shkSub").textContent = mdw(ds)+" の出荷(配車ボードの「出荷」にも出ます)";
+  document.getElementById("shkTo").value = x ? (x.companyName||"") : "";
+  document.getElementById("shkItem").value = x ? (x.shippedItem||"") : "";
+  document.getElementById("shkToChips").innerHTML = chipsHtml(shkDests, "shkTo");
+  document.getElementById("shkItemChips").innerHTML = chipsHtml(shkItems, "shkItem");
+  renderGoers("shkGoerPick", x ? (x.workers||[]) : [], ds, "");
+  renderTrucks("shkTruckPick", x ? shkTrucks(x) : []);
+  document.getElementById("shkDelBtn").style.display = x ? "" : "none";
+  document.getElementById("shkBg").classList.add("show");
+}
+function closeShk(){ document.getElementById("shkBg").classList.remove("show"); shkEdit = null; }
+async function saveShk(){
+  const to = document.getElementById("shkTo").value.trim();
+  if (!to){ toast("出荷先を入れてください"); return; }
+  const data = { date: shkDate, companyName: to, shippedItem: document.getElementById("shkItem").value.trim(),
+    workers: pickedGoers("shkGoerPick"), truck: pickedGoers("shkTruckPick").join("・") };
+  const btn = document.getElementById("shkSaveBtn"); btn.disabled = true;
+  try {
+    if (shkEdit) await db.collection(SHK_COL).doc(shkEdit).update(data);
+    else await db.collection(SHK_COL).add({ ...data, fastFlag:false, pinned:false, templateId:null, status:"pending",
+      createdAtMs: Date.now(), createdAt: FVx().serverTimestamp() });
+    closeShk(); toast("✅ 出荷を保存しました");
+  } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+  finally { btn.disabled = false; }
+}
+async function deleteShk(){
+  if (!shkEdit || !confirm("この出荷を消しますか?")) return;
+  try { await db.collection(SHK_COL).doc(shkEdit).delete(); closeShk(); toast("消しました"); }
+  catch(e){ console.error(e); toast("⚠️ 失敗しました"); }
 }
 
 /* ===== 過去履歴(今日までにカレンダーに入っている予定を、会社ごとに) ===== */
