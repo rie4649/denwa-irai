@@ -274,6 +274,27 @@
 
   @media (max-width:760px) {
     body { height:auto; }
+    /* スマホ:ヘッダーを3段にまとめる(上:ボタン / 中:日付 / 下:1日・1か月) */
+    header { gap:6px; padding:8px; position:sticky; top:0; z-index:40; }
+    .legendMini { display:none; }
+    .backPhone { order:1; font-size:13px; padding:9px 8px; }
+    header .histBtn { order:2; font-size:14px; padding:9px 9px; }
+    .addBtn { order:3; padding:9px 9px; font-size:14px; }
+    .menuWrap { order:4; margin-left:auto; }
+    .menuWrap .tBtn { padding:8px 10px; }
+    header .spacer { order:5; flex-basis:100%; height:0; }
+    header .nav { width:52px; height:46px; font-size:20px; }
+    header .nav[onclick="move(-1)"] { order:6; }
+    header .title { order:7; flex:1; font-size:20px; }
+    header .nav[onclick="move(1)"] { order:8; }
+    header .tBtn[onclick="goToday()"] { order:9; }
+    .modeSw { order:10; flex-basis:100%; }
+    .modeSw button { flex:1; padding:10px; }
+    .swipeHint { display:block !important; }
+    .mCnt { margin-top:auto; text-align:center; font-size:22px; font-weight:900; color:#0f766e; line-height:1.1; }
+    .mCnt small { font-size:11px; }
+    .mOff .ob.one { font-size:9px; padding:0 3px; }
+    .mShk { font-size:9px; }
     .title { font-size:19px; min-width:0; }
     header h1 { display:none; }
     .three { grid-template-columns:1fr; }
@@ -284,7 +305,6 @@
     .mb.two { column-count:1; }
     .mn { font-size:15px; } .mhol, .mcnt { display:none; }
     .catTabs { grid-template-columns:repeat(2,1fr); }
-    .histBtn { font-size:16px; padding:9px 12px; }
     .sumHead h3 { width:100%; }
     .sumHead .spacer { display:none; }
     .sumHead .ym { flex:1; }
@@ -746,11 +766,14 @@ function render(){
   document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
+  document.getElementById("sw3").textContent = isPhone() ? "1日" : "3日";
   if (viewMode === "three") renderThree(); else renderMonth();
 }
 
+const isPhone = () => window.innerWidth <= 760;
 function renderThree(){
-  const days = [addDays(focusDay,-1), focusDay, addDays(focusDay,1)];
+  // スマホは1日ずつ(◀ ▶ か、左右にスワイプで日を切り替え)
+  const days = isPhone() ? [focusDay] : [addDays(focusDay,-1), focusDay, addDays(focusDay,1)];
   const f = parseYmd(focusDay);
   document.getElementById("title").textContent = f.getFullYear()+"年"+(f.getMonth()+1)+"月"+f.getDate()+"日("+WD[f.getDay()]+")";
   document.getElementById("main").innerHTML = '<div class="three">'+days.map(ds => {
@@ -766,8 +789,20 @@ function renderThree(){
       '</div>'+offRowHtml(ds)+shkRowHtml(ds)+
       '<div class="dBody">'+(items.length ? sectioned(items, it => itHtml(it, ds, true)) : '<div class="none">予定なし</div>')+'</div></div>';
   }).join("")+'</div>';
+  if (isPhone()) document.getElementById("main").insertAdjacentHTML("beforeend", '<div class="swipeHint" style="display:none;text-align:center;color:#a8a29e;font-size:13px;margin:10px 0;">← 左右にスワイプすると前の日・次の日 →</div>');
   requestAnimationFrame(() => fitBoxes(".dBody", 24, 13, false));
 }
+/* スマホ:左右スワイプで日を切り替え */
+(function(){
+  let sx = 0, sy = 0, on = false;
+  const m = document.getElementById("main");
+  m.addEventListener("touchstart", e => { if (viewMode !== "three" || !isPhone()) return; on = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive:true });
+  m.addEventListener("touchend", e => {
+    if (!on) return; on = false;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5){ move(dx < 0 ? 1 : -1); window.scrollTo({ top:0 }); }
+  }, { passive:true });
+})();
 
 function renderMonth(){
   document.getElementById("title").textContent = monthY+"年"+(monthM+1)+"月";
@@ -782,10 +817,13 @@ function renderMonth(){
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
       (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+offMiniHtml(ds)+shkMiniHtml(ds)+
-      '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div></div>';
+      (isPhone()
+        ? (items.length ? '<div class="mCnt">'+items.length+'<small>件</small></div>' : '')
+        : '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div>')+'</div>';
   }
-  document.getElementById("main").innerHTML = '<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
-    '<div class="mGrid" style="grid-auto-rows:minmax(max(110px, calc((100vh - 110px) / '+weeks+')), auto)">'+cells+'</div></div>';
+  const phoneHint = isPhone() ? '<div style="text-align:center;color:#57534e;font-size:14px;font-weight:bold;margin:2px 0 8px;">👆 日付を押すと、その日の一覧が見られます</div>' : '';
+  document.getElementById("main").innerHTML = phoneHint+'<div class="mWrap"><div class="dow"><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sa">土</div><div class="su">日</div></div>'+
+    '<div class="mGrid" style="grid-auto-rows:'+(isPhone() ? 'minmax(78px,auto)' : 'minmax(max(110px, calc((100vh - 110px) / '+weeks+')), auto)')+'">'+cells+'</div></div>';
 }
 
 /* 入りきらないときは隠さず、文字を小さく(1か月は2列にも)して全部入れる */
