@@ -330,6 +330,7 @@
   <div class="menuWrap">
     <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
     <div class="menu" id="menu">
+      <button onclick="openKikai()">🏗 機械作業の月まとめ(印刷)</button>
       <button onclick="printView()">🖨 この画面を印刷</button>
     </div>
   </div>
@@ -530,6 +531,7 @@
     <div class="sumTools">
       <input type="text" id="sumQ" placeholder="🔍 会社名でしぼる" lang="ja" autocomplete="off" oninput="histKana='';renderSummary()">
       <button class="xlBtn" onclick="exportHist()">📥 Excelに写す</button>
+      <button class="xlBtn" style="background:#1d4ed8;" onclick="closeSummary();openKikai(sumY, histMode==='year'?new Date().getMonth():sumM)">🏗 機械作業表</button>
     </div>
     <div class="sumInfo" id="sumInfo"></div>
     <div id="sumList"></div>
@@ -573,6 +575,26 @@
     <div class="hint">押すとすぐ保存されます(配車ボードの「出勤者」にも同じ休みが入ります)</div>
     <div class="offList" id="offList"></div>
     <div class="btnRow"><button class="btn sub" onclick="closeOff()">閉じる</button></div>
+  </div>
+</div>
+
+<!-- 機械作業の月まとめ -->
+<div class="modalBg" id="kikaiBg" onclick="if(event.target===this)closeKikai()">
+  <div class="modal" style="max-width:1100px;">
+    <div class="sumHead">
+      <h3 style="margin:0;">🏗 機械作業の月まとめ</h3>
+      <div class="spacer"></div>
+      <button class="nav" onclick="kikaiMove(-1)">◀</button>
+      <span class="ym" id="kikaiYm"></span>
+      <button class="nav" onclick="kikaiMove(1)">▶</button>
+    </div>
+    <div class="sumTools">
+      <span class="sumInfo" id="kikaiInfo" style="flex:1;margin:0;"></span>
+      <button class="xlBtn" style="background:#44403c;" onclick="printKikai()">🖨 印刷</button>
+      <button class="xlBtn" onclick="exportKikai()">📥 Excelに写す</button>
+    </div>
+    <div class="yearWrap" id="kikaiList"></div>
+    <div class="btnRow"><button class="btn sub" onclick="closeKikai()">閉じる</button></div>
   </div>
 </div>
 
@@ -720,7 +742,7 @@ function itemsOn(ds){
   return list;
 }
 /* ===== 表示の状態 ===== */
-let viewMode = "three";   // "three" = 3日 / "month" = 1か月
+let viewMode = "month";   // "three" = 3日 / "month" = 1か月(開いたときは1か月)
 let focusDay = todayYmd(); // 3日表示の真ん中の日
 let monthY, monthM;        // 1か月表示の年・月
 
@@ -1602,6 +1624,66 @@ function exportHist(){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   toast("📥 "+fname+".csv を保存しました(Excelで開けます)");
+}
+
+/* ===== 機械作業の月まとめ(今までのExcelの表と同じ形) ===== */
+let kkY, kkM;
+function openKikai(y, m){
+  document.getElementById("menu").classList.remove("show");
+  const base = y != null ? new Date(y, m, 1) : viewMode === "month" ? new Date(monthY, monthM, 1) : parseYmd(focusDay);
+  kkY = base.getFullYear(); kkM = base.getMonth();
+  renderKikai(); document.getElementById("kikaiBg").classList.add("show");
+}
+function closeKikai(){ document.getElementById("kikaiBg").classList.remove("show"); }
+function kikaiMove(n){ kkM += n; if (kkM < 0){ kkM = 11; kkY--; } if (kkM > 11){ kkM = 0; kkY++; } renderKikai(); }
+function kikaiRows(){
+  const last = new Date(kkY, kkM+1, 0).getDate(), rows = [];
+  for (let d = 1; d <= last; d++){
+    const ds = kkY+"-"+pad(kkM+1)+"-"+pad(d);
+    itemsOn(ds).filter(it => it.type === "machine").forEach(it => {
+      const ev = it.src || {};
+      rows.push({ ds, date:(kkM+1)+"月"+d+"日", place:it.name, members:(it.goers||[]).map(surname).join("・"),
+        cars:(it.trucks||[]).join("・"), count:(it.goers||[]).length || "", note:[it.ampm, ev.work, ev.memo].filter(Boolean).join(" ") });
+    });
+  }
+  return rows;
+}
+function kikaiTable(rows, forPrint){
+  const b = forPrint ? 'border:1px solid #333;' : 'border:1px solid #d6d3d1;';
+  const th = 'style="'+b+'background:#f5f5f4;padding:6px 4px;font-weight:bold;"';
+  const td = (v, al) => '<td style="'+b+'padding:6px 4px;text-align:'+(al||'center')+';">'+esc(v)+'</td>';
+  let prev = "";
+  return '<table style="border-collapse:collapse;width:'+(forPrint?'99%':'100%')+';font-size:'+(forPrint?'10.5pt':'15px')+';">'+
+    '<tr><th '+th+' style="width:9%">日付</th><th '+th+'>場所</th><th '+th+'>メンバー</th><th '+th+'>車</th><th '+th+' style="width:6%">人数</th><th '+th+'>内容</th></tr>'+
+    rows.map(r => { const dd = r.ds === prev ? "〃" : r.date; prev = r.ds;
+      return '<tr>'+td(dd)+td(r.place)+td(r.members)+td(r.cars)+td(r.count)+td(r.note,'left')+'</tr>'; }).join("")+'</table>';
+}
+function renderKikai(){
+  document.getElementById("kikaiYm").textContent = kkY+"年"+(kkM+1)+"月";
+  const rows = kikaiRows();
+  document.getElementById("kikaiInfo").textContent = rows.length ? rows.length+"件(カレンダーの「機械移動」の予定から作っています)" : "";
+  document.getElementById("kikaiList").innerHTML = rows.length ? kikaiTable(rows, false) : '<div class="none">この月の機械移動はありません</div>';
+}
+function printKikai(){
+  const rows = kikaiRows();
+  if (!rows.length){ toast("この月の機械移動はありません"); return; }
+  doPrint('<div class="pr"><div style="text-align:center;font-size:18pt;letter-spacing:.4em;margin-bottom:4pt;">機械作業 '+kkY+'.'+pad(kkM+1)+'</div>'+
+    '<div style="font-size:10.5pt;margin-bottom:4pt;">御願いします。</div>'+kikaiTable(rows, true)+'</div>', "A4 landscape");
+}
+function exportKikai(){
+  const rows = kikaiRows();
+  if (!rows.length){ toast("この月の機械移動はありません"); return; }
+  const q = v => '"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  let prev = "";
+  const lines = [["機械作業 "+kkY+"."+pad(kkM+1)], ["御願いします。"], ["日付","場所","メンバー","車","人数","内容"]].concat(
+    rows.map(r => { const dd = r.ds === prev ? "〃" : r.date; prev = r.ds; return [dd, r.place, r.members, r.cars, r.count, r.note]; }));
+  const csv = "\uFEFF" + lines.map(r => r.map(q).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
+  a.download = "機械作業_"+kkY+"."+pad(kkM+1)+".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("📥 "+a.download+" を保存しました(Excelで開けます)");
 }
 
 /* ===== 印刷 ===== */
