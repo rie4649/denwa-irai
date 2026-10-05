@@ -186,6 +186,11 @@
   .offList .opts button { border:2px solid #e7e5e4; background:#fff; border-radius:10px; padding:8px 10px; font-size:14px; font-weight:bold; cursor:pointer; color:#57534e; }
   .offList .opts button.on { background:#ea580c; border-color:#ea580c; color:#fff; }
   .offList .opts button.on[data-v="none"] { background:#e7e5e4; border-color:#a8a29e; color:#1f2937; }
+  /* ===== 社内掲示板の予定 ===== */
+  .kjRow { padding:4px 12px; background:#eef2ff; border-bottom:1px solid #c7d2fe; font-size:15px; font-weight:bold; color:#312e81; cursor:pointer; }
+  .kjRow div { padding:1px 0; }
+  .kjDot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:baseline; }
+  .mKj { font-size:10px; font-weight:bold; color:#3730a3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   /* ===== 出荷 ===== */
   .shkRow { padding:4px 12px; background:#ecfeff; border-bottom:1px solid #67e8f9; font-size:14px; }
   .shkRow .hd { display:flex; align-items:center; gap:6px; font-weight:900; color:#0e7490; }
@@ -784,7 +789,7 @@ function itHtml(it, ds, withSub){
 
 /* ===== 描画 ===== */
 function render(){
-  watchOff(); watchShk();
+  watchOff(); watchShk(); watchKj();
   document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
@@ -808,7 +813,7 @@ function renderThree(){
         '<button class="mini" onclick="event.stopPropagation();openForm(null,\''+ds+'\')">＋</button>'+
         '<button class="mini offBtn" onclick="event.stopPropagation();openOff(\''+ds+'\')">🏖 休み</button>'+
         '<button class="mini" onclick="event.stopPropagation();printDay(\''+ds+'\')">🖨</button>'+
-      '</div>'+offRowHtml(ds)+shkRowHtml(ds)+
+      '</div>'+kjRowHtml(ds)+offRowHtml(ds)+shkRowHtml(ds)+
       '<div class="dBody">'+(items.length ? sectioned(items, it => itHtml(it, ds, true)) : '<div class="none">予定なし</div>')+'</div></div>';
   }).join("")+'</div>';
   if (isPhone()) document.getElementById("main").insertAdjacentHTML("beforeend", '<div class="swipeHint" style="display:none;text-align:center;color:#a8a29e;font-size:13px;margin:10px 0;">← 左右にスワイプすると前の日・次の日 →</div>');
@@ -838,7 +843,7 @@ function renderMonth(){
     const ds = addDays(start, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
       '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
-      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+offMiniHtml(ds)+shkMiniHtml(ds)+
+      (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+kjMiniHtml(ds)+offMiniHtml(ds)+shkMiniHtml(ds)+
       (isPhone()
         ? (items.length ? '<div class="mCnt">'+items.length+'<small>件</small></div>' : '')
         : '<div class="mb'+(items.length>10?' two':'')+'">'+sectioned(items, it => itHtml(it, ds, false))+'</div>')+'</div>';
@@ -1399,6 +1404,38 @@ async function setOff(i, t){
     await db.collection(OFF_COL).doc(ds).set({ entries: { [n]: { offType: t } } }, { merge: true });
     toast(t === "none" ? "✅ "+surname(n)+" さんを出勤にしました" : "🏖 "+surname(n)+" さん "+OFF_LABEL[t]);
   } catch(e){ console.error(e); toast("⚠️ 保存に失敗しました"); }
+}
+
+/* ===== 社内掲示板の予定(見るだけ。直すのは社内掲示板で) =====
+   keijiban/schedule の list と、isoEvents の source:"keijiban"(色マーク付きの予定) */
+let kjList = [], kjIso = [], kjMarks = {}, kjUnsub = null, kjRange = "";
+db.collection("keijiban").doc("schedule").onSnapshot(d => {
+  kjList = (d.exists && Array.isArray(d.data().list)) ? d.data().list : []; render();
+}, e => console.error(e));
+db.collection("eventMarks").get().then(snap => { snap.docs.forEach(d => { const x = d.data(); if (x.name) kjMarks[x.name] = x.color || "#4338ca"; }); render(); }).catch(e => console.error(e));
+function watchKj(){
+  let from, to;
+  if (viewMode === "three"){ from = addDays(focusDay,-1); to = addDays(focusDay,1); }
+  else { const f = new Date(monthY, monthM, 1); from = ymd(new Date(monthY, monthM, 1-((f.getDay()+6)%7))); to = addDays(from, 41); }
+  const key = from+"_"+to; if (key === kjRange) return;
+  kjRange = key;
+  if (kjUnsub) kjUnsub();
+  kjUnsub = db.collection("isoEvents").where("date", ">=", from).where("date", "<=", to).onSnapshot(snap => {
+    kjIso = snap.docs.map(d => d.data()).filter(x => x.source === "keijiban").map(x => ({ date:x.date, text:x.title||"", mark:x.mark||"" }));
+    render();
+  }, e => console.error("掲示板の予定の読み込みエラー", e));
+}
+function kjOn(ds){
+  return kjList.filter(x => x.date === ds).map(x => ({ text:x.text||"", mark:"" })).concat(kjIso.filter(x => x.date === ds));
+}
+function kjRowHtml(ds){
+  const l = kjOn(ds); if (!l.length) return "";
+  return '<div class="kjRow" title="社内掲示板の予定(直すときは社内掲示板で)" onclick="toast(\'📌 社内掲示板の予定です。直すときは社内掲示板で\')">'+
+    l.map(x => '<div>📌 '+(x.mark?'<span class="kjDot" style="background:'+esc(kjMarks[x.mark]||"#4338ca")+'"></span>':'')+esc(x.text)+'</div>').join("")+'</div>';
+}
+function kjMiniHtml(ds){
+  const l = kjOn(ds); if (!l.length) return "";
+  return l.map(x => '<div class="mKj" title="'+esc(x.text)+'">📌 '+esc(x.text)+'</div>').join("");
 }
 
 /* ===== 出荷(shukkaBoard:配車ボードの「出荷」と同じ) ===== */
