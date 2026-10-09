@@ -1109,11 +1109,55 @@ function jumpToEvent(id){
   openForm(ev.id, ev.date);
   toast("✏️ 入力済みの予定を開きました(直して保存できます)");
 }
+/* 似た会社名の判定(表記ゆれでマスタがダブらないように) 2026-10
+   「株式会社・(株)」、空白・長音(ー)、カタカナ/ひらがなの違いを無視して比べ、
+   ほぼ同じ名前・片方がもう片方を含む・1〜2文字違い を「似ている」とします */
+function simKey(s){
+  return String(s||"").normalize("NFKC")
+    .replace(/株式会社|有限会社|合同会社|合資会社|\(株\)|\(有\)|（株）|（有）/g, "")
+    .replace(/[\s・.,，、。\-－―‐ー~〜]/g, "")
+    .replace(/[\u30a1-\u30f6]/g, m => String.fromCharCode(m.charCodeAt(0) - 0x60))
+    .toLowerCase();
+}
+function editDist(a, b){
+  if (Math.abs(a.length - b.length) > 3) return 99;
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return dp[a.length][b.length];
+}
+function isSimilarName(n1, n2){
+  const a = simKey(n1), b = simKey(n2);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const s = a.length <= b.length ? a : b, l = a.length <= b.length ? b : a;
+  if (s.length >= 4 && l.includes(s) && l.length - s.length <= 3) return true;
+  const d = editDist(a, b);
+  return (s.length >= 4 && d <= 1) || (s.length >= 8 && d <= 2);
+}
+function similarMasters(name, yomi){
+  const yk = simKey(yomi);
+  return (clients||[]).filter(c => isSimilarName(name, c.name) || (yk.length >= 3 && yk === simKey(c.yomi))).slice(0, 3);
+}
 function updateRegBtn(){
   const name = document.getElementById("fName").value.trim();
   const show = !!name && !!clients && !masterOf(name);
   document.getElementById("regMasterBtn").style.display = show ? "" : "none";
-  document.getElementById("regMasterHint").style.display = show ? "" : "none";
+  const hint = document.getElementById("regMasterHint");
+  hint.style.display = show ? "" : "none";
+  if (show){
+    const sim = similarMasters(name, document.getElementById("fYomi").value.trim());
+    hint.innerHTML = sim.length
+      ? "⚠️ マスタに<b>似た会社</b>があります:"+sim.map(c => ' <a href="#" onclick="event.preventDefault();useSimilar(\''+c.id+'\')" style="color:#b45309;font-weight:bold;">「'+esc(c.name)+'」を使う</a>').join("")
+        +"<br>同じ会社なら、こちらを選んでください(マスタがダブらなくなります)。"
+      : "この会社は取引先マスタにまだありません。登録すると、ほかのアプリでも使えるようになります。";
+  }
+}
+function useSimilar(id){
+  const c = (clients||[]).find(x => x.id === id); if (!c) return;
+  chooseClient(id);
+  toast("✅ 会社名を「"+c.name+"」に直しました(保存すると確定します)");
 }
 async function registerMaster(){
   const name = document.getElementById("fName").value.trim(); if (!name) return;
@@ -1121,7 +1165,14 @@ async function registerMaster(){
   const yomi = toHira(document.getElementById("fYomi").value.trim());
   if (!yomi && !confirm("よみがなが空です。このまま登録しますか?\n(あとからマスタ管理で入れることもできます)")) return;
   const tel = document.getElementById("fTel").value.normalize("NFKC").trim();
-  if (!confirm("「"+name+"」"+(yomi?"(" + yomi + ")":"")+"\nを取引先マスタに登録します。よろしいですか?")) return;
+  // 似た会社がマスタにあれば、先にそちらを勧める
+  const sim = similarMasters(name, yomi);
+  for (const c of sim){
+    if (confirm("マスタによく似た会社があります。\n\n「"+c.name+"」"+(c.yomi?"("+c.yomi+")":"")+"\n\nこの会社ではありませんか?\n\nOK → 「"+c.name+"」を使う(新しく登録しません)\nキャンセル → 違う会社")){
+      useSimilar(c.id); return;
+    }
+  }
+  if (!confirm("「"+name+"」"+(yomi?"(" + yomi + ")":"")+"\nを"+(sim.length?"別の会社として":"")+"取引先マスタに登録します。よろしいですか?")) return;
   try {
     const ref = await db.collection(CLIENT_COL).add({ name, yomi, address:"", tel, note:"関根カレンダーから登録",
       createdAt: FVx().serverTimestamp(), updatedAt: FVx().serverTimestamp() });
