@@ -552,6 +552,14 @@ appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
 if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
 const db=firebase.firestore();
 const colRef=db.collection("phoneRequests");
+// ISO管理(顧客対応の進捗記録)用の控え。対応済みの依頼は2日後に消えるので、件数と対応時間だけを残す(電話番号などは残さない)
+const isoLogRef=db.collection("phoneRequestLog");
+function isoLog(item,respondedMs){
+if(!item||!item.id)return;
+const c=(item.createdAt&&typeof item.createdAt.toMillis==="function")?item.createdAt.toMillis():(Date.parse(item.createdAtText||"")||0);
+if(!c)return;
+isoLogRef.doc(item.id).set({createdMs:c,respondedMs:respondedMs||Date.now(),client:item.client||"",contents:item.contents||[],urgency:item.urgency||"",loggedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
+}
 const defaultStaff=["未選択","古川","石原","宮嶋","長村","川村"];
 const TWO_DAYS_MS=2*24*60*60*1000;
 let requestCache=[];
@@ -1238,6 +1246,7 @@ doneAtText:tm
 };
 update.reportAck=false;
 colRef.doc(id).update(update).then(function(){
+isoLog(item,Date.now());
 const to=(item&&item.staff&&item.staff!=="未選択")?item.staff+"さんに報告が表示されます":"";
 showAcceptPop((item&&item.client?item.client+" 様の依頼　":"")+to,
 {icon:"✅",title:"対応済みにしました("+tm.split(" ")[1]+")"});
@@ -1291,9 +1300,12 @@ currentDetailId=null;
 
 function updateStatus(id,status){
 const update={status:status};
+const logItem=requestCache.find(function(r){return r.id===id;});
 if(status==="対応済み"){
 update.respondedAt=firebase.firestore.FieldValue.serverTimestamp();
+isoLog(logItem,Date.now());
 }else{
+isoLogRef.doc(id).delete().catch(function(){});   // 未対応に戻したときは控えも消す
 update.respondedAt=firebase.firestore.FieldValue.delete();
 update.doneMemo=firebase.firestore.FieldValue.delete();
 update.doneAtText=firebase.firestore.FieldValue.delete();
@@ -1320,6 +1332,7 @@ requestCache.forEach(function(item){
 if(item.status==="対応済み" && item.respondedAt && typeof item.respondedAt.toMillis==="function"){
 const respondedMs=item.respondedAt.toMillis();
 if(now-respondedMs>=TWO_DAYS_MS){
+isoLog(item,respondedMs);   // 消す前に控えを残す(前からある対応済みの依頼も、ここで控えに入る)
 colRef.doc(item.id).delete().catch(function(){});
 }
 }
