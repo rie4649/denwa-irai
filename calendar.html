@@ -136,6 +136,10 @@
   .mc.sat .mn { color:#1d4ed8; }
   .mc.sun .mn, .mc.hol .mn { color:#dc2626; }
   .mhol { font-size:10px; color:#dc2626; font-weight:bold; white-space:nowrap; overflow:hidden; }
+  /* 就業カレンダー(全休・A休・B休) */
+  .wk { font-size:14px; font-weight:bold; color:#fff; border-radius:6px; padding:2px 8px; white-space:nowrap; }
+  .wk.all { background:#dc2626; } .wk.A { background:#1976d2; } .wk.B { background:#2e7d32; }
+  .mh .wk { font-size:10px; padding:0 4px; border-radius:4px; }
   .mcnt { margin-left:auto; font-size:11px; color:#78716c; font-weight:bold; }
   .mb { --fs:14px; font-size:var(--fs); }
   .mb.two { column-count:2; column-gap:4px; }
@@ -913,7 +917,7 @@ function renderThree(){
     return '<div class="day '+dayClass(ds)+'">'+
       '<div class="dHead" onclick="openForm(null,\''+ds+'\')" title="押すとこの日に予定を追加">'+
         '<span class="dn">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="dw">('+WD[d.getDay()]+')</span>'+
-        (hol?'<span class="dh">'+esc(hol)+'</span>':'')+(ds===todayYmd()?'<span class="todayMark">今日</span>':'')+
+        (hol?'<span class="dh">'+esc(hol)+'</span>':'')+wkHtml(ds)+(ds===todayYmd()?'<span class="todayMark">今日</span>':'')+
         '<span class="cnt">'+(items.length?items.length+'件':'')+'</span>'+
         '<button class="mini" onclick="event.stopPropagation();openForm(null,\''+ds+'\')">＋</button>'+
         '<button class="mini offBtn" onclick="event.stopPropagation();openOff(\''+ds+'\')">🏖 休み</button>'+
@@ -947,7 +951,7 @@ function renderMonth(){
   for (let i = 0; i < weeks*7; i++){
     const ds = addDays(start, i), d = parseYmd(ds), hol = holidayName(ds), items = itemsOn(ds);
     cells += '<div class="mc '+dayClass(ds)+(d.getMonth()!==monthM?' other':'')+'" onclick="openThree(\''+ds+'\')">'+
-      '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
+      '<div class="mh"><span class="mn">'+d.getDate()+'</span>'+wkHtml(ds)+(hol?'<span class="mhol">'+esc(hol)+'</span>':'')+
       (items.length?'<span class="mcnt">'+items.length+'件</span>':'')+'</div>'+kjMiniHtml(ds)+offMiniHtml(ds)+shkMiniHtml(ds)+
       (isPhone()
         ? (items.length ? '<div class="mCnt">'+items.length+'<small>件</small></div>' : '')
@@ -1494,6 +1498,26 @@ async function missMove(n){
   } catch(e){ console.error(e); toast("⚠️ 移せませんでした"); }
 }
 
+/* ===== 就業カレンダー(マスタ管理で登録。workCalendars/sekine_開始日 に1年分) =====
+   days = 登録した内容、overrides = 手で直した臨時休み(こちらが優先)。
+   班の休みは日付に出すだけ。バイトで出る人がいるので、休みの班の人に⚠️は出さない */
+const WK_SHORT = { "全休":"全休", A:"A休", B:"B休" };
+let workCals = [];
+db.collection("workCalendars").where("owner", "==", "sekine").onSnapshot(snap => {
+  workCals = snap.docs.map(d => d.data()); render();
+}, err => console.error("就業カレンダーの読み込みエラー", err));
+/* その日の区分。"全休"|"A"|"B"|""(出勤)、null = 未登録 */
+function workDayOf(ds){
+  const c = workCals.find(c => c.start <= ds && ds <= c.end); if (!c) return null;
+  const o = (c.overrides || {})[ds];
+  if (o) return o === "出勤" ? "" : o;
+  return (c.days || {})[ds] || "";
+}
+function wkHtml(ds){
+  const w = workDayOf(ds); if (!w || !WK_SHORT[w]) return "";
+  return '<span class="wk '+(w==="全休"?"all":w)+'">'+WK_SHORT[w]+'</span>';
+}
+
 /* ===== 休み(bentoDaily/日付 の entries[名前].offType。配車ボードの出勤者と同じ) ===== */
 const OFF_COL = "bentoDaily";
 const OFF_LABEL = { am_off:"午前休", pm_off:"午後休", full_off:"1日休" };
@@ -1907,7 +1931,8 @@ function printView(){
       rows += '<tr style="height:'+Math.floor(250/weeks)+'mm">';
       for (let i = 0; i < 7; i++){
         const ds = addDays(start, w*7+i), d = parseYmd(ds);
-        rows += '<td><div class="d" style="color:'+(d.getMonth()!==monthM?"#ccc":(d.getDay()===0||holidayName(ds))?"#dc2626":d.getDay()===6?"#1d4ed8":"#111")+'">'+d.getDate()+'</div>'+
+        const wk = d.getMonth()===monthM ? workDayOf(ds) : "";
+        rows += '<td><div class="d" style="color:'+(d.getMonth()!==monthM?"#ccc":(d.getDay()===0||holidayName(ds))?"#dc2626":d.getDay()===6?"#1d4ed8":"#111")+'">'+d.getDate()+(wk?' <span style="font-size:8pt;">【'+WK_SHORT[wk]+'】</span>':'')+'</div>'+
           (d.getMonth()===monthM ? itemsOn(ds).map(it => '<div class="'+(it.done?"g":it.urgent?"u":"")+'" style="font-size:8pt">'+esc(shortName(it.name))+'</div>').join("") : "")+'</td>';
       }
       rows += '</tr>';
