@@ -570,13 +570,13 @@ appId:"1:781856496751:web:e2e1e5de4cd803415a819a"
 if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
 const db=firebase.firestore();
 const colRef=db.collection("phoneRequests");
-// ISO管理(顧客対応の進捗記録)用の控え。対応済みの依頼は2日後に消えるので、件数と対応時間だけを残す(電話番号などは残さない)
+// ISO管理(顧客対応の進捗記録)用の控え。対応済みの依頼は2日後に消えるので、会社名・依頼の内容・対応内容・対応時間を残す(電話番号などは残さない)
 const isoLogRef=db.collection("phoneRequestLog");
 function isoLog(item,respondedMs){
 if(!item||!item.id)return;
 const c=(item.createdAt&&typeof item.createdAt.toMillis==="function")?item.createdAt.toMillis():(Date.parse(item.createdAtText||"")||0);
 if(!c)return;
-isoLogRef.doc(item.id).set({createdMs:c,respondedMs:respondedMs||Date.now(),client:item.client||"",contents:item.contents||[],urgency:item.urgency||"",loggedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
+isoLogRef.doc(item.id).set({createdMs:c,respondedMs:respondedMs||Date.now(),client:item.client||"",contents:item.contents||[],contentsFree:item.contentsFree||"",responseText:item.responseText||"",doneMemo:item.doneMemo||"",pickupDate:item.pickupDate||"",urgency:item.urgency||"",loggedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
 }
 const defaultStaff=["未選択","古川","石原","宮嶋","長村","川村"];
 const TWO_DAYS_MS=2*24*60*60*1000;
