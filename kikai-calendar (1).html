@@ -2299,7 +2299,7 @@ function kkEvHtml(sg, y, m0){
   }
   if (j.nights > 0 && !sg.fromPrev) head += '<span class="kkNights">'+j.nights+'泊</span>';
   const det = kkEach(sg.s0, sg.s1).map(d => kkLines(j, d));
-  const same = det.every(x => x.work === det[0].work && x.tail === det[0].tail);
+  const same = det.length === 1;   // 2日以上は、同じ内容でも日ごとに分けて見せる(車・人数が日で変わるため)
   const cell = x => [x.work ? esc(x.work) : "", x.tail ? '<span class="s">'+esc(x.tail)+'</span>' : ""].filter(Boolean).join("\n");
   let body = "";
   if (same){ const c = cell(det[0]); if (c) body = '<div class="kkBody" style="--n:1"><div>'+c+'</div></div>'; }
@@ -2329,7 +2329,7 @@ function renderKikaiCal(){
   document.getElementById("title").textContent = monthY+"年"+(monthM+1)+"月";
   document.getElementById("main").innerHTML =
     '<div class="kkBar"><button class="kkBtn main" onclick="kkOpenForm(null)">＋ 機械作業を追加</button><span class="sp"></span>'+
-    '<span class="lbl">この月を</span>'+
+    '<span class="lbl" style="color:#a8a29e;">版 10/17-3</span><span class="lbl">この月を</span>'+
     '<button class="kkBtn" onclick="kkPrintMonth(\'A3\')">🖨 印刷 A3</button><button class="kkBtn" onclick="kkPrintMonth(\'A4\')">🖨 印刷 A4</button>'+
     '<button class="kkBtn" onclick="kkExcelMonth(\'A3\')">📥 Excel A3</button><button class="kkBtn" onclick="kkExcelMonth(\'A4\')">📥 Excel A4</button>'+
     '<button class="kkBtn line" onclick="kkShareMonth()">LINEで送る</button></div>'+kkImportBar()+
@@ -2621,7 +2621,7 @@ async function kkExcelMonth(paper){
         const hc = ws.getCell(hr,c0); hc.value = { richText:parts }; hc.alignment = { vertical:"middle", indent:1, shrinkToFit:true };
         for (let c = c0; c <= c1; c++){ const cell = ws.getCell(hr,c); cell.fill = fill; cell.border = { top:edge, left:c===c0?edge:undefined, right:c===c1?edge:undefined }; }
         const texts = j.tent ? [[j.work, j.note].filter(Boolean).join("\n")] : kkEach(sg.s0, sg.s1).map(d => { const x = kkLines(j, d); return [x.work, x.tail].filter(Boolean).join("\n"); });
-        const same = texts.every(t => t === texts[0]);
+        const same = texts.length === 1;   // 2日以上は日ごとのマスに分ける
         const lines = (t, cols) => t.split("\n").reduce((a, l) => a + Math.max(1, Math.ceil(kkWlen(l)/(CPL*cols))), 0);
         if (same){ if (n > 1) ws.mergeCells(br,c0,br,c1); ws.getCell(br,c0).value = texts[0] || null; need = Math.max(need, lines(texts[0], n)); }
         else texts.forEach((t,k) => { ws.getCell(br,c0+k).value = t || null; need = Math.max(need, lines(t, 1)); });
