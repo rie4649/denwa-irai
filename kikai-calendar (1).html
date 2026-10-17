@@ -2200,13 +2200,15 @@ function kkJobs(from, to){
     }
   });
   // 同じ会社を1日ずつ入れた予定が続いているときは、1本の帯にまとめて見せる(保存はそのまま)
-  const singles = out.filter(j => !j.ev.period && (j.ev.repeat||"none") === "none")
-    .sort((a,b) => nkey(a.company).localeCompare(nkey(b.company)) || a.start.localeCompare(b.start));
+  // (1日ずつの予定・繰り返しで入れた予定のどちらでも、同じ会社で日が続いていればつなげる。㈱・株式会社の有無は気にしない)
+  const ck = j => nkey(shortName(j.company));
+  const singles = out.filter(j => !j.ev.period)
+    .sort((a,b) => ck(a).localeCompare(ck(b)) || a.start.localeCompare(b.start));
   let prev = null; const gone = new Set();
   singles.forEach(j => {
-    j.evByDay = { [j.start]: j.ev };
-    if (prev && nkey(prev.company) === nkey(j.company) && j.start === addDays(prev.end, 1)){
-      prev.end = j.end; prev.evByDay[j.start] = j.ev; prev.joined = true; gone.add(j);
+    j.evByDay = {}; kkEach(j.start, j.end).forEach(d => { j.evByDay[d] = j.ev; });
+    if (prev && ck(prev) === ck(j) && j.start === addDays(prev.end, 1)){
+      prev.end = j.end; Object.assign(prev.evByDay, j.evByDay); prev.joined = true; gone.add(j);
     } else prev = j;
   });
   for (let i = out.length-1; i >= 0; i--) if (gone.has(out[i])) out.splice(i, 1);
@@ -2329,7 +2331,7 @@ function renderKikaiCal(){
   document.getElementById("title").textContent = monthY+"年"+(monthM+1)+"月";
   document.getElementById("main").innerHTML =
     '<div class="kkBar"><button class="kkBtn main" onclick="kkOpenForm(null)">＋ 機械作業を追加</button><span class="sp"></span>'+
-    '<span class="lbl" style="color:#a8a29e;">版 10/17-3</span><span class="lbl">この月を</span>'+
+    '<span class="lbl" style="color:#a8a29e;">版 10/17-4</span><span class="lbl">この月を</span>'+
     '<button class="kkBtn" onclick="kkPrintMonth(\'A3\')">🖨 印刷 A3</button><button class="kkBtn" onclick="kkPrintMonth(\'A4\')">🖨 印刷 A4</button>'+
     '<button class="kkBtn" onclick="kkExcelMonth(\'A3\')">📥 Excel A3</button><button class="kkBtn" onclick="kkExcelMonth(\'A4\')">📥 Excel A4</button>'+
     '<button class="kkBtn line" onclick="kkShareMonth()">LINEで送る</button></div>'+kkImportBar()+
@@ -2407,7 +2409,7 @@ function kkOpenForm(ref, ds){
   const t = isTent ? kkTents.find(x => x.id === ref.slice(2)) : null;
   const ev = (!isTent && ref) ? events.find(e => e.id === ref) : null;
   // 繰り返しの機械移動(期間ではないもの)は今までの入力画面で直す
-  if (ev && (ev.repeat||"none") !== "none" && !ev.period){ openForm(ev.id, ds || ev.date); return; }
+  if (ev && (ev.repeat||"none") !== "none" && !ev.period && ev.endDate !== ev.date){ openForm(ev.id, ds || ev.date); return; }
   const day = ds || kkDay || ymd(new Date(monthY, monthM, 1));
   const start = ev ? ev.date : t ? t.start : day, end = ev ? (ev.period ? ev.endDate : ev.date) : t ? t.end : day;
   kkEdit = ev ? { type:"ev", id:ev.id, ev, days:kkEach(start, end) } : t ? { type:"tent", id:t.id } : null;
@@ -2717,10 +2719,12 @@ function addClick(){ if (viewMode === "kikai") kkOpenForm(null); else openForm(n
 
 
 /* --- 同じ会社を1日ずつ入れた予定を、1つの期間にまとめる --- */
-function kkSingleOn(key, ds){ return events.find(e => kindOf(e) === "machine" && !e.period && (e.repeat||"none") === "none" && e.date === ds && nkey(e.title) === key); }
+/* その日1回だけの予定か(繰り返しなし、または繰り返しでも開始日＝終わりの日) */
+const kkOneDay = e => !e.period && ((e.repeat||"none") === "none" || e.endDate === e.date);
+function kkSingleOn(key, ds){ return events.find(e => kindOf(e) === "machine" && kkOneDay(e) && e.date === ds && nkey(shortName(e.title)) === key); }
 function kkGroupOf(ev){
-  if (!ev || ev.period || (ev.repeat||"none") !== "none") return ev ? [ev] : [];
-  const k = nkey(ev.title), list = [ev]; let p, a = ev.date, b = ev.date;
+  if (!ev || !kkOneDay(ev)) return ev ? [ev] : [];
+  const k = nkey(shortName(ev.title)), list = [ev]; let p, a = ev.date, b = ev.date;
   while ((p = kkSingleOn(k, addDays(a,-1)))){ list.unshift(p); a = p.date; }
   while ((p = kkSingleOn(k, addDays(b,1)))){ list.push(p); b = p.date; }
   return list;
@@ -2741,7 +2745,7 @@ async function kkMerge(){
   if (!kkEdit || kkEdit.type !== "ev") return;
   const g = kkGroupOf(events.find(e => e.id === kkEdit.id)); if (g.length < 2) return;
   const f = g[0], last = g[g.length-1], FV = firebase.firestore.FieldValue;
-  const data = { date:f.date, endDate:last.date, repeat:"weekly", wdays:KK_ALL_WD.slice(), period:true, updatedAt:FV.serverTimestamp() };
+  const data = { date:f.date, endDate:last.date, repeat:"weekly", wdays:KK_ALL_WD.slice(), period:true, skipDates:[], updatedAt:FV.serverTimestamp() };
   const dd = Object.assign({}, f.daysDetail || {}), memos = [];
   g.forEach(e => {
     data["goersByDate."+e.date] = (e.goersByDate||{})[e.date] || [];
