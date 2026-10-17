@@ -318,6 +318,103 @@
     .sumHead .spacer { display:none; }
     .sumHead .ym { flex:1; }
   }
+
+  /* ===== 機械作業カレンダー(2026-10 追加) ===== */
+  .kkBar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 8px; }
+  .kkBar .lbl { font-size:13px; color:#57534e; font-weight:bold; }
+  .kkBar .sp { flex:1; }
+  .kkBtn { border:1px solid #d6d3d1; background:#fff; border-radius:10px; padding:8px 12px; font-size:15px; font-weight:bold; cursor:pointer; color:#292524; white-space:nowrap; }
+  .kkBtn:hover { border-color:#1d4ed8; }
+  .kkBtn.main { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+  .kkBtn.line { background:#06C755; border-color:#06C755; color:#fff; }
+  .kkBtn.small { padding:5px 9px; font-size:13px; }
+  .kkBtn.del { color:#dc2626; border-color:#fca5a5; }
+  .kkWrap { overflow-x:auto; background:#fff; border:1px solid #d6d3d1; border-radius:10px; }
+  .kkCal { min-width:980px; font-size:12px; color:#111827; }
+  .kkTitle { display:none; }
+  .kkDow { display:grid; grid-template-columns:repeat(7,1fr); }
+  .kkDow div { background:#44403c; color:#fff; text-align:center; font-weight:bold; padding:5px 0; font-size:14px; }
+  .kkDow .sa { background:#1d4ed8; } .kkDow .su { background:#dc2626; }
+  .kkWeeks { display:flex; flex-direction:column; }
+  .kkWeek { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); border-top:2px solid #57534e; min-height:120px; }
+  .kkBg { border-right:1px solid #d6d3d1; grid-row:1 / -1; }
+  .kkBg:nth-child(7) { border-right:none; }
+  .kkBg.out { background:#f0efee; }
+  .kkDh { grid-row:1; display:flex; align-items:baseline; gap:6px; padding:2px 8px; cursor:pointer; z-index:1; }
+  .kkDh:hover .n { text-decoration:underline; }
+  .kkDh .n { font-size:2.1em; font-weight:900; line-height:1.15; }
+  .kkDh .h { font-size:1.1em; font-weight:bold; }
+  .kkDh.su { background:#fde8e8; color:#dc2626; }
+  .kkDh.sa { background:#dbeafe; color:#1d4ed8; }
+  .kkDh.out { color:#b5b0ab; background:#f0efee; cursor:default; }
+  .kkDh.today .n { text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:3px; }
+  .kkFill { grid-column:1 / -1; }
+  .kkEv { margin:3px 4px; border:1.5px solid var(--evb); background:var(--evbg); border-radius:4px; padding:3px 7px 4px; z-index:1; cursor:pointer; min-width:0; }
+  .kkEv:hover { box-shadow:0 0 0 2px var(--evb); }
+  .kkHead { display:flex; flex-wrap:wrap; align-items:center; gap:2px 6px; min-width:0; }
+  .kkEv .co { font-weight:900; font-size:1.32em; line-height:1.25; flex:0 1 auto; min-width:0; overflow-wrap:anywhere; }
+  .kkEv .tm { font-weight:bold; font-size:1.05em; white-space:nowrap; }
+  .kkEv .cont { font-size:.9em; color:#57534e; white-space:nowrap; }
+  .kkArrow { flex:1 1 40px; min-width:40px; height:3px; background:#c00000; position:relative; margin-right:9px; }
+  .kkArrow::after { content:""; position:absolute; right:-9px; top:50%; transform:translateY(-50%); border-left:11px solid #c00000; border-top:6px solid transparent; border-bottom:6px solid transparent; }
+  .kkArrow.open::after { display:none; }
+  .kkArrowLbl { color:#c00000; font-weight:bold; font-size:.92em; white-space:nowrap; }
+  .kkNights { font-size:.9em; font-weight:bold; border:1px solid var(--evb); border-radius:999px; padding:0 6px; white-space:nowrap; background:rgba(255,255,255,.6); }
+  .kkBody { display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); margin-top:1px; }
+  .kkBody > div { padding-right:6px; min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .kkBody > div + div { border-left:1px dashed var(--evb); padding-left:6px; }
+  .kkBody .s { color:#57534e; }
+  .kkEv.tent { --evb:#7a7f8a; border:2px dashed #7a7f8a; background:repeating-linear-gradient(135deg,#fff 0 8px,#f6f7f9 8px 16px); }
+  .kkEv.tent .co { font-size:1.1em; }
+  .kkTag { font-size:.85em; font-weight:bold; color:#fff; background:#7a7f8a; border-radius:3px; padding:0 5px; white-space:nowrap; }
+  .kkHint { font-size:13px; color:#57534e; margin:8px 2px; }
+
+  /* 入力画面 */
+  .kkSw { display:flex; flex-wrap:wrap; gap:6px; }
+  .kkSw button { border:1.5px solid var(--swb); background:var(--swbg); border-radius:8px; padding:7px 11px; font-size:14px; font-weight:bold; cursor:pointer; color:#111827; }
+  .kkSw button.on { box-shadow:0 0 0 3px #1d4ed8; border-color:#1d4ed8; }
+  .kkSw button.auto { --swb:#d6d3d1; --swbg:linear-gradient(90deg,#FFF6D5,#E8F4E0,#E3EEF9,#FCE8EF); }
+  .kkPer { width:100%; border-collapse:collapse; font-size:14px; margin-top:6px; }
+  .kkPer th, .kkPer td { border:1px solid #d6d3d1; padding:4px; }
+  .kkPer th { background:#f5f5f4; white-space:nowrap; }
+  .kkPer input { padding:6px; font-size:14px; }
+  .kkConfirm { display:flex; gap:6px; align-items:center; color:#dc2626; font-weight:bold; flex:0 0 100%; justify-content:flex-end; }
+
+  /* その日の詳細 */
+  .kkCard { border:1.5px solid var(--evb); background:var(--evbg); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
+  .kkCard.tent { border-style:dashed; --evb:#7a7f8a; background:#fff; }
+  .kkCard .top { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+  .kkCard .top .co { flex:1 1 12em; font-size:19px; font-weight:900; }
+  .kkCard dl { margin:6px 0 0; display:grid; grid-template-columns:auto 1fr; gap:3px 12px; font-size:15px; }
+  .kkCard dt { color:#57534e; } .kkCard dd { margin:0; white-space:pre-wrap; }
+
+  /* 印刷・画像用の紙 */
+  #kkShare { position:fixed; left:-30000px; top:0; background:#fff; }
+  .kkSheet { background:#fff; color:#000; display:flex; flex-direction:column; overflow:hidden; }
+  .kkSheet .kkCal { min-width:0; flex:1; display:flex; flex-direction:column; }
+  .kkSheet .kkTitle { display:block; font-weight:900; font-size:1.9em; margin-bottom:.3em; }
+  .kkSheet .kkWeeks { flex:1; }
+  .kkSheet .kkWeek { flex:1 0 auto; min-height:0; }
+  .kkSheet .kkEv:hover { box-shadow:none; }
+  .kkSheet.a3 { width:404mm; height:281mm; font-size:10.5pt; }
+  .kkSheet.a4 { width:281mm; height:194mm; font-size:7.4pt; }
+  .kkSheet.shareM { width:1800px; height:1270px; font-size:15px; padding:18px; }
+  .kkSheet.day { width:194mm; height:281mm; font-size:11pt; }
+  .kkSheet.day + .kkSheet.day { break-before:page; page-break-before:always; }
+  .kkSheet.shareD { width:1000px; height:1414px; font-size:21px; padding:36px; }
+  .kkDay h1 { font-size:2.1em; margin:0 0 .2em; display:flex; align-items:baseline; gap:.5em; border-bottom:3px solid #1f3864; padding-bottom:.15em; }
+  .kkDay h1 .dw { font-size:.7em; }
+  .kkDay h1 .su { color:#dc2626; } .kkDay h1 .sa { color:#1d4ed8; }
+  .kkDay .company { font-size:2.3em; font-weight:900; line-height:1.25; margin:.15em 0 .35em; padding:.2em .45em; border-left:2.2mm solid var(--evb); background:var(--evbg); }
+  .kkDay .company .kkTag { font-size:.45em; vertical-align:middle; margin-right:.4em; }
+  .kkJob { border:1.5px solid #555; border-radius:2mm; padding:1mm 3.5mm 2mm; margin-bottom:3mm; font-size:1.15em; }
+  .kkJob table { border-collapse:collapse; width:100%; margin-top:1mm; }
+  .kkJob th { width:26mm; text-align:left; vertical-align:top; font-weight:bold; color:#333; padding:1mm 2mm 1mm 0; border-top:.3mm solid #ccc; white-space:nowrap; }
+  .kkJob td { padding:1mm 0; border-top:.3mm solid #ccc; white-space:pre-wrap; }
+  .kkJob tr:first-child th, .kkJob tr:first-child td { border-top:none; }
+  .kkMemo { flex:1; display:flex; flex-direction:column; margin-top:2mm; min-height:30mm; }
+  .kkMemo .mt { font-weight:bold; border-bottom:.4mm solid #333; padding-bottom:1mm; }
+  .kkMemo .ln { height:7mm; border-bottom:.3mm solid #8c8c8c; flex:none; }
 </style>
 </head>
 <body>
@@ -331,11 +428,12 @@
   <div class="modeSw">
     <button id="sw3" onclick="setMode('three')">3日</button>
     <button id="swM" onclick="setMode('month')">1か月</button>
+    <button id="swK" onclick="setMode('kikai')">🏗 機械作業</button>
   </div>
   <div class="spacer"></div>
   <span class="legendMini"><span class="bx bxT">T</span>電話依頼　<span class="bx">定</span>通常回収　<span class="bx bxJ">常</span>常務　<span class="bx bxM">機</span>機械移動</span>
   <button class="histBtn" onclick="openSummary()">📊 過去履歴</button>
-  <button class="addBtn" onclick="openForm(null, focusDay)">＋ 予定を追加</button>
+  <button class="addBtn" onclick="addClick()">＋ 予定を追加</button>
   <div class="menuWrap">
     <button class="tBtn" onclick="toggleMenu(event)">⋯</button>
     <div class="menu" id="menu">
@@ -386,6 +484,9 @@
       </div>
     </div>
 
+    <div class="hint" id="periodHint" style="display:none;"></div>
+    <button type="button" class="btn blue" id="kkJumpBtn" style="width:100%;margin-top:8px;display:none;" onclick="const i=editingId,d=editingDate;closeForm();kkOpenForm(i,d)">🏗 機械作業カレンダーで開く(期間・泊まり・色など)</button>
+    <div id="repArea">
     <label class="f">繰り返し</label>
     <div class="seg" id="repSeg">
       <button type="button" data-v="none" onclick="setSeg('repSeg',this)">なし</button>
@@ -403,6 +504,7 @@
     </div>
     <div class="hint" id="repHint"></div>
     <div id="endWrap"><label class="f">繰り返しの終わり(空欄ならずっと)</label><input type="date" id="fEnd"></div>
+    </div>
     <button type="button" class="btn del" id="delAllBtn" style="width:100%;margin-top:10px;display:none;" onclick="deleteAllRepeat()">🗑 この繰り返しの予定を全部消す(まちがえたとき)</button>
 
     <div id="collectWrap">
@@ -607,6 +709,99 @@
   </div>
 </div>
 
+<!-- 機械作業カレンダー:その日の詳細 -->
+<div class="modalBg" id="kkDayBg" onclick="if(event.target===this)kkCloseDay()">
+  <div class="modal" style="max-width:760px;">
+    <h3 id="kkDayTitle"></h3>
+    <div id="kkDayList" style="margin-top:10px;"></div>
+    <div class="btnRow" style="align-items:center;">
+      <button class="btn sub" onclick="kkCloseDay()">閉じる</button>
+      <button class="btn main" onclick="kkOpenForm(null, kkDay)">＋ この日に追加</button>
+    </div>
+    <div class="kkBar" style="margin-top:10px;justify-content:flex-end;">
+      <span class="lbl">この日の全社(1社1枚)</span>
+      <button class="kkBtn" onclick="kkPrintDay(kkDay)">🖨 まとめて印刷 A4</button>
+      <button class="kkBtn" onclick="kkExcelDay(kkDay)">📥 Excel</button>
+      <button class="kkBtn line" onclick="kkShareDay(kkDay)">LINEで送る</button>
+    </div>
+  </div>
+</div>
+<!-- 機械作業カレンダー:予定の入力(2026-10 追加) -->
+<div class="modalBg" id="kkFormBg" onclick="if(event.target===this)kkCloseForm()">
+  <div class="modal" style="max-width:720px;">
+    <h3 id="kkFormTitle">🏗 機械作業を追加</h3>
+    <div class="hint" id="kkFormSub"></div>
+
+    <label class="f">種類</label>
+    <div class="seg" id="kkKindSeg">
+      <button type="button" data-v="fixed" onclick="kkSetKind('fixed')">日程が決まっている</button>
+      <button type="button" data-v="tent" onclick="kkSetKind('tent')">日程未定(仮の予定)</button>
+    </div>
+    <div class="hint" id="kkKindHint"></div>
+
+    <label class="f">会社名</label>
+    <input type="text" id="kkName" list="kkClientList" placeholder="例:Astemo山梨工場" lang="ja" autocomplete="off">
+    <datalist id="kkClientList"></datalist>
+
+    <div class="row2">
+      <div><label class="f" id="kkStartLbl">開始日</label><input type="date" id="kkStart" onchange="kkStartChanged()"></div>
+      <div><label class="f" id="kkEndLbl">終了日(1日だけなら同じ日)</label><input type="date" id="kkEnd" onchange="kkRenderPer()"></div>
+    </div>
+
+    <div class="kkFixed">
+      <label class="f">時間</label>
+      <div class="seg" id="kkApSeg">
+        <button type="button" data-v="" onclick="setSeg('kkApSeg',this)">なし</button>
+        <button type="button" data-v="午前" onclick="setSeg('kkApSeg',this)">午前</button>
+        <button type="button" data-v="午後" onclick="setSeg('kkApSeg',this)">午後</button>
+      </div>
+    </div>
+
+    <div class="kkTent"><label class="f">作業日数</label><input type="text" id="kkTdays" placeholder="例:2日間" lang="ja" autocomplete="off"></div>
+
+    <label class="f" id="kkWorkLbl">作業内容</label>
+    <textarea id="kkWork" rows="2" placeholder="例:DM82移設" lang="ja"></textarea>
+
+    <div class="kkFixed">
+      <div class="row2">
+        <div><label class="f">車両・機材</label><input type="text" id="kkEquip" placeholder="例:8tフォークリフト、セルフローダー車" lang="ja" autocomplete="off"></div>
+        <div><label class="f">人数</label><input type="text" id="kkPeople" placeholder="例:5人(空欄なら作業員の数)" lang="ja" autocomplete="off"></div>
+      </div>
+      <label class="f">🚚 トラック(期間の全部の日に入ります)</label>
+      <div class="goers trucks" id="kkTruckPick"></div>
+      <label class="f">作業員(期間の全部の日に入ります)</label>
+      <div class="goers" id="kkGoerPick"></div>
+      <div class="hint">日ごとに変えたいときは、通常カレンダー(1か月・3日)でその日の予定を開いて直せます。</div>
+      <div class="row2">
+        <div><label class="f">泊まり</label><select id="kkNights"></select></div>
+        <div><label class="f">泊まるホテル</label><input type="text" id="kkHotel" placeholder="例:〇〇ホテル 甲府駅前" lang="ja" autocomplete="off"></div>
+      </div>
+      <label class="f">帯の色</label>
+      <div class="kkSw" id="kkColor"></div>
+    </div>
+
+    <label class="f">メモ・備考</label>
+    <textarea id="kkMemo" rows="2" lang="ja"></textarea>
+
+    <div class="kkFixed">
+      <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:bold;"><input type="checkbox" id="kkPerOn" onchange="kkRenderPer()" style="width:20px;height:20px;"> 日によって作業内容・機材・人数が違う</label>
+      <div id="kkPerWrap" style="display:none;">
+        <table class="kkPer"><thead><tr><th>日付</th><th>作業内容</th><th>車両・機材</th><th>人数</th></tr></thead><tbody id="kkPerBody"></tbody></table>
+        <div class="hint">空欄の日は、上の共通の内容が入ります。</div>
+      </div>
+    </div>
+
+    <div class="btnRow">
+      <button class="btn sub" onclick="kkCloseForm()">閉じる</button>
+      <button class="btn main" id="kkSaveBtn" onclick="kkSave()">保存</button>
+      <button class="btn del" id="kkDelBtn" onclick="kkAskDel()">🗑 この予定を消す</button>
+      <div class="kkConfirm" id="kkDelConfirm" style="display:none;">本当に消しますか? <button class="kkBtn small del" onclick="kkDelete()">消す</button><button class="kkBtn small" onclick="kkAskDel(true)">やめる</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="kkShare"></div>
+
 <div id="printArea"></div>
 <div id="toast"></div>
 
@@ -799,6 +994,7 @@ function wdText(wd){
   return [1,2,3,4,5,6,0].filter(x => wd.includes(x)).map(x => WD[x]).join("・")+"曜";
 }
 function repeatText(ev){
+  if (ev.period && ev.date && ev.endDate) return "期間 "+mdw(ev.date)+"～"+mdw(ev.endDate);
   const rep = ev.repeat || "none"; if (rep === "none" || !ev.date) return "";
   const s = parseYmd(ev.date);
   const wd = (ev.wdays && ev.wdays.length) ? ev.wdays : [s.getDay()];
@@ -899,11 +1095,12 @@ function itHtml(it, ds, withSub){
 /* ===== 描画 ===== */
 function render(){
   watchOff(); watchShk(); watchKj();
-  document.getElementById("main").classList.toggle("scrollMain", viewMode==="month");
+  document.getElementById("main").classList.toggle("scrollMain", viewMode!=="three");
   document.getElementById("sw3").classList.toggle("on", viewMode==="three");
   document.getElementById("swM").classList.toggle("on", viewMode==="month");
+  document.getElementById("swK").classList.toggle("on", viewMode==="kikai");
   document.getElementById("sw3").textContent = isPhone() ? "1日" : "3日";
-  if (viewMode === "three") renderThree(); else renderMonth();
+  if (viewMode === "three") renderThree(); else if (viewMode === "kikai") renderKikaiCal(); else renderMonth();
 }
 
 const isPhone = () => window.innerWidth <= 760;
@@ -981,7 +1178,7 @@ window.addEventListener("resize", () => { clearTimeout(window.__rt); window.__rt
 
 /* ===== 切り替え ===== */
 function setMode(m){
-  if (m === "month"){ const f = parseYmd(focusDay); monthY = f.getFullYear(); monthM = f.getMonth(); }
+  if (viewMode === "three" || (m === "month" && viewMode === "month")){ const f = parseYmd(focusDay); monthY = f.getFullYear(); monthM = f.getMonth(); }
   viewMode = m; render();
 }
 function openThree(ds){ focusDay = ds; viewMode = "three"; render(); }
@@ -1281,6 +1478,12 @@ function openForm(id, ds){
   document.getElementById("delBtn").style.display = ev ? "" : "none";
   document.getElementById("delAllBtn").style.display = (ev && (ev.repeat||"none") !== "none") ? "" : "none";
   updateRepHint(); updateRegBtn();
+  { const per = !!(ev && ev.period);
+    document.getElementById("repArea").style.display = per ? "none" : "";
+    document.getElementById("fDate").disabled = per;
+    document.getElementById("periodHint").style.display = per ? "" : "none";
+    document.getElementById("periodHint").textContent = per ? "期間の作業("+mdw(ev.date)+"～"+mdw(ev.endDate)+")です。ここでは "+mdw(editingDate)+" の行く人・トラックなどを直せます。期間を変えるときは機械作業カレンダーで。" : "";
+    document.getElementById("kkJumpBtn").style.display = (ev && kindOf(ev) === "machine") ? "" : "none"; }
   document.getElementById("formBg").classList.add("show");
 }
 function closeForm(){ document.getElementById("formBg").classList.remove("show"); editingId = null; }
@@ -1293,7 +1496,8 @@ async function saveForm(){
   const rep = segVal("repSeg") || "none";
   const endDate = rep === "none" ? "" : document.getElementById("fEnd").value;
   if (endDate && endDate < date){ toast("終わりの日が開始日より前です"); return; }
-  if (rep !== "none" && !wdSel.length){ toast("曜日を選んでください"); return; }
+  const pe0 = editingId ? events.find(e => e.id === editingId) : null;
+  if (rep !== "none" && !wdSel.length && !(pe0 && pe0.period)){ toast("曜日を選んでください"); return; }
   const goers = pickedGoers("goerPick"), trucks = pickedGoers("truckPick");
   const c = masterOf(title);
   const data = {
@@ -1309,6 +1513,8 @@ async function saveForm(){
     memo: document.getElementById("fMemo").value.trim(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
+  { const pe = editingId ? events.find(e => e.id === editingId) : null;
+    if (pe && pe.period){ data.date = pe.date; data.repeat = pe.repeat; data.endDate = pe.endDate; data.wdays = pe.wdays; } }
   const btn = document.getElementById("saveBtn"); btn.disabled = true;
   try {
     if (editingId){
@@ -1946,6 +2152,548 @@ function printDay(ds){
     (items.length ? sectioned(items, it => prItem(it, true)+((it.src.tel||it.src.phone)?'<div class="x">☎ '+esc(it.src.tel||it.src.phone)+'</div>':'')) : '予定はありません')+
     '</td></tr></table></div>', "A4 portrait");
 }
+
+/* ===== 機械作業カレンダー(2026-10 追加) =====
+   ・決まっている予定は calendarEvents(種類:機械移動)にそのまま保存。通常カレンダーの「機械移動」と同じデータです。
+     期間のある作業は「毎週・全曜日・終わりの日あり」の繰り返しで保存し、period:true の印を付けます
+     (配車ボードなど、ほかのアプリでも期間中の毎日に出るようにするため)。
+   ・日程未定(仮の予定)は kikaiTentatives に保存(配車ボードには出ません)。
+   ・行く人・トラックは今までどおり日ごと(goersByDate / trucksByDate)。どちらのカレンダーで入れても同じところに入ります。 */
+const KK_TENT_COL = "kikaiTentatives";
+const KK_ALL_WD = [0,1,2,3,4,5,6];
+const KK_COLORS = [["#FFF6D5","#C9A227","黄"],["#E8F4E0","#6E9F4E","緑"],["#E3EEF9","#5B87C0","青"],["#FDEBE0","#D07B4A","オレンジ"],
+                   ["#EEE9F6","#8B7AB8","紫"],["#E0F3F1","#3E9A8F","水色"],["#FCE8EF","#C5698C","ピンク"],["#EEF2D9","#8E9A3A","黄緑"],
+                   ["#F1F1F1","#8C8C8C","グレー"],["#FFFFFF","#5A6070","白"]];
+const KK_AUTO = 8;   // おまかせで使う色の数(グレー・白は使わない)
+let kkTents = [];
+db.collection(KK_TENT_COL).onSnapshot(snap => { kkTents = snap.docs.map(d => ({ id:d.id, ...d.data() })); if (viewMode === "kikai") render(); },
+  err => console.error("仮の予定の読み込みエラー", err));
+
+function kkEach(a, b){ const o = []; for (let s = a; s <= b; s = addDays(s,1)) o.push(s); return o; }
+function kkMd(ds){ const d = parseYmd(ds); return (d.getMonth()+1)+"/"+d.getDate(); }
+function kkDiff(a, b){ return Math.round((parseYmd(b)-parseYmd(a))/86400000); }
+function kkColor(j){
+  if (Number.isInteger(j.color) && KK_COLORS[j.color]) return KK_COLORS[j.color];
+  let h = 0; for (const ch of String(j.id||"x")) h = (h*31 + ch.charCodeAt(0)) >>> 0; return KK_COLORS[h % KK_AUTO];
+}
+function kkSafe(s){ return String(s||"").replace(/[\\\/:*?"<>|\[\]]/g, ""); }
+
+/* --- 予定を「何日から何日まで」のかたまりにする --- */
+function kkJobFromEv(ev, start, end){
+  return { id:ev.id, key:ev.id+"@"+start, ev, tent:false, start, end,
+    company:ev.title||"", time:ev.ampm||"", work:ev.work||"", equip:ev.equip||"", people:ev.people||"",
+    nights:ev.nights||0, hotel:ev.hotel||"", note:ev.memo||"", color:ev.color, days:ev.daysDetail||{} };
+}
+function kkJobs(from, to){
+  const out = [];
+  events.forEach(ev => {
+    if (kindOf(ev) !== "machine" || !ev.date || ev.date > to) return;
+    if (ev.endDate && ev.endDate < from) return;
+    // 期間の予定は期間全体で、それ以外は表示する範囲の中でつながっている日をまとめる
+    const a = ev.period ? ev.date : (ev.date > from ? ev.date : from);
+    const b = ev.period ? (ev.endDate || ev.date) : ((ev.endDate && ev.endDate < to) ? ev.endDate : to);
+    let run = null;
+    for (let ds = a; ds <= b; ds = addDays(ds,1)){
+      if (!occursOn(ev, ds)) { run = null; continue; }
+      if (run) run.end = ds; else { run = kkJobFromEv(ev, ds, ds); out.push(run); }
+    }
+  });
+  kkTents.forEach(t => {
+    if (!t.start || !t.end || t.start > to || t.end < from) return;
+    out.push({ id:t.id, key:"t@"+t.id, tent:true, start:t.start, end:t.end, company:t.title||"", work:t.work||"", note:t.memo||"", tdays:t.tdays||"" });
+  });
+  return out.filter(j => !(j.end < from || j.start > to));
+}
+function kkJobsOn(ds){ return kkSort(kkJobs(ds, ds)); }
+function kkSort(list){ const ar = {"午前":0, "":1, "午後":2};
+  return list.slice().sort((a,b) => (a.tent-b.tent) || a.start.localeCompare(b.start) || ((ar[a.time]||1)-(ar[b.time]||1)) || a.company.localeCompare(b.company,"ja")); }
+function kkDetail(j, ds){
+  const o = (j.days && j.days[ds]) || {};
+  const workers = j.tent ? [] : ((j.ev.goersByDate||{})[ds] || []);
+  const trucks = j.tent ? [] : ((j.ev.trucksByDate||{})[ds] || []);
+  return { work:o.work||j.work, equip:o.equip||j.equip, people:o.people||j.people||(workers.length ? workers.length+"人" : ""), workers, trucks };
+}
+function kkLines(j, ds){
+  const d = kkDetail(j, ds);
+  return { work:d.work, tail:[d.equip, d.trucks.join("・"), d.workers.map(surname).join("・"), d.people].filter(Boolean).join("　") };
+}
+/* 印刷・詳細に出す項目(入っていない項目は出さない) */
+function kkFields(j, ds){
+  const f = [];
+  if (j.tent){
+    f.push(["候補の期間", mdw(j.start)+"～"+mdw(j.end)+(j.tdays ? " のうち "+j.tdays : "")]);
+    if (j.work) f.push(["内容", j.work]);
+    if (j.note) f.push(["備考", j.note]);
+    return f;
+  }
+  const d = kkDetail(j, ds);
+  if (j.start !== j.end) f.push(["期間", mdw(j.start)+"～"+mdw(j.end)+"　"+(kkDiff(j.start,j.end)+1)+"日間のうち"+(kkDiff(j.start,ds)+1)+"日目"]);
+  if (j.time) f.push(["時間", j.time]);
+  if (d.work) f.push(["作業内容", d.work]);
+  if (d.equip) f.push(["車両・機材", d.equip]);
+  if (d.trucks.length) f.push(["トラック", d.trucks.join("、")]);
+  if (d.workers.length) f.push(["作業員", d.workers.join("、")]);
+  if (d.people) f.push(["人数", d.people]);
+  if (j.nights > 0) f.push(["泊まり", j.nights+"泊"]);
+  if (j.hotel) f.push(["ホテル", j.hotel]);
+  if (j.note) f.push(["備考", j.note]);
+  return f;
+}
+
+/* --- 月の表(月曜はじまり) --- */
+function kkWeeksOf(y, m0){
+  const first = new Date(y, m0, 1), last = new Date(y, m0+1, 0).getDate();
+  const off = (first.getDay()+6)%7, start = ymd(new Date(y, m0, 1-off));
+  const n = Math.ceil((off+last)/7), weeks = [];
+  for (let w = 0; w < n; w++){ const a = []; for (let i = 0; i < 7; i++) a.push(addDays(start, w*7+i)); weeks.push(a); }
+  return weeks;
+}
+const kkInMonth = (ds, y, m0) => { const d = parseYmd(ds); return d.getFullYear() === y && d.getMonth() === m0; };
+function kkSegs(week, y, m0, jobs){
+  const vis = week.filter(d => kkInMonth(d, y, m0)); if (!vis.length) return { segs:[], lanes:0 };
+  const a = vis[0], b = vis[vis.length-1], segs = [];
+  jobs.forEach(j => {
+    if (j.end < a || j.start > b) return;
+    const s0 = j.start > a ? j.start : a, s1 = j.end < b ? j.end : b;
+    segs.push({ j, s0, s1, c0:week.indexOf(s0), c1:week.indexOf(s1), fromPrev:s0 > j.start, toNext:s1 < j.end });
+  });
+  segs.sort((p,q) => (p.j.tent-q.j.tent) || ((q.c1-q.c0)-(p.c1-p.c0)) || (p.c0-q.c0));
+  const lanes = [];
+  segs.forEach(sg => {
+    let li = lanes.findIndex(l => l.every(o => sg.c1 < o.c0 || sg.c0 > o.c1));
+    if (li < 0){ lanes.push([]); li = lanes.length-1; }
+    lanes[li].push(sg); sg.lane = li;
+  });
+  return { segs, lanes:lanes.length };
+}
+function kkEvHtml(sg, y, m0){
+  const j = sg.j, [bg, bd] = kkColor(j), n = sg.c1-sg.c0+1;
+  const st = 'grid-column:'+(sg.c0+1)+' / '+(sg.c1+2)+';grid-row:'+(sg.lane+2)+';--evbg:'+bg+';--evb:'+bd;
+  const click = j.tent ? 'kkOpenForm(\'t:'+j.id+'\')' : 'kkOpenForm(\''+j.id+'\',\''+j.start+'\')';
+  if (j.tent){
+    const body = [j.work, j.note].filter(Boolean).join("\n");
+    return '<div class="kkEv tent" style="'+st+'" onclick="'+click+'"><div class="kkHead"><span class="kkTag">日程未定</span>'+
+      (j.company ? '<span class="co">'+esc(j.company)+'</span>' : '')+(j.tdays ? '<span class="cont">'+esc(j.tdays)+'</span>' : '')+'</div>'+
+      (body ? '<div class="kkBody" style="--n:1"><div>'+esc(body)+'</div></div>' : '')+'</div>';
+  }
+  let head = (j.time ? '<span class="tm">'+esc(j.time)+'</span>' : '')+'<span class="co">'+esc(j.company||"(会社名なし)")+'</span>';
+  if (sg.fromPrev) head += '<span class="cont">(前週から)</span>';
+  if (j.start !== j.end){
+    if (sg.toNext){ const nx = addDays(sg.s1, 1); head += '<span class="kkArrow open"></span><span class="kkArrowLbl">次'+(kkInMonth(nx, y, m0) ? '週' : '月')+'へ ▶</span>'; }
+    else head += '<span class="kkArrow"></span>';
+  }
+  if (j.nights > 0 && !sg.fromPrev) head += '<span class="kkNights">'+j.nights+'泊</span>';
+  const det = kkEach(sg.s0, sg.s1).map(d => kkLines(j, d));
+  const same = det.every(x => x.work === det[0].work && x.tail === det[0].tail);
+  const cell = x => [x.work ? esc(x.work) : "", x.tail ? '<span class="s">'+esc(x.tail)+'</span>' : ""].filter(Boolean).join("\n");
+  let body = "";
+  if (same){ const c = cell(det[0]); if (c) body = '<div class="kkBody" style="--n:1"><div>'+c+'</div></div>'; }
+  else body = '<div class="kkBody" style="--n:'+n+'">'+det.map(x => '<div>'+cell(x)+'</div>').join("")+'</div>';
+  return '<div class="kkEv" style="'+st+'" onclick="'+click+'"><div class="kkHead">'+head+'</div>'+body+'</div>';
+}
+function kkMonthHtml(y, m0, print){
+  const weeks = kkWeeksOf(y, m0), from = weeks[0][0], to = weeks[weeks.length-1][6];
+  const jobs = kkJobs(from, to), today = todayYmd();
+  let h = '<div class="kkCal"><div class="kkTitle">'+y+'年'+(m0+1)+'月　機械移動スケジュール</div>'+
+    '<div class="kkDow"><div>月曜日</div><div>火曜日</div><div>水曜日</div><div>木曜日</div><div>金曜日</div><div class="sa">土曜日</div><div class="su">日曜日</div></div><div class="kkWeeks">';
+  weeks.forEach(w => {
+    const { segs, lanes } = kkSegs(w, y, m0, jobs);
+    h += '<div class="kkWeek" style="grid-template-rows:auto '+(lanes ? 'repeat('+lanes+',auto) ' : '')+'minmax('+(print?'0':'18px')+',1fr)">';
+    w.forEach((ds,i) => { h += '<div class="kkBg'+(kkInMonth(ds,y,m0)?'':' out')+'" style="grid-column:'+(i+1)+'"></div>'; });
+    w.forEach((ds,i) => {
+      const d = parseYmd(ds), inm = kkInMonth(ds,y,m0), hol = holidayName(ds);
+      const c = !inm ? "out" : (i===6 || hol) ? "su" : i===5 ? "sa" : "";
+      h += '<div class="kkDh '+c+(ds===today&&!print?' today':'')+'" style="grid-column:'+(i+1)+'"'+(inm&&!print?' onclick="kkOpenDay(\''+ds+'\')" title="押すとこの日の詳細・日ごとの印刷"':'')+'>'+
+        '<span class="n">'+(inm ? d.getDate() : (d.getMonth()+1)+'/'+d.getDate())+'</span>'+(inm&&hol ? '<span class="h">'+esc(hol)+'</span>' : '')+'</div>';
+    });
+    h += segs.map(sg => kkEvHtml(sg, y, m0)).join("")+'<div class="kkFill" style="grid-row:'+(lanes+2)+'"></div></div>';
+  });
+  return h+'</div></div>';
+}
+function renderKikaiCal(){
+  document.getElementById("title").textContent = monthY+"年"+(monthM+1)+"月";
+  document.getElementById("main").innerHTML =
+    '<div class="kkBar"><button class="kkBtn main" onclick="kkOpenForm(null)">＋ 機械作業を追加</button><span class="sp"></span>'+
+    '<span class="lbl">この月を</span>'+
+    '<button class="kkBtn" onclick="kkPrintMonth(\'A3\')">🖨 印刷 A3</button><button class="kkBtn" onclick="kkPrintMonth(\'A4\')">🖨 印刷 A4</button>'+
+    '<button class="kkBtn" onclick="kkExcelMonth(\'A3\')">📥 Excel A3</button><button class="kkBtn" onclick="kkExcelMonth(\'A4\')">📥 Excel A4</button>'+
+    '<button class="kkBtn line" onclick="kkShareMonth()">LINEで送る</button></div>'+
+    '<div class="kkWrap">'+kkMonthHtml(monthY, monthM, false)+'</div>'+
+    '<div class="kkHint">日付を押すとその日の詳細と「日ごとの印刷(1社1枚)」、帯を押すと編集が開きます。ここで入れた予定は、通常カレンダーの「機械移動」にも出ます。</div>';
+  if (kkDay) kkRenderDay();
+}
+
+/* --- その日の詳細 --- */
+let kkDay = null;
+function kkOpenDay(ds){
+  kkDay = ds; kkRenderDay();
+  document.getElementById("kkDayBg").classList.add("show");
+}
+function kkRenderDay(){
+  const ds = kkDay; if (!ds) return;
+  const d = parseYmd(ds), hol = holidayName(ds);
+  document.getElementById("kkDayTitle").textContent = "🏗 "+d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日("+WD[d.getDay()]+")"+(hol?" "+hol:"")+" の機械作業";
+  const list = kkJobsOn(ds);
+  document.getElementById("kkDayList").innerHTML = list.length ? list.map(j => {
+    const [bg, bd] = kkColor(j), ref = j.tent ? "t:"+j.id : j.id;
+    return '<div class="kkCard'+(j.tent?' tent':'')+'" style="--evbg:'+bg+';--evb:'+bd+'"><div class="top"><div class="co">'+(j.tent?'【日程未定】':'')+esc(j.company)+'</div>'+
+      '<button class="kkBtn small" onclick="kkOpenForm(\''+ref+'\',\''+ds+'\')">編集</button>'+
+      '<button class="kkBtn small" onclick="kkPrintDay(\''+ds+'\',\''+ref+'\')">🖨 印刷 A4</button>'+
+      '<button class="kkBtn small" onclick="kkExcelDay(\''+ds+'\',\''+ref+'\')">📥 Excel</button>'+
+      '<button class="kkBtn small line" onclick="kkShareDay(\''+ds+'\',\''+ref+'\')">LINE</button></div>'+
+      '<dl>'+kkFields(j, ds).map(([k,v]) => '<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join("")+'</dl></div>'; }).join("")
+    : '<div class="none">この日の機械作業はありません</div>';
+}
+function kkCloseDay(){ document.getElementById("kkDayBg").classList.remove("show"); kkDay = null; }
+/* ref を指定したらその1社、無ければその日の全社(日程未定は除く) */
+function kkPick(ds, ref){
+  const list = kkJobsOn(ds);
+  if (ref) return list.filter(j => (j.tent ? "t:"+j.id : j.id) === ref);
+  return list.filter(j => !j.tent);
+}
+
+/* --- 入力画面 --- */
+let kkEdit = null;   // { type:"ev"|"tent", id, ev?, days[], goers0[], trucks0[] }
+(function kkInitForm(){
+  const sel = document.getElementById("kkNights");
+  sel.innerHTML = '<option value="0">なし</option>' + Array.from({length:10}, (_, i) => '<option value="'+(i+1)+'">'+(i+1)+'泊</option>').join("");
+  const sw = document.getElementById("kkColor");
+  sw.innerHTML = '<button type="button" class="auto on" data-c="" onclick="kkPickColor(this)">おまかせ</button>'+
+    KK_COLORS.map(([bg,bd,nm], i) => '<button type="button" data-c="'+i+'" style="--swbg:'+bg+';--swb:'+bd+'" onclick="kkPickColor(this)">'+nm+'</button>').join("");
+})();
+function kkPickColor(b){ document.querySelectorAll("#kkColor button").forEach(x => x.classList.toggle("on", x === b)); }
+function kkSetKind(k){
+  document.querySelectorAll("#kkKindSeg button").forEach(b => b.classList.toggle("on", b.dataset.v === k));
+  const t = k === "tent";
+  document.querySelectorAll("#kkFormBg .kkFixed").forEach(e => e.style.display = t ? "none" : "");
+  document.querySelectorAll("#kkFormBg .kkTent").forEach(e => e.style.display = t ? "" : "none");
+  document.getElementById("kkStartLbl").textContent = t ? "候補の期間(から)" : "開始日";
+  document.getElementById("kkEndLbl").textContent = t ? "候補の期間(まで)" : "終了日(1日だけなら同じ日)";
+  document.getElementById("kkWorkLbl").textContent = t ? "内容(カレンダーに点線の枠で出ます)" : "作業内容";
+  document.getElementById("kkKindHint").textContent = t ? "仮の予定は配車ボードには出ません。日程が決まったら「日程が決まっている」に切り替えて、実際の日付を入れて保存してください。" : "";
+}
+function kkStartChanged(){ const s = gv("kkStart"), e = document.getElementById("kkEnd"); if (!e.value || e.value < s) e.value = s; kkRenderPer(); }
+function kkRenderPer(){
+  const on = document.getElementById("kkPerOn").checked;
+  document.getElementById("kkPerWrap").style.display = on ? "" : "none";
+  if (!on) return;
+  const s = gv("kkStart"), e = gv("kkEnd"), body = document.getElementById("kkPerBody");
+  const keep = {}; body.querySelectorAll("tr[data-d]").forEach(tr => { keep[tr.dataset.d] = {
+    work:tr.querySelector('[data-k="work"]').value, equip:tr.querySelector('[data-k="equip"]').value, people:tr.querySelector('[data-k="people"]').value }; });
+  if (!s || !e || e < s){ body.innerHTML = '<tr><td colspan="4">開始日と終了日を入れてください</td></tr>'; return; }
+  const src = Object.assign({}, (kkEdit && kkEdit.ev && kkEdit.ev.daysDetail) || {}, keep);
+  body.innerHTML = kkEach(s, e).map(d => { const o = src[d] || {};
+    return '<tr data-d="'+d+'"><th>'+esc(mdw(d))+'</th><td><input type="text" data-k="work" value="'+esc(o.work||"")+'"></td>'+
+      '<td><input type="text" data-k="equip" value="'+esc(o.equip||"")+'"></td><td><input type="text" data-k="people" value="'+esc(o.people||"")+'" style="width:5.5em"></td></tr>'; }).join("");
+}
+function kkOpenForm(ref, ds){
+  loadClients().then(() => { document.getElementById("kkClientList").innerHTML = (clients||[]).map(c => '<option value="'+esc(c.name)+'">').join(""); });
+  const isTent = ref && String(ref).startsWith("t:");
+  const t = isTent ? kkTents.find(x => x.id === ref.slice(2)) : null;
+  const ev = (!isTent && ref) ? events.find(e => e.id === ref) : null;
+  // 繰り返しの機械移動(期間ではないもの)は今までの入力画面で直す
+  if (ev && (ev.repeat||"none") !== "none" && !ev.period){ openForm(ev.id, ds || ev.date); return; }
+  const day = ds || kkDay || ymd(new Date(monthY, monthM, 1));
+  const start = ev ? ev.date : t ? t.start : day, end = ev ? (ev.period ? ev.endDate : ev.date) : t ? t.end : day;
+  kkEdit = ev ? { type:"ev", id:ev.id, ev, days:kkEach(start, end) } : t ? { type:"tent", id:t.id } : null;
+  document.getElementById("kkFormTitle").textContent = ev || t ? "🏗 "+((ev ? ev.title : t.title) || "機械作業")+" を直す" : "🏗 機械作業を追加";
+  document.getElementById("kkFormSub").textContent = ev && ev.period ? "期間:"+mdw(start)+"～"+mdw(end) : "";
+  kkSetKind(t ? "tent" : "fixed");
+  document.getElementById("kkName").value = ev ? (ev.title||"") : t ? (t.title||"") : "";
+  document.getElementById("kkStart").value = start; document.getElementById("kkEnd").value = end;
+  setSegVal("kkApSeg", ev ? (ev.ampm||"") : "");
+  document.getElementById("kkTdays").value = t ? (t.tdays||"") : "";
+  document.getElementById("kkWork").value = ev ? (ev.work||"") : t ? (t.work||"") : "";
+  document.getElementById("kkEquip").value = ev ? (ev.equip||"") : "";
+  document.getElementById("kkPeople").value = ev ? (ev.people||"") : "";
+  document.getElementById("kkNights").value = String(ev ? (ev.nights||0) : 0);
+  document.getElementById("kkHotel").value = ev ? (ev.hotel||"") : "";
+  document.getElementById("kkMemo").value = ev ? (ev.memo||"") : t ? (t.memo||"") : "";
+  const c = ev && Number.isInteger(ev.color) ? String(ev.color) : "";
+  kkPickColor(document.querySelector('#kkColor button[data-c="'+c+'"]'));
+  const g0 = ev ? ((ev.goersByDate||{})[start] || []) : [], t0 = ev ? ((ev.trucksByDate||{})[start] || []) : [];
+  if (kkEdit) { kkEdit.goers0 = g0.slice(); kkEdit.trucks0 = t0.slice(); }
+  renderGoers("kkGoerPick", g0, start, ev ? (ev.ampm||"") : "");
+  renderTrucks("kkTruckPick", t0);
+  document.getElementById("kkPerOn").checked = !!(ev && ev.daysDetail && Object.keys(ev.daysDetail).length);
+  document.getElementById("kkPerBody").innerHTML = ""; kkRenderPer();
+  document.getElementById("kkDelBtn").style.display = kkEdit ? "" : "none";
+  document.getElementById("kkDelConfirm").style.display = "none";
+  document.getElementById("kkFormBg").classList.add("show");
+}
+function kkCloseForm(){ document.getElementById("kkFormBg").classList.remove("show"); kkEdit = null; }
+const kkSame = (a, b) => a.length === b.length && a.every(x => b.includes(x));
+async function kkSave(){
+  const tent = document.querySelector("#kkKindSeg button.on").dataset.v === "tent";
+  const title = gv("kkName").trim(), s = gv("kkStart"), e = gv("kkEnd") || s;
+  if (!s){ toast("日付を入れてください"); return; }
+  if (e < s){ toast("終了日が開始日より前です"); return; }
+  if (!tent && !title){ toast("会社名を入れてください"); return; }
+  const FV = firebase.firestore.FieldValue;
+  const btn = document.getElementById("kkSaveBtn"); btn.disabled = true;
+  try {
+    if (tent){
+      const data = { title, start:s, end:e, tdays:gv("kkTdays").trim(), work:gv("kkWork").trim(), memo:gv("kkMemo").trim(), updatedAt:FV.serverTimestamp() };
+      if (kkEdit && kkEdit.type === "tent") await db.collection(KK_TENT_COL).doc(kkEdit.id).update(data);
+      else {
+        await db.collection(KK_TENT_COL).add({ ...data, createdAt:FV.serverTimestamp() });
+        if (kkEdit && kkEdit.type === "ev") await db.collection(EVENT_COL).doc(kkEdit.id).delete();   // 決まっていた予定を仮に戻した
+      }
+    } else {
+      const days = kkEach(s, e), period = e > s;
+      const goers = pickedGoers("kkGoerPick"), trucks = pickedGoers("kkTruckPick");
+      const daysDetail = {};
+      if (document.getElementById("kkPerOn").checked){
+        document.querySelectorAll("#kkPerBody tr[data-d]").forEach(tr => { const o = {};
+          tr.querySelectorAll("input").forEach(i => { if (i.value.trim()) o[i.dataset.k] = i.value.trim(); });
+          if (Object.keys(o).length) daysDetail[tr.dataset.d] = o; });
+      }
+      const cb = document.querySelector("#kkColor button.on"), cv = cb ? cb.dataset.c : "";
+      const m = masterOf(title);
+      const data = { kind:"machine", title, clientId: m ? m.id : "", work:gv("kkWork").trim(), date:s, ampm:segVal("kkApSeg"),
+        repeat: period ? "weekly" : "none", wdays: period ? KK_ALL_WD.slice() : [], endDate: period ? e : "", period,
+        equip:gv("kkEquip").trim(), people:gv("kkPeople").trim(), nights:Number(gv("kkNights"))||0, hotel:gv("kkHotel").trim(),
+        color: cv === "" ? null : Number(cv), memo:gv("kkMemo").trim(), daysDetail, updatedAt:FV.serverTimestamp() };
+      if (kkEdit && kkEdit.type === "ev"){
+        // 行く人・トラック:変えたときは期間の全部の日に。変えていなければ、増えた日にだけ最初の日と同じものを入れる
+        const old = kkEdit.days, gCh = !kkSame(goers, kkEdit.goers0), tCh = !kkSame(trucks, kkEdit.trucks0);
+        days.forEach(d => {
+          if (gCh || !old.includes(d)) data["goersByDate."+d] = goers;
+          if (tCh || !old.includes(d)) data["trucksByDate."+d] = trucks;
+        });
+        old.filter(d => !days.includes(d)).forEach(d => { data["goersByDate."+d] = FV.delete(); data["trucksByDate."+d] = FV.delete(); });
+        await db.collection(EVENT_COL).doc(kkEdit.id).update(data);
+      } else {
+        const gb = {}, tb = {}; days.forEach(d => { if (goers.length) gb[d] = goers; if (trucks.length) tb[d] = trucks; });
+        await db.collection(EVENT_COL).add({ ...data, yomi:(m && m.yomi) || "", skipDates:[], doneDates:[], missedDates:[], goersByDate:gb, trucksByDate:tb, createdAt:FV.serverTimestamp() });
+        if (kkEdit && kkEdit.type === "tent") await db.collection(KK_TENT_COL).doc(kkEdit.id).delete();   // 仮の予定が決まった
+      }
+    }
+    kkCloseForm(); toast("✅ 保存しました");
+  } catch(err){ console.error(err); toast("⚠️ 保存に失敗しました"); }
+  finally { btn.disabled = false; }
+}
+function kkAskDel(cancel){
+  document.getElementById("kkDelConfirm").style.display = cancel ? "none" : "";
+  document.getElementById("kkDelBtn").style.display = cancel ? "" : "none";
+}
+async function kkDelete(){
+  if (!kkEdit) return;
+  try {
+    await db.collection(kkEdit.type === "tent" ? KK_TENT_COL : EVENT_COL).doc(kkEdit.id).delete();
+    kkCloseForm(); toast("消しました");
+  } catch(err){ console.error(err); toast("⚠️ 失敗しました"); }
+}
+
+/* --- 印刷 --- */
+function kkFit(root){   // 月の印刷:はみ出すときは文字を少しずつ小さくして1枚に収める
+  root.querySelectorAll(".kkSheet").forEach(sh => {
+    const cal = sh.querySelector(".kkCal"); if (!cal) return;
+    let fs = parseFloat(getComputedStyle(sh).fontSize), g = 0;
+    while (cal.scrollHeight > sh.clientHeight + 1 && g++ < 40){ fs *= 0.96; sh.style.fontSize = fs+"px"; }
+  });
+}
+function kkMemoLines(root){   // メモ欄を7mmの罫線で下まで埋める
+  root.querySelectorAll(".kkMemo").forEach(m => {
+    const h = m.getBoundingClientRect().height - m.querySelector(".mt").getBoundingClientRect().height;
+    m.querySelector(".lines").innerHTML = '<div class="ln"></div>'.repeat(Math.max(3, Math.floor(h / (7*96/25.4))));
+  });
+}
+function kkPrint(html, size){
+  document.getElementById("menu").classList.remove("show");
+  document.getElementById("pageStyle").textContent = "@page { size: "+size+"; margin: 7mm; }";
+  const pa = document.getElementById("printArea");
+  pa.innerHTML = html;
+  pa.style.cssText = "display:block;position:absolute;left:-30000px;top:0;";
+  kkFit(pa); kkMemoLines(pa);
+  pa.style.cssText = "";
+  setTimeout(() => window.print(), 50);
+}
+function kkPrintMonth(paper){ kkPrint('<div class="kkSheet '+paper.toLowerCase()+'">'+kkMonthHtml(monthY, monthM, true)+'</div>', paper+" landscape"); }
+function kkSheetHtml(j, ds, cls){   // 日ごとの印刷:1社につき1枚
+  const d = parseYmd(ds), w = d.getDay(), hol = holidayName(ds);
+  const wc = (w===0 || hol) ? "su" : w===6 ? "sa" : "";
+  const [bg, bd] = kkColor(j), f = kkFields(j, ds);
+  return '<div class="kkSheet kkDay day '+cls+'" style="--evbg:'+bg+';--evb:'+bd+'">'+
+    '<h1><span>'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日</span><span class="dw '+wc+'">('+WD[w]+')'+(hol?esc(hol):'')+'</span></h1>'+
+    '<div class="company">'+(j.tent?'<span class="kkTag">日程未定</span>':'')+esc(j.company)+'</div>'+
+    (f.length ? '<div class="kkJob"><table>'+f.map(([k,v]) => '<tr><th>'+esc(k)+'</th><td>'+esc(v)+'</td></tr>').join("")+'</table></div>' : '')+
+    '<div class="kkMemo"><div class="mt">メモ</div><div class="lines"></div></div></div>';
+}
+function kkPrintDay(ds, ref){
+  const list = kkPick(ds, ref);
+  if (!list.length){ toast("この日に印刷する機械作業はありません"); return; }
+  kkCloseDay(); kkPrint(list.map(j => kkSheetHtml(j, ds, "")).join(""), "A4 portrait");
+}
+
+/* --- Excel(必要なときだけ部品を読み込む) --- */
+function kkLoad(url, name){
+  if (window[name]) return Promise.resolve();
+  return new Promise((res, rej) => { const s = document.createElement("script"); s.src = url; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+async function kkExcelLib(){
+  try { await kkLoad("https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js", "ExcelJS"); return true; }
+  catch(e){ toast("⚠️ Excelの部品を読み込めませんでした"); return false; }
+}
+async function kkDownload(wb, name){
+  const buf = await wb.xlsx.writeBuffer();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([buf], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("📥 "+name+" を保存しました");
+}
+const KK_XF = "BIZ UDPゴシック";
+const kkArgb = h => "FF"+h.replace("#","").toUpperCase();
+function kkWlen(s){ let n = 0; for (const ch of String(s||"")) n += (ch.charCodeAt(0) < 0x2000 || (ch >= "｡" && ch <= "ﾟ")) ? .5 : 1; return n; }
+async function kkExcelMonth(paper){
+  if (!await kkExcelLib()) return;
+  const y = monthY, m0 = monthM, A3 = paper === "A3";
+  const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet((m0+1)+"月カレンダー");
+  const COLW = A3 ? 30 : 24, FS = A3 ? 11 : 9, HS = A3 ? 15 : 12, DS = A3 ? 22 : 17, CPL = COLW*7/(FS*4/3);
+  ws.columns = Array.from({ length:7 }, () => ({ width:COLW }));
+  const thin = { style:"thin", color:{ argb:"FFA6A6A6" } }, med = { style:"medium", color:{ argb:"FF404040" } };
+  const solid = c => ({ type:"pattern", pattern:"solid", fgColor:{ argb:c } });
+  ws.mergeCells(1,1,1,7);
+  Object.assign(ws.getCell(1,1), { value:y+"年"+(m0+1)+"月　機械移動スケジュール", font:{ name:KK_XF, size:A3?22:18, bold:true } });
+  ws.getRow(1).height = A3 ? 36 : 30;
+  ["月","火","水","木","金","土","日"].forEach((c,i) => { const cell = ws.getCell(2,i+1); cell.value = c+"曜日";
+    cell.font = { name:KK_XF, size:A3?13:11, bold:true, color:{ argb:"FFFFFFFF" } };
+    cell.fill = solid(i===6 ? "FFDC2626" : i===5 ? "FF1D4ED8" : "FF44403C"); cell.alignment = { horizontal:"center", vertical:"middle" }; });
+  ws.getRow(2).height = 22;
+  const weeks = kkWeeksOf(y, m0), jobs = kkJobs(weeks[0][0], weeks[weeks.length-1][6]);
+  let r = 3;
+  weeks.forEach(w => {
+    const { segs, lanes } = kkSegs(w, y, m0, jobs);
+    w.forEach((ds,i) => { const c = ws.getCell(r,i+1), inm = kkInMonth(ds,y,m0), hol = holidayName(ds), d = parseYmd(ds);
+      const col = !inm ? "FFA6A6A6" : (i===6||hol) ? "FFDC2626" : i===5 ? "FF1D4ED8" : "FF000000";
+      c.value = inm ? (hol ? { richText:[{ text:d.getDate()+"日", font:{ name:KK_XF, size:DS, bold:true, color:{ argb:col } } },
+        { text:"　"+hol, font:{ name:KK_XF, size:Math.round(DS*.55), bold:true, color:{ argb:col } } }] } : d.getDate()+"日") : (d.getMonth()+1)+"/"+d.getDate();
+      c.font = { name:KK_XF, size:inm?DS:Math.round(DS*.6), bold:true, color:{ argb:col } };
+      const bg = !inm ? "FFF0EFEE" : (i===6||hol) ? "FFFDE8E8" : i===5 ? "FFDBEAFE" : null; if (bg) c.fill = solid(bg);
+      c.alignment = { vertical:"middle", indent:1 }; c.border = { top:med, left:thin, right:thin }; });
+    ws.getRow(r).height = A3 ? 30 : 24; r++;
+    for (let li = 0; li < Math.max(2, lanes); li++){
+      const hr = r, br = r+1; let need = 1;
+      for (let c = 1; c <= 7; c++) [hr, br].forEach(rr => { const cell = ws.getCell(rr,c); cell.border = { left:thin, right:thin };
+        if (!kkInMonth(w[c-1],y,m0)) cell.fill = solid("FFF0EFEE"); });
+      segs.filter(sg => sg.lane === li).forEach(sg => {
+        const j = sg.j, [bg, bd] = kkColor(j), c0 = sg.c0+1, c1 = sg.c1+1, n = c1-c0+1;
+        const fill = solid(j.tent ? "FFFFFFFF" : kkArgb(bg));
+        const edge = j.tent ? { style:"dashed", color:{ argb:"FF7A7F8A" } } : { style:"medium", color:{ argb:kkArgb(bd) } };
+        if (n > 1) ws.mergeCells(hr,c0,hr,c1);
+        const parts = [];
+        if (j.tent){
+          parts.push({ text:"［日程未定］", font:{ name:KK_XF, size:FS, bold:true, color:{ argb:"FF7A7F8A" } } });
+          if (j.company) parts.push({ text:j.company, font:{ name:KK_XF, size:HS-2, bold:true } });
+          if (j.tdays) parts.push({ text:"　"+j.tdays, font:{ name:KK_XF, size:FS } });
+        } else {
+          if (j.time) parts.push({ text:j.time+" ", font:{ name:KK_XF, size:HS-3, bold:true } });
+          parts.push({ text:j.company, font:{ name:KK_XF, size:HS, bold:true } });
+          if (sg.fromPrev) parts.push({ text:"(前週から)", font:{ name:KK_XF, size:FS } });
+          if (j.start !== j.end){
+            const room = n*COLW*7*.75 - kkWlen(j.company)*HS - 30;
+            parts.push({ text:" "+"━".repeat(Math.max(2, Math.floor(room/15*.8)))+(sg.toNext?"":"▶"), font:{ name:KK_XF, size:13, bold:true, color:{ argb:"FFC00000" } } });
+            if (sg.toNext) parts.push({ text:" 次へ▶", font:{ name:KK_XF, size:FS, bold:true, color:{ argb:"FFC00000" } } });
+          }
+          if (j.nights > 0 && !sg.fromPrev) parts.push({ text:"　"+j.nights+"泊", font:{ name:KK_XF, size:FS, bold:true } });
+        }
+        const hc = ws.getCell(hr,c0); hc.value = { richText:parts }; hc.alignment = { vertical:"middle", indent:1, shrinkToFit:true };
+        for (let c = c0; c <= c1; c++){ const cell = ws.getCell(hr,c); cell.fill = fill; cell.border = { top:edge, left:c===c0?edge:undefined, right:c===c1?edge:undefined }; }
+        const texts = j.tent ? [[j.work, j.note].filter(Boolean).join("\n")] : kkEach(sg.s0, sg.s1).map(d => { const x = kkLines(j, d); return [x.work, x.tail].filter(Boolean).join("\n"); });
+        const same = texts.every(t => t === texts[0]);
+        const lines = (t, cols) => t.split("\n").reduce((a, l) => a + Math.max(1, Math.ceil(kkWlen(l)/(CPL*cols))), 0);
+        if (same){ if (n > 1) ws.mergeCells(br,c0,br,c1); ws.getCell(br,c0).value = texts[0] || null; need = Math.max(need, lines(texts[0], n)); }
+        else texts.forEach((t,k) => { ws.getCell(br,c0+k).value = t || null; need = Math.max(need, lines(t, 1)); });
+        for (let c = c0; c <= c1; c++){ const cell = ws.getCell(br,c); cell.fill = fill; cell.font = { name:KK_XF, size:FS };
+          cell.alignment = { vertical:"top", wrapText:true, indent:1 };
+          cell.border = { bottom:edge, left:c===c0?edge:(same?undefined:thin), right:c===c1?edge:(same?undefined:thin) }; }
+      });
+      ws.getRow(hr).height = HS*1.6; ws.getRow(br).height = Math.max(2, need)*FS*1.5+6; r += 2;
+    }
+    for (let c = 1; c <= 7; c++){ const cell = ws.getCell(r-1,c); cell.border = Object.assign({}, cell.border, { bottom:med }); }
+  });
+  ws.pageSetup = { paperSize:A3?8:9, orientation:"landscape", fitToPage:true, fitToWidth:1, fitToHeight:1, horizontalCentered:true, verticalCentered:true,
+    margins:{ left:.3, right:.3, top:.3, bottom:.3, header:0, footer:0 } };
+  ws.pageSetup.printArea = "A1:G"+(r-1);
+  await kkDownload(wb, y+"年"+(m0+1)+"月_機械作業カレンダー_"+paper+".xlsx");
+}
+function kkAddDaySheet(wb, j, ds, used){
+  let nm = kkSafe(j.company).slice(0,28) || "機械作業", base = nm, k = 2; while (used.has(nm)) nm = base.slice(0,25)+"("+(k++)+")"; used.add(nm);
+  const ws = wb.addWorksheet(nm); ws.columns = [{ width:16 }, { width:72 }];
+  const d = parseYmd(ds), w = d.getDay(), hol = holidayName(ds);
+  const col = (w===0||hol) ? "FFDC2626" : w===6 ? "FF1D4ED8" : "FF000000";
+  ws.mergeCells(1,1,1,2);
+  ws.getCell(1,1).value = { richText:[{ text:d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日", font:{ name:KK_XF, size:24, bold:true } },
+    { text:"("+WD[w]+")"+(hol||""), font:{ name:KK_XF, size:18, bold:true, color:{ argb:col } } }] };
+  ws.getRow(1).height = 40; [1,2].forEach(c => ws.getCell(1,c).border = { bottom:{ style:"thick", color:{ argb:"FF1F3864" } } });
+  let r = 3, used2 = 75;
+  ws.mergeCells(r,1,r,2);
+  const [bg, bd] = kkColor(j), h = ws.getCell(r,1);
+  h.value = (j.tent ? "【日程未定】" : "")+j.company; h.font = { name:KK_XF, size:26, bold:true }; h.alignment = { vertical:"middle", indent:1 };
+  h.fill = { type:"pattern", pattern:"solid", fgColor:{ argb: j.tent ? "FFFFFFFF" : kkArgb(bg) } };
+  h.border = { left:{ style:"thick", color:{ argb:kkArgb(bd) } } };
+  ws.getRow(r).height = 44; used2 += 59; r += 2;
+  const f = kkFields(j, ds);
+  f.forEach(([k2, v], i) => {
+    const a = ws.getCell(r,1), b = ws.getCell(r,2); a.value = k2; b.value = v;
+    a.font = { name:KK_XF, size:12, bold:true, color:{ argb:"FF404040" } }; b.font = { name:KK_XF, size:13 };
+    a.alignment = { vertical:"top", indent:1 }; b.alignment = { vertical:"top", wrapText:true };
+    const first = i === 0, last = i === f.length-1, bt = { style:"thin", color:{ argb:"FFD9D9D9" } };
+    a.border = { left:{ style:"medium" }, top:first?{ style:"medium" }:undefined, bottom:last?{ style:"medium" }:bt };
+    b.border = { right:{ style:"medium" }, top:first?{ style:"medium" }:undefined, bottom:last?{ style:"medium" }:bt };
+    const ln = String(v).split("\n").reduce((s2, l) => s2 + Math.max(1, Math.ceil(kkWlen(l)/38)), 0);
+    ws.getRow(r).height = ln*18+6; used2 += ln*18+6; r++;
+  });
+  r++; used2 += 15;
+  ws.getCell(r,1).value = "メモ"; ws.getCell(r,1).font = { name:KK_XF, size:12, bold:true };
+  [1,2].forEach(c => ws.getCell(r,c).border = { bottom:{ style:"medium" } }); ws.getRow(r).height = 22; used2 += 22; r++;
+  const lineH = 7/25.4*72;   // 7mm
+  for (let i = 0, n = Math.max(5, Math.floor((800-used2)/lineH)); i < n; i++){
+    ws.getRow(r).height = lineH; [1,2].forEach(c => ws.getCell(r,c).border = { bottom:{ style:"thin", color:{ argb:"FF8C8C8C" } } }); r++; }
+  ws.pageSetup = { paperSize:9, orientation:"portrait", fitToPage:true, fitToWidth:1, fitToHeight:1, horizontalCentered:true,
+    margins:{ left:.3, right:.3, top:.3, bottom:.3, header:0, footer:0 } };
+  ws.pageSetup.printArea = "A1:B"+(r-1);
+}
+async function kkExcelDay(ds, ref){
+  const list = kkPick(ds, ref);
+  if (!list.length){ toast("この日に保存する機械作業はありません"); return; }
+  if (!await kkExcelLib()) return;
+  const wb = new ExcelJS.Workbook(), used = new Set();
+  list.forEach(j => kkAddDaySheet(wb, j, ds, used));
+  const d = parseYmd(ds);
+  await kkDownload(wb, d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日_機械作業"+(list.length === 1 ? "_"+kkSafe(list[0].company) : "")+".xlsx");
+}
+
+/* --- LINEで送る(画像にして、スマホの共有画面へ。パソコンは画像を保存) --- */
+async function kkShareImages(html, names, withMemo){
+  try { await kkLoad("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", "html2canvas"); }
+  catch(e){ toast("⚠️ 画像の部品を読み込めませんでした"); return; }
+  const root = document.getElementById("kkShare"); root.innerHTML = html;
+  kkFit(root); if (withMemo) kkMemoLines(root);
+  try {
+    const files = [];
+    for (const [i, el] of Array.from(root.children).entries()){
+      const cv = await html2canvas(el, { scale:1.5, backgroundColor:"#ffffff" });
+      const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+      files.push(new File([blob], names[i] || names[0], { type:"image/png" }));
+    }
+    if (navigator.canShare && navigator.canShare({ files })) await navigator.share({ files, title:names[0] });
+    else {
+      files.forEach(f => { const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); });
+      toast("画像を"+files.length+"枚保存しました。LINEのトークに貼り付けて送ってください");
+    }
+  } catch(e){ if (!e || e.name !== "AbortError"){ console.error(e); toast("⚠️ 画像を作れませんでした"); } }
+  finally { root.innerHTML = ""; }
+}
+function kkShareMonth(){ kkShareImages('<div class="kkSheet shareM">'+kkMonthHtml(monthY, monthM, true)+'</div>', [monthY+"年"+(monthM+1)+"月_機械作業.png"], false); }
+function kkShareDay(ds, ref){
+  const list = kkPick(ds, ref);
+  if (!list.length){ toast("この日に送る機械作業はありません"); return; }
+  const base = kkMd(ds).replace("/","月")+"日";
+  kkShareImages(list.map(j => kkSheetHtml(j, ds, "shareD")).join(""), list.map(j => base+"_"+(kkSafe(j.company)||"機械作業")+".png"), true);
+}
+function addClick(){ if (viewMode === "kikai") kkOpenForm(null); else openForm(null, focusDay); }
 
 /* ===== データ購読 ===== */
 db.collection(EVENT_COL).onSnapshot(snap => { events = snap.docs.map(d => ({ id:d.id, ...d.data() })); render(); },
