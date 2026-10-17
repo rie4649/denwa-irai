@@ -732,6 +732,7 @@
     <h3 id="kkFormTitle">🏗 機械作業を追加</h3>
     <div class="hint" id="kkFormSub"></div>
 
+    <div id="kkMergeWrap" class="cInfo" style="display:none;"></div>
     <label class="f">種類</label>
     <div class="seg" id="kkKindSeg">
       <button type="button" data-v="fixed" onclick="kkSetKind('fixed')">日程が決まっている</button>
@@ -2181,7 +2182,7 @@ function kkSafe(s){ return String(s||"").replace(/[\\\/:*?"<>|\[\]]/g, ""); }
 /* --- 予定を「何日から何日まで」のかたまりにする --- */
 function kkJobFromEv(ev, start, end){
   return { id:ev.id, key:ev.id+"@"+start, ev, tent:false, start, end,
-    company:ev.title||"", time:ev.ampm||"", work:ev.work||"", equip:ev.equip||"", people:ev.people||"",
+    company:ev.title||"", time:(/^\d{1,2}[:：]\d{2}/.test(ev.memo||"") ? String(ev.memo).match(/^\d{1,2}[:：]\d{2}\S*/)[0] : (ev.ampm||"")), work:ev.work||"", equip:ev.equip||"", people:ev.people||"",
     nights:ev.nights||0, hotel:ev.hotel||"", note:ev.memo||"", color:ev.color, days:ev.daysDetail||{} };
 }
 function kkJobs(from, to){
@@ -2198,6 +2199,17 @@ function kkJobs(from, to){
       if (run) run.end = ds; else { run = kkJobFromEv(ev, ds, ds); out.push(run); }
     }
   });
+  // 同じ会社を1日ずつ入れた予定が続いているときは、1本の帯にまとめて見せる(保存はそのまま)
+  const singles = out.filter(j => !j.ev.period && (j.ev.repeat||"none") === "none")
+    .sort((a,b) => nkey(a.company).localeCompare(nkey(b.company)) || a.start.localeCompare(b.start));
+  let prev = null; const gone = new Set();
+  singles.forEach(j => {
+    j.evByDay = { [j.start]: j.ev };
+    if (prev && nkey(prev.company) === nkey(j.company) && j.start === addDays(prev.end, 1)){
+      prev.end = j.end; prev.evByDay[j.start] = j.ev; prev.joined = true; gone.add(j);
+    } else prev = j;
+  });
+  for (let i = out.length-1; i >= 0; i--) if (gone.has(out[i])) out.splice(i, 1);
   kkTents.forEach(t => {
     if (!t.start || !t.end || t.start > to || t.end < from) return;
     out.push({ id:t.id, key:"t@"+t.id, tent:true, start:t.start, end:t.end, company:t.title||"", work:t.work||"", note:t.memo||"", tdays:t.tdays||"" });
@@ -2207,11 +2219,14 @@ function kkJobs(from, to){
 function kkJobsOn(ds){ return kkSort(kkJobs(ds, ds)); }
 function kkSort(list){ const ar = {"午前":0, "":1, "午後":2};
   return list.slice().sort((a,b) => (a.tent-b.tent) || a.start.localeCompare(b.start) || ((ar[a.time]||1)-(ar[b.time]||1)) || a.company.localeCompare(b.company,"ja")); }
+function kkEvOf(j, ds){ return (j.evByDay && j.evByDay[ds]) || j.ev; }
 function kkDetail(j, ds){
-  const o = (j.days && j.days[ds]) || {};
-  const workers = j.tent ? [] : ((j.ev.goersByDate||{})[ds] || []);
-  const trucks = j.tent ? [] : ((j.ev.trucksByDate||{})[ds] || []);
-  return { work:o.work||j.work, equip:o.equip||j.equip, people:o.people||j.people||(workers.length ? workers.length+"人" : ""), workers, trucks };
+  const ev = j.tent ? null : kkEvOf(j, ds);
+  const b = (ev && ev !== j.ev) ? kkJobFromEv(ev, ds, ds) : j;   // まとめて見せている日は、その日の予定の中身を使う
+  const o = (b.days && b.days[ds]) || {};
+  const workers = ev ? ((ev.goersByDate||{})[ds] || []) : [];
+  const trucks = ev ? ((ev.trucksByDate||{})[ds] || []) : [];
+  return { work:o.work||b.work, equip:o.equip||b.equip, people:o.people||b.people||(workers.length ? workers.length+"人" : ""), workers, trucks };
 }
 function kkLines(j, ds){
   const d = kkDetail(j, ds);
@@ -2304,7 +2319,7 @@ function kkMonthHtml(y, m0, print){
       const d = parseYmd(ds), inm = kkInMonth(ds,y,m0), hol = holidayName(ds);
       const c = !inm ? "out" : (i===6 || hol) ? "su" : i===5 ? "sa" : "";
       h += '<div class="kkDh '+c+(ds===today&&!print?' today':'')+'" style="grid-column:'+(i+1)+'"'+(inm&&!print?' onclick="kkOpenDay(\''+ds+'\')" title="押すとこの日の詳細・日ごとの印刷"':'')+'>'+
-        '<span class="n">'+(inm ? d.getDate() : (d.getMonth()+1)+'/'+d.getDate())+'</span>'+(inm&&hol ? '<span class="h">'+esc(hol)+'</span>' : '')+'</div>';
+        '<span class="n">'+(inm ? d.getDate() : (d.getMonth()+1)+'/'+d.getDate())+'</span>'+(inm&&hol ? '<span class="h">'+esc(hol)+'</span>' : '')+(inm ? wkHtml(ds) : '')+'</div>';
     });
     h += segs.map(sg => kkEvHtml(sg, y, m0)).join("")+'<div class="kkFill" style="grid-row:'+(lanes+2)+'"></div></div>';
   });
@@ -2317,7 +2332,7 @@ function renderKikaiCal(){
     '<span class="lbl">この月を</span>'+
     '<button class="kkBtn" onclick="kkPrintMonth(\'A3\')">🖨 印刷 A3</button><button class="kkBtn" onclick="kkPrintMonth(\'A4\')">🖨 印刷 A4</button>'+
     '<button class="kkBtn" onclick="kkExcelMonth(\'A3\')">📥 Excel A3</button><button class="kkBtn" onclick="kkExcelMonth(\'A4\')">📥 Excel A4</button>'+
-    '<button class="kkBtn line" onclick="kkShareMonth()">LINEで送る</button></div>'+
+    '<button class="kkBtn line" onclick="kkShareMonth()">LINEで送る</button></div>'+kkImportBar()+
     '<div class="kkWrap">'+kkMonthHtml(monthY, monthM, false)+'</div>'+
     '<div class="kkHint">日付を押すとその日の詳細と「日ごとの印刷(1社1枚)」、帯を押すと編集が開きます。ここで入れた予定は、通常カレンダーの「機械移動」にも出ます。</div>';
   if (kkDay) kkRenderDay();
@@ -2419,6 +2434,7 @@ function kkOpenForm(ref, ds){
   document.getElementById("kkPerBody").innerHTML = ""; kkRenderPer();
   document.getElementById("kkDelBtn").style.display = kkEdit ? "" : "none";
   document.getElementById("kkDelConfirm").style.display = "none";
+  kkMergeUi(ev);
   document.getElementById("kkFormBg").classList.add("show");
 }
 function kkCloseForm(){ document.getElementById("kkFormBg").classList.remove("show"); kkEdit = null; }
@@ -2515,7 +2531,7 @@ function kkSheetHtml(j, ds, cls){   // 日ごとの印刷:1社につき1枚
   const wc = (w===0 || hol) ? "su" : w===6 ? "sa" : "";
   const [bg, bd] = kkColor(j), f = kkFields(j, ds);
   return '<div class="kkSheet kkDay day '+cls+'" style="--evbg:'+bg+';--evb:'+bd+'">'+
-    '<h1><span>'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日</span><span class="dw '+wc+'">('+WD[w]+')'+(hol?esc(hol):'')+'</span></h1>'+
+    '<h1><span>'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日</span><span class="dw '+wc+'">('+WD[w]+')'+(hol?esc(hol):'')+'</span>'+wkHtml(ds)+'</h1>'+
     '<div class="company">'+(j.tent?'<span class="kkTag">日程未定</span>':'')+esc(j.company)+'</div>'+
     (f.length ? '<div class="kkJob"><table>'+f.map(([k,v]) => '<tr><th>'+esc(k)+'</th><td>'+esc(v)+'</td></tr>').join("")+'</table></div>' : '')+
     '<div class="kkMemo"><div class="mt">メモ</div><div class="lines"></div></div></div>';
@@ -2567,8 +2583,12 @@ async function kkExcelMonth(paper){
     const { segs, lanes } = kkSegs(w, y, m0, jobs);
     w.forEach((ds,i) => { const c = ws.getCell(r,i+1), inm = kkInMonth(ds,y,m0), hol = holidayName(ds), d = parseYmd(ds);
       const col = !inm ? "FFA6A6A6" : (i===6||hol) ? "FFDC2626" : i===5 ? "FF1D4ED8" : "FF000000";
-      c.value = inm ? (hol ? { richText:[{ text:d.getDate()+"日", font:{ name:KK_XF, size:DS, bold:true, color:{ argb:col } } },
-        { text:"　"+hol, font:{ name:KK_XF, size:Math.round(DS*.55), bold:true, color:{ argb:col } } }] } : d.getDate()+"日") : (d.getMonth()+1)+"/"+d.getDate();
+      const wk = inm ? workDayOf(ds) : "", wkT = wk && WK_SHORT[wk] ? WK_SHORT[wk] : "";
+      const wkC = wk === "全休" ? "FFDC2626" : wk === "A" ? "FF1976D2" : "FF2E7D32";
+      const parts = [{ text:d.getDate()+"日", font:{ name:KK_XF, size:DS, bold:true, color:{ argb:col } } }];
+      if (hol) parts.push({ text:"　"+hol, font:{ name:KK_XF, size:Math.round(DS*.55), bold:true, color:{ argb:col } } });
+      if (wkT) parts.push({ text:"　【"+wkT+"】", font:{ name:KK_XF, size:Math.round(DS*.55), bold:true, color:{ argb:wkC } } });
+      c.value = inm ? (parts.length > 1 ? { richText:parts } : d.getDate()+"日") : (d.getMonth()+1)+"/"+d.getDate();
       c.font = { name:KK_XF, size:inm?DS:Math.round(DS*.6), bold:true, color:{ argb:col } };
       const bg = !inm ? "FFF0EFEE" : (i===6||hol) ? "FFFDE8E8" : i===5 ? "FFDBEAFE" : null; if (bg) c.fill = solid(bg);
       c.alignment = { vertical:"middle", indent:1 }; c.border = { top:med, left:thin, right:thin }; });
@@ -2694,6 +2714,119 @@ function kkShareDay(ds, ref){
   kkShareImages(list.map(j => kkSheetHtml(j, ds, "shareD")).join(""), list.map(j => base+"_"+(kkSafe(j.company)||"機械作業")+".png"), true);
 }
 function addClick(){ if (viewMode === "kikai") kkOpenForm(null); else openForm(null, focusDay); }
+
+
+/* --- 同じ会社を1日ずつ入れた予定を、1つの期間にまとめる --- */
+function kkSingleOn(key, ds){ return events.find(e => kindOf(e) === "machine" && !e.period && (e.repeat||"none") === "none" && e.date === ds && nkey(e.title) === key); }
+function kkGroupOf(ev){
+  if (!ev || ev.period || (ev.repeat||"none") !== "none") return ev ? [ev] : [];
+  const k = nkey(ev.title), list = [ev]; let p, a = ev.date, b = ev.date;
+  while ((p = kkSingleOn(k, addDays(a,-1)))){ list.unshift(p); a = p.date; }
+  while ((p = kkSingleOn(k, addDays(b,1)))){ list.push(p); b = p.date; }
+  return list;
+}
+function kkMergeUi(ev){
+  const g = kkGroupOf(ev), box = document.getElementById("kkMergeWrap");
+  if (!box) return;
+  if (g.length < 2){ box.style.display = "none"; box.innerHTML = ""; return; }
+  box.style.display = "block";
+  box.innerHTML = '<div>'+esc(mdw(g[0].date))+'～'+esc(mdw(g[g.length-1].date))+' の '+g.length+'件は、1日ずつ別々に入っています(カレンダーでは1本の矢印で見せています)。</div>'+
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"><button type="button" class="kkBtn small" onclick="kkMergeAsk(true)">🔗 1つの期間にまとめる</button>'+
+    '<span id="kkMergeOk" style="display:none;"><b style="color:#dc2626;">まとめますか?(日ごとの作業員・トラック・内容はそのまま残ります)</b> '+
+    '<button type="button" class="kkBtn small main" onclick="kkMerge()">まとめる</button> <button type="button" class="kkBtn small" onclick="kkMergeAsk(false)">やめる</button></span></div>'+
+    '<div class="hint">このまま保存すると、'+esc(mdw(ev.date))+' の1日分だけが直ります。</div>';
+}
+function kkMergeAsk(on){ const o = document.getElementById("kkMergeOk"); if (o) o.style.display = on ? "" : "none"; }
+async function kkMerge(){
+  if (!kkEdit || kkEdit.type !== "ev") return;
+  const g = kkGroupOf(events.find(e => e.id === kkEdit.id)); if (g.length < 2) return;
+  const f = g[0], last = g[g.length-1], FV = firebase.firestore.FieldValue;
+  const data = { date:f.date, endDate:last.date, repeat:"weekly", wdays:KK_ALL_WD.slice(), period:true, updatedAt:FV.serverTimestamp() };
+  const dd = Object.assign({}, f.daysDetail || {}), memos = [];
+  g.forEach(e => {
+    data["goersByDate."+e.date] = (e.goersByDate||{})[e.date] || [];
+    data["trucksByDate."+e.date] = (e.trucksByDate||{})[e.date] || [];
+    if (e !== f){
+      const o = {};
+      if ((e.work||"") !== (f.work||"") && e.work) o.work = e.work;
+      if ((e.equip||"") !== (f.equip||"") && e.equip) o.equip = e.equip;
+      if ((e.people||"") !== (f.people||"") && e.people) o.people = e.people;
+      if (Object.keys(o).length) dd[e.date] = o;
+    }
+    if (e.memo && !memos.includes(e.memo)) memos.push(e.memo);
+  });
+  data.daysDetail = dd; data.memo = memos.join(" / ");
+  data.doneDates = Array.from(new Set(g.flatMap(e => e.doneDates || [])));
+  data.missedDates = Array.from(new Set(g.flatMap(e => e.missedDates || [])));
+  try {
+    await db.collection(EVENT_COL).doc(f.id).update(data);
+    for (const e of g.slice(1)) await db.collection(EVENT_COL).doc(e.id).delete();
+    kkCloseForm(); toast("🔗 "+mdw(f.date)+"～"+mdw(last.date)+" を1つの期間にまとめました");
+  } catch(err){ console.error(err); toast("⚠️ まとめられませんでした"); }
+}
+
+/* --- 2026年11月・12月の機械移動(Excelの表の内容)を取り込む:1回だけ使うボタン --- */
+function kkImportList(){
+  const T = "ｔ", W = "～";
+  const J = (date, end, title, work, o) => Object.assign({ date, end, title, work:work||"", ampm:"", equip:"", people:"", memo:"", daysDetail:{} }, o||{});
+  return [
+    J("2026-11-03","2026-11-03","マシンテックサポート","諏訪市(有)イチコーへ35"+T+"プレス運搬、25"+T+"プレス回収",{people:"1人"}),
+    J("2026-11-04","2026-11-05","吉田工業","GH"+W+"佐久平へマシニング移設他",{people:"6人",daysDetail:{"2026-11-05":{work:"レベル出し他",people:"2人"}}}),
+    J("2026-11-05","2026-11-06","NOK立科工場","月産業倉庫"+W+"丸子町オグラ倉庫へ引っ越し",{equip:"車輛3台",people:"3人"}),
+    J("2026-11-07","2026-11-07","デンソーエアクール小谷工場","発振器小屋撤去",{people:"2人"}),
+    J("2026-11-09","2026-11-11","信濃機工","上田工場からの設備移設作業"),
+    J("2026-11-12","2026-11-12","信州冷凍機","秋和コスモス薬局裏側　室外機2台回収",{equip:"3"+T+"車",people:"1人"}),
+    J("2026-11-12","2026-11-13","デンソーエアクール","穂高"+W+"梓川での金型回収他",{equip:"2台",people:"2人",daysDetail:{"2026-11-13":{equip:"3台",people:"3人"}}}),
+    J("2026-11-14","2026-11-15","Astemo山梨工場","DM82移設",{equip:"8"+T+"フォークリフト",people:"5人"}),
+    J("2026-11-16","2026-11-16","アグティブ","",{ampm:"午後",people:"3人"}),
+    J("2026-11-16","2026-11-17","フドー","山梨県都留市ファナック工場にて成型機1台約6.7"+T+"積込運搬",{people:"1"+W+"2人",daysDetail:{"2026-11-17":{work:"長野大崎製作所への搬入設置他",people:"4人"}}}),
+    J("2026-11-17","2026-11-17","信州冷凍機","秋和問屋町上田卸商業組合　室外機2台ユニック吊り撤去",{ampm:"午前",memo:"8:30"+W,equip:"6"+T+"車",people:"1人"}),
+    J("2026-11-18","2026-11-19","諏訪市カネヤマ","レーザー切断機解体撤去",{equip:"5"+T+"フォークリフト",people:"4人"}),
+    J("2026-11-21","2026-11-21","御嶽堂中信工業","設備3台搬出撤去",{equip:"8"+T+"フォークリフト、セルフローダー車",people:"4人"}),
+    J("2026-11-24","2026-11-27","東京都原工業所","11月24日(火)"+W+"11月27日(金)の間の2日間で、東京都原工業所での作業計画があります。",{tent:true,tdays:"2日間"}),
+    J("2026-11-28","2026-11-29","Astemo東御工場","成形ライン撤去",{equip:"高所作業車、セルフローダー車",people:"5人"}),
+    J("2026-12-07","2026-12-07","花村産業","御代田での設備積込み作業",{ampm:"午前",memo:"8:30"+W,equip:"5"+T+"フォークリフト",people:"1人"}),
+    J("2026-12-08","2026-12-08","岩下精密","マシニングセンター1台撤去",{equip:"8"+T+"フォークリフト",people:"3人"}),
+    J("2026-12-09","2026-12-12","Astemo山梨工場","DM78設備移設作業",{equip:"8"+T+"フォークリフト",people:"6人"}),
+    J("2026-12-18","2026-12-21","Astemo山梨工場","DM79設備移設作業",{equip:"8"+T+"フォークリフト",people:"6人"}),
+    J("2026-12-25","2026-12-25","NOK立科工場","圧縮工程レイアウト変更作業",{equip:"電動パレットリフター",people:"4人"}),
+    J("2026-12-26","2026-12-28","Astemo上田","BBM01解体撤去",{equip:"セルフローダー車、8"+T+"フォークリフト、440",people:"5人"})
+  ];
+}
+function kkImportExists(x){
+  const k = nkey(x.title);
+  if (x.tent) return kkTents.some(t => nkey(t.title) === k && t.start === x.date);
+  return events.some(e => kindOf(e) === "machine" && nkey(e.title) === k && occursOn(e, x.date));
+}
+function kkImportPending(){ return kkImportList().filter(x => !kkImportExists(x)); }
+function kkImportBar(){
+  if (!(monthY === 2026 && (monthM === 10 || monthM === 11))) return "";
+  const n = kkImportPending().length; if (!n) return "";
+  return '<div class="kkBar" style="background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:8px 10px;">'+
+    '<span style="font-weight:bold;">📋 11月・12月の機械移動(Excelの表の内容)がまだ入っていません('+n+'件)</span><span class="sp"></span>'+
+    '<span id="kkImpAsk"><button class="kkBtn main" onclick="document.getElementById(\'kkImpAsk\').style.display=\'none\';document.getElementById(\'kkImpOk\').style.display=\'\';">📥 まとめて取り込む</button></span>'+
+    '<span id="kkImpOk" style="display:none;"><b>'+n+'件を入れます。よいですか?</b> <button class="kkBtn main" onclick="kkImport()">入れる</button> '+
+    '<button class="kkBtn" onclick="document.getElementById(\'kkImpOk\').style.display=\'none\';document.getElementById(\'kkImpAsk\').style.display=\'\';">やめる</button></span></div>';
+}
+async function kkImport(){
+  const list = kkImportPending(), FV = firebase.firestore.FieldValue;
+  let n = 0;
+  try {
+    for (const x of list){
+      if (x.tent){
+        await db.collection(KK_TENT_COL).add({ title:x.title, start:x.date, end:x.end, tdays:x.tdays||"", work:x.work, memo:"", createdAt:FV.serverTimestamp(), updatedAt:FV.serverTimestamp() });
+      } else {
+        const period = x.end > x.date, m = masterOf(x.title);
+        await db.collection(EVENT_COL).add({ kind:"machine", title:x.title, clientId:m ? m.id : "", yomi:(m && m.yomi) || "", work:x.work, date:x.date, ampm:x.ampm,
+          repeat:period ? "weekly" : "none", wdays:period ? KK_ALL_WD.slice() : [], endDate:period ? x.end : "", period,
+          equip:x.equip, people:x.people, nights:0, hotel:"", color:null, memo:x.memo, daysDetail:x.daysDetail,
+          skipDates:[], doneDates:[], missedDates:[], goersByDate:{}, trucksByDate:{}, createdAt:FV.serverTimestamp(), updatedAt:FV.serverTimestamp() });
+      }
+      n++;
+    }
+    toast("📥 "+n+"件を取り込みました");
+  } catch(err){ console.error(err); toast("⚠️ "+n+"件目のあとで止まりました。もう一度押すと残りだけ入ります"); }
+}
 
 /* ===== データ購読 ===== */
 db.collection(EVENT_COL).onSnapshot(snap => { events = snap.docs.map(d => ({ id:d.id, ...d.data() })); render(); },
